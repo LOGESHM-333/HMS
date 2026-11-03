@@ -734,16 +734,6 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>Code Blue</span>
           </button>
-
-          {onSwitchToPatientPortal && (
-            <button
-              onClick={onSwitchToPatientPortal}
-              className="px-4 py-2 rounded-full text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 transition-all flex items-center gap-1.5 shadow-sm"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span>Patient Portal View</span>
-            </button>
-          )}
         </div>
       </div>
 

@@ -113,60 +113,7 @@ export const Header: React.FC<HeaderProps> = ({
           </span>
         </div>
 
-        {/* PROMINENT TRIPLE PORTAL SWITCHER PILL */}
-        <div className="flex items-center p-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-          <button
-            onClick={() => {
-              sound.playClick();
-              onPortalModeChange('management');
-              if (currentTab.startsWith('patient-') || currentTab === 'doctor-consult') {
-                setCurrentTab('dashboard');
-              }
-            }}
-            className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all ${
-              portalMode === 'management'
-                ? 'bg-black text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5 text-teal-400" />
-            <span>Management Portal</span>
-          </button>
-
-          <button
-            onClick={() => {
-              sound.playClick();
-              onPortalModeChange('doctor');
-              setCurrentTab('doctor-consult');
-            }}
-            className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all ${
-              portalMode === 'doctor'
-                ? 'bg-cyan-600 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            <Stethoscope className="w-3.5 h-3.5" />
-            <span>Doctor Portal</span>
-          </button>
-
-          <button
-            onClick={() => {
-              sound.playClick();
-              onPortalModeChange('patient');
-              setCurrentTab('patient-health');
-            }}
-            className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all ${
-              portalMode === 'patient'
-                ? 'bg-teal-600 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            <User className="w-3.5 h-3.5" />
-            <span>Patient Portal</span>
-          </button>
-        </div>
-
-        <div className="hidden md:flex items-center gap-3 text-slate-500">
+        <div className="flex items-center gap-3 text-slate-500">
           <button
             onClick={toggleMute}
             className="p-1 rounded-lg hover:text-teal-600 transition-colors"
@@ -313,64 +260,99 @@ export const Header: React.FC<HeaderProps> = ({
             <Settings className="w-4 h-4" />
           </button>
 
-          {/* Profile Avatar with Role Selector */}
+          {/* Profile Avatar with Role & Portal Switcher */}
           <div className="relative">
             <button
               onClick={() => {
                 sound.playClick();
                 setRoleMenuOpen(!roleMenuOpen);
               }}
-              className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 to-rose-400 p-0.5 overflow-hidden flex items-center justify-center ring-2 ring-transparent hover:ring-teal-500 transition-all shadow-xs"
+              className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 via-orange-400 to-rose-400 p-0.5 overflow-hidden flex items-center justify-center ring-2 ring-transparent hover:ring-teal-500 transition-all shadow-xs"
             >
               <img
-                src={portalMode === 'management' ? "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256" : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=256"}
+                src={portalMode === 'patient' 
+                  ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=256"
+                  : portalMode === 'doctor'
+                    ? "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=256"
+                    : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"}
                 alt="Profile"
                 className="w-full h-full object-cover rounded-full"
               />
             </button>
 
-            {/* Role Switcher Menu */}
+            {/* Role & Portal Switcher Menu (Matches Uploaded Screenshot) */}
             {roleMenuOpen && (
-              <div className={`absolute right-0 mt-2 w-72 rounded-2xl p-2 border shadow-2xl z-50 animate-in fade-in zoom-in-95 ${
+              <div className={`absolute right-0 mt-3 w-80 rounded-[28px] p-4 border shadow-2xl z-50 animate-in fade-in zoom-in-95 ${
                 isDark ? 'bg-[#0E2035] border-slate-700 text-white' : 'bg-white border-slate-200 text-[#142C43]'
               }`}>
-                <div className="px-3 py-2 border-b border-slate-200 dark:border-slate-800">
-                  <div className="font-bold text-xs">
-                    {portalMode === 'management' ? 'Alexandro Vance' : 'Magnus Stephenson'}
+                {/* Active User Header */}
+                <div className="pb-3 mb-2 border-b border-slate-100 dark:border-slate-800">
+                  <div className="font-extrabold text-sm text-slate-900 dark:text-white">
+                    {portalMode === 'patient' 
+                      ? 'Magnus Stephenson' 
+                      : portalMode === 'doctor' 
+                        ? 'Dr. Roger S., MD' 
+                        : 'Alexandro Vance'}
                   </div>
-                  <div className="text-[11px] text-teal-600 dark:text-teal-400 font-semibold">
-                    {portalMode === 'management' ? 'Hospital Chief Administrator' : 'Verified Patient #PT-88412'}
+                  <div className="text-xs text-teal-600 dark:text-teal-400 font-bold mt-0.5">
+                    {portalMode === 'patient' 
+                      ? 'Verified Patient #PT-88412' 
+                      : portalMode === 'doctor' 
+                        ? 'Attending Physician #DOC-402' 
+                        : 'Hospital Chief Administrator'}
                   </div>
                 </div>
 
-                <div className="py-1">
-                  <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Switch Security Context
+                <div className="space-y-1">
+                  <div className="px-2 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                    SWITCH SECURITY CONTEXT
                   </div>
-                  {roles.map((r) => (
-                    <button
-                      key={r.role}
-                      onClick={() => {
-                        sound.playClick();
-                        onRoleChange(r.role);
-                        if (r.role === 'DOCTOR') {
-                          onPortalModeChange('doctor');
-                        }
-                        setRoleMenuOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-left transition-colors ${
-                        currentRole === r.role
-                          ? 'bg-teal-500 text-white font-bold'
-                          : isDark ? 'hover:bg-slate-800 text-slate-300' : 'hover:bg-teal-50 text-slate-700'
-                      }`}
-                    >
-                      <div>
-                        <div>{r.label}</div>
-                        <div className="text-[10px] opacity-75">{r.desc}</div>
-                      </div>
-                      {currentRole === r.role && <Check className="w-3.5 h-3.5 shrink-0" />}
-                    </button>
-                  ))}
+                  {roles.map((r) => {
+                    const isSelected = 
+                      (portalMode === 'patient' && r.role === 'PATIENT') ||
+                      (portalMode === 'doctor' && r.role === 'DOCTOR') ||
+                      (portalMode === 'management' && currentRole === r.role && r.role !== 'PATIENT' && r.role !== 'DOCTOR');
+
+                    return (
+                      <button
+                        key={r.role}
+                        onClick={() => {
+                          sound.playClick();
+                          if (r.role === 'PATIENT') {
+                            onRoleChange('PATIENT');
+                            onPortalModeChange('patient');
+                            setCurrentTab('patient-health');
+                          } else if (r.role === 'DOCTOR') {
+                            onRoleChange('DOCTOR');
+                            onPortalModeChange('doctor');
+                            setCurrentTab('doctor-chat');
+                          } else {
+                            onRoleChange(r.role);
+                            onPortalModeChange('management');
+                            setCurrentTab('dashboard');
+                          }
+                          setRoleMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs text-left transition-all ${
+                          isSelected
+                            ? 'bg-[#00A887] text-white font-bold shadow-md'
+                            : isDark 
+                              ? 'hover:bg-slate-800 text-slate-300' 
+                              : 'hover:bg-slate-50 text-slate-700'
+                        }`}
+                      >
+                        <div>
+                          <div className={`font-extrabold text-xs ${isSelected ? 'text-white' : 'text-slate-800 dark:text-slate-200'}`}>
+                            {r.label}
+                          </div>
+                          <div className={`text-[11px] mt-0.5 ${isSelected ? 'text-teal-100' : 'text-slate-400'}`}>
+                            {r.desc}
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-4 h-4 text-white shrink-0" />}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
