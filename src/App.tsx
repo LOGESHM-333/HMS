@@ -22,6 +22,7 @@ import { MedicalRecords } from './components/emr/MedicalRecords';
 import { StaffManagement } from './components/staff/StaffManagement';
 import { AnalyticsReports } from './components/analytics/AnalyticsReports';
 import { PatientPortal } from './components/patient-portal/PatientPortal';
+import { DoctorPortal } from './components/doctor-portal/DoctorPortal';
 import { SettingsView } from './components/settings/SettingsView';
 import { 
   Search, 
@@ -38,7 +39,7 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const [portalMode, setPortalMode] = useState<'management' | 'patient'>('management');
+  const [portalMode, setPortalMode] = useState<'management' | 'doctor' | 'patient'>('management');
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [currentRole, setCurrentRole] = useState<UserRole>(db.getRole());
   const [theme, setTheme] = useState<ThemeMode>(db.getTheme());
@@ -78,18 +79,25 @@ export default function App() {
     if (role === 'PATIENT') {
       setPortalMode('patient');
       setCurrentTab('patient-health');
+    } else if (role === 'DOCTOR') {
+      setPortalMode('doctor');
+      setCurrentTab('doctor-consult');
     } else {
       setPortalMode('management');
       setCurrentTab('dashboard');
     }
   };
 
-  const handlePortalModeChange = (mode: 'management' | 'patient') => {
+  const handlePortalModeChange = (mode: 'management' | 'doctor' | 'patient') => {
     setPortalMode(mode);
     if (mode === 'patient') {
       setCurrentRole('PATIENT');
       db.setRole('PATIENT');
       setCurrentTab('patient-health');
+    } else if (mode === 'doctor') {
+      setCurrentRole('DOCTOR');
+      db.setRole('DOCTOR');
+      setCurrentTab('doctor-consult');
     } else {
       setCurrentRole('SUPER_ADMIN');
       db.setRole('SUPER_ADMIN');
@@ -240,12 +248,21 @@ export default function App() {
           </>
         )}
 
+        {/* ================= DOCTOR PORTAL ROUTES ================= */}
+        {portalMode === 'doctor' && (
+          <DoctorPortal 
+            theme={theme}
+            onSwitchToPatientPortal={() => handlePortalModeChange('patient')}
+          />
+        )}
+
         {/* ================= PATIENT PORTAL ROUTES ================= */}
         {portalMode === 'patient' && (
           <PatientPortal 
             theme={theme} 
             activeSection={currentTab}
             onSelectSection={setCurrentTab}
+            onSwitchToDoctorPortal={() => handlePortalModeChange('doctor')}
           />
         )}
       </main>

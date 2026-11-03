@@ -47,19 +47,22 @@ import {
   Sliders,
   Flame,
   Radio,
-  Navigation
+  Navigation,
+  Stethoscope
 } from 'lucide-react';
 
 interface PatientPortalProps {
   theme: ThemeMode;
   activeSection?: string;
   onSelectSection?: (section: string) => void;
+  onSwitchToDoctorPortal?: () => void;
 }
 
 export const PatientPortal: React.FC<PatientPortalProps> = ({ 
   theme, 
   activeSection = 'patient-health',
-  onSelectSection
+  onSelectSection,
+  onSwitchToDoctorPortal
 }) => {
   const isDark = theme === 'dark';
   const [patient, setPatient] = useState<Patient>(() => db.getPatients()[0]);
@@ -224,6 +227,28 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
     { sender: 'doctor', text: 'Excellent progress. Keep taking the morning bronchodilator and let me know if any night cough reoccurs.', time: 'Yesterday 16:10', doctorName: 'Dr. Roger S.' }
   ]);
   const [newMessageText, setNewMessageText] = useState('');
+
+  // Real-time bidirectional message sync with Doctor Portal
+  useEffect(() => {
+    const fetchChat = async () => {
+      try {
+        const serverMsgs = await api.getMessages(patient.id);
+        if (serverMsgs && Array.isArray(serverMsgs) && serverMsgs.length > 0) {
+          setChatMessages(serverMsgs.map(m => ({
+            sender: m.sender,
+            text: m.text,
+            time: m.timestamp,
+            doctorName: m.doctorName || m.senderName
+          })));
+        }
+      } catch {
+        // Fallback
+      }
+    };
+    fetchChat();
+    const interval = setInterval(fetchChat, 2500);
+    return () => clearInterval(interval);
+  }, [patient.id]);
 
   // 9. NUTRITION & MEAL LOGGER STATES
   const [mealModalOpen, setMealModalOpen] = useState(false);
@@ -477,11 +502,11 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
   };
 
   // Doctor Chat Send
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessageText.trim()) return;
     sound.playClick();
-    const userText = newMessageText;
+    const userText = newMessageText.trim();
     const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     
     const userMsg = {
@@ -491,34 +516,22 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
     };
     setChatMessages(prev => [...prev, userMsg]);
     setNewMessageText('');
-    api.sendMessage({ patientId: patient.id, sender: 'patient', senderName: patient.name, text: userText }).catch(() => {});
 
-    // Intelligent Clinical Auto-response
-    setTimeout(() => {
+    try {
+      await api.sendMessage({ 
+        patientId: patient.id, 
+        patientName: patient.name,
+        doctorId: selectedChatDoctor.id,
+        doctorName: selectedChatDoctor.name,
+        sender: 'patient', 
+        senderName: patient.name, 
+        text: userText 
+      });
       sound.playSuccess();
-      let reply = `Thank you for updating me, Magnus. I have documented this in your chart. Please monitor your symptoms and reach out if anything changes.`;
-      const lower = userText.toLowerCase();
-      if (lower.includes('bp') || lower.includes('blood pressure')) {
-        reply = `Your latest resting BP reading of ${patient.vitals.bloodPressure} mmHg is within our targeted boundary. Continue your current medication schedule.`;
-      } else if (lower.includes('pain') || lower.includes('chest') || lower.includes('tightness')) {
-        reply = `Any sharp or worsening chest tightness requires immediate clinical review. If pain radiates to the arm or neck, please trigger the Emergency SOS button immediately.`;
-      } else if (lower.includes('refill') || lower.includes('medicine') || lower.includes('dose')) {
-        reply = `I have pre-approved your maintenance refills with the pharmacy. You can verify and order the next cycle directly in the Prescriptions tab.`;
-      } else if (lower.includes('appointment') || lower.includes('visit') || lower.includes('see you')) {
-        reply = `I am available for in-clinic follow-up on Thursday morning or via Telehealth video. Feel free to book the slot directly in your Appointments tab.`;
-      } else if (lower.includes('diet') || lower.includes('food') || lower.includes('salt')) {
-        reply = `Maintaining sodium under 1,500 mg per day with adequate hydration is vital for maintaining healthy vascular pressures. Keep up the good work!`;
-      }
-
-      const doctorReply = {
-        sender: 'doctor' as const,
-        text: reply,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        doctorName: selectedChatDoctor.name
-      };
-      setChatMessages(prev => [...prev, doctorReply]);
-      api.sendMessage({ patientId: patient.id, sender: 'doctor', senderName: selectedChatDoctor.name, text: reply }).catch(() => {});
-    }, 1200);
+      showToast(`Inquiry sent directly to ${selectedChatDoctor.name}'s Doctor Portal!`);
+    } catch {
+      showToast('Message saved to clinical queue.');
+    }
   };
 
   // Add meal submit
@@ -1502,6 +1515,31 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Live Bridge to Doctor Portal */}
+          <div className="mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-cyan-500/10 to-transparent border border-teal-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0" />
+              <div>
+                <span className="font-extrabold text-teal-700 dark:text-teal-300 block">
+                  Live Clinic Bridge Connected to Doctor Portal
+                </span>
+                <span className="text-slate-500 dark:text-slate-400 text-[11px]">
+                  Messages typed here appear live on {selectedChatDoctor.name}'s Doctor Portal screen.
+                </span>
+              </div>
+            </div>
+            {onSwitchToDoctorPortal && (
+              <button
+                type="button"
+                onClick={onSwitchToDoctorPortal}
+                className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs shrink-0"
+              >
+                <Stethoscope className="w-3.5 h-3.5" />
+                <span>Switch to Doctor Portal to Reply</span>
+              </button>
+            )}
           </div>
 
           {/* Quick Inquiry Chips */}

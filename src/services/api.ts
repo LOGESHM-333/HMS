@@ -143,9 +143,12 @@ export const api = {
     request<{ success: boolean; dispatchId: string; ambulanceUnit: string; driverParamedic: string; etaMinutes: number; hospitalBay: string; status: string; alert: CriticalAlert }>('/emergency/dispatch', { method: 'POST', body: JSON.stringify(data) }),
 
   getMessages: (patientId: string) => 
-    request<Array<{ id: string; patientId: string; sender: 'patient' | 'doctor'; senderName: string; text: string; timestamp: string }>>(`/messages/${patientId}`),
+    request<Array<{ id: string; patientId: string; patientName?: string; doctorId?: string; doctorName?: string; sender: 'patient' | 'doctor'; senderName: string; text: string; timestamp: string }>>(`/messages/${patientId}`),
 
-  sendMessage: (data: { patientId: string; sender: 'patient' | 'doctor'; senderName: string; text: string }) => 
+  getAllDoctorMessages: () => 
+    request<Array<{ id: string; patientId: string; patientName?: string; doctorId?: string; doctorName?: string; sender: 'patient' | 'doctor'; senderName: string; text: string; timestamp: string }>>('/doctor/messages'),
+
+  sendMessage: (data: { patientId: string; patientName?: string; doctorId?: string; doctorName?: string; sender: 'patient' | 'doctor'; senderName: string; text: string }) => 
     request<any>('/messages', { method: 'POST', body: JSON.stringify(data) }),
 
   getMeals: (patientId: string) => 

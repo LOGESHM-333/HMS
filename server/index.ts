@@ -552,18 +552,31 @@ app.get('/api/messages/:patientId', (req: Request, res: Response) => {
   res.json(messages);
 });
 
+app.get('/api/doctor/messages', (_req: Request, res: Response) => {
+  res.json(dbData.messages || []);
+});
+
 app.post('/api/messages', (req: Request, res: Response) => {
   const newMsg = {
     id: `msg-${Date.now()}`,
     patientId: req.body.patientId || 'pat-1',
+    patientName: req.body.patientName || 'Magnus Stephenson',
+    doctorId: req.body.doctorId || 'doc-1',
+    doctorName: req.body.doctorName || 'Dr. Roger S.',
     sender: req.body.sender || 'patient',
-    senderName: req.body.senderName || 'Patient',
+    senderName: req.body.senderName || (req.body.sender === 'doctor' ? 'Dr. Roger S.' : 'Magnus Stephenson'),
     text: req.body.text || '',
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   };
 
   if (!dbData.messages) dbData.messages = [];
   dbData.messages.push(newMsg);
+
+  if (newMsg.sender === 'doctor') {
+    logAudit('Physician Consultation Reply', 'Telehealth', `Dr. ${newMsg.senderName} replied to patient ${newMsg.patientName}: "${newMsg.text.slice(0, 40)}..."`);
+  } else {
+    logAudit('Patient Clinical Inquiry', 'Telehealth', `Patient ${newMsg.senderName} sent inquiry to ${newMsg.doctorName}: "${newMsg.text.slice(0, 40)}..."`);
+  }
 
   saveDatabase(dbData);
   res.status(201).json(newMsg);

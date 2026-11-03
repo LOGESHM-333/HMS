@@ -34,14 +34,15 @@ import {
   Pill,
   CreditCard,
   Layers,
-  LogOut
+  LogOut,
+  Stethoscope
 } from 'lucide-react';
 
 interface HeaderProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
-  portalMode: 'management' | 'patient';
-  onPortalModeChange: (mode: 'management' | 'patient') => void;
+  portalMode: 'management' | 'doctor' | 'patient';
+  onPortalModeChange: (mode: 'management' | 'doctor' | 'patient') => void;
   currentRole: UserRole;
   onRoleChange: (role: UserRole) => void;
   theme: ThemeMode;
@@ -118,17 +119,21 @@ export const Header: React.FC<HeaderProps> = ({
             Active Workspace:
           </span>
           <span className="font-bold text-teal-600 dark:text-teal-400">
-            {portalMode === 'management' ? 'Hospital Enterprise Management' : 'Patient Self-Service'}
+            {portalMode === 'management' 
+              ? 'Hospital Enterprise Management' 
+              : portalMode === 'doctor'
+                ? 'Physician Consultation & Tele-Chat'
+                : 'Patient Self-Service'}
           </span>
         </div>
 
-        {/* PROMINENT DUAL PORTAL SWITCHER PILL */}
+        {/* PROMINENT TRIPLE PORTAL SWITCHER PILL */}
         <div className="flex items-center p-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
           <button
             onClick={() => {
               sound.playClick();
               onPortalModeChange('management');
-              if (currentTab.startsWith('patient-')) {
+              if (currentTab.startsWith('patient-') || currentTab === 'doctor-consult') {
                 setCurrentTab('dashboard');
               }
             }}
@@ -139,7 +144,23 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Building2 className="w-3.5 h-3.5 text-teal-400" />
-            <span>Management Portal (Full Access)</span>
+            <span>Management Portal</span>
+          </button>
+
+          <button
+            onClick={() => {
+              sound.playClick();
+              onPortalModeChange('doctor');
+              setCurrentTab('doctor-consult');
+            }}
+            className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all ${
+              portalMode === 'doctor'
+                ? 'bg-cyan-600 text-white shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            <Stethoscope className="w-3.5 h-3.5" />
+            <span>Doctor Portal</span>
           </button>
 
           <button
@@ -155,7 +176,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <User className="w-3.5 h-3.5" />
-            <span>Patient Portal (Essential)</span>
+            <span>Patient Portal</span>
           </button>
         </div>
 
@@ -358,6 +379,9 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => {
                         sound.playClick();
                         onRoleChange(r.role);
+                        if (r.role === 'DOCTOR') {
+                          onPortalModeChange('doctor');
+                        }
                         setRoleMenuOpen(false);
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-left transition-colors ${

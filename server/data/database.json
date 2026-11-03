@@ -901,6 +901,26 @@
   ],
   "auditLogs": [
     {
+      "id": "audit-1793694081791-679",
+      "timestamp": "01:51:21 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Physician Consultation Reply",
+      "module": "Telehealth",
+      "details": "Dr. Dr. Roger S. replied to patient Magnus Stephenson: \"Yes Magnus, take it right after breakfas...\"",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793694081758-882",
+      "timestamp": "01:51:21 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Patient Clinical Inquiry",
+      "module": "Telehealth",
+      "details": "Patient Magnus Stephenson sent inquiry to Dr. Roger S.: \"Dr. Roger, should I take the bronchodila...\"",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
       "id": "audit-1793692681774-92",
       "timestamp": "01:28:01 pm",
       "userName": "Clinical System",
@@ -971,7 +991,46 @@
       "ipAddress": "127.0.0.1 [REST API Server]"
     }
   ],
-  "messages": [],
+  "messages": [
+    {
+      "id": "msg-1793693120802",
+      "patientId": "pat-1",
+      "sender": "patient",
+      "senderName": "Magnus Stephenson",
+      "text": "hlo sir",
+      "timestamp": "01:35 pm"
+    },
+    {
+      "id": "msg-1793693122007",
+      "patientId": "pat-1",
+      "sender": "doctor",
+      "senderName": "Dr. Roger S.",
+      "text": "Thank you for updating me, Magnus. I have documented this in your chart. Please monitor your symptoms and reach out if anything changes.",
+      "timestamp": "01:35 pm"
+    },
+    {
+      "id": "msg-1793694081757",
+      "patientId": "pat-1",
+      "patientName": "Magnus Stephenson",
+      "doctorId": "doc-1",
+      "doctorName": "Dr. Roger S.",
+      "sender": "patient",
+      "senderName": "Magnus Stephenson",
+      "text": "Dr. Roger, should I take the bronchodilator with meals?",
+      "timestamp": "01:51 pm"
+    },
+    {
+      "id": "msg-1793694081791",
+      "patientId": "pat-1",
+      "patientName": "Magnus Stephenson",
+      "doctorId": "doc-1",
+      "doctorName": "Dr. Roger S.",
+      "sender": "doctor",
+      "senderName": "Dr. Roger S.",
+      "text": "Yes Magnus, take it right after breakfast.",
+      "timestamp": "01:51 pm"
+    }
+  ],
   "meals": [],
   "claims": [],
   "immunizations": []
