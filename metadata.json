@@ -1,0 +1,6 @@
+{
+  "name": "MediCore - Enterprise Hospital Management & 3D Anatomy System",
+  "description": "Enterprise-grade Hospital Management System featuring interactive 3D anatomical visualizations, real-time clinical workflows, role-based dashboards, and advanced diagnostics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,75 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Custom scrollbar for modern medical UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(20, 44, 67, 0.03);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(20, 184, 166, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(20, 184, 166, 0.45);
+}
+
+/* Glassmorphism and specialized medical glows */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 30px -10px rgba(20, 44, 67, 0.06), 0 4px 6px -2px rgba(20, 44, 67, 0.02);
+}
+
+.glass-dark {
+  background: rgba(14, 28, 44, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+}
+
+.glow-card-green {
+  border: 1px solid rgba(132, 204, 22, 0.35);
+  box-shadow: 0 0 25px -5px rgba(132, 204, 22, 0.25), inset 0 0 15px -5px rgba(132, 204, 22, 0.15);
+}
+
+.glow-card-orange {
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  box-shadow: 0 0 25px -5px rgba(249, 115, 22, 0.25), inset 0 0 15px -5px rgba(249, 115, 22, 0.15);
+}
+
+.glow-card-cyan {
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.25), inset 0 0 15px -5px rgba(6, 182, 212, 0.15);
+}
+
+/* Subtle medical grid pattern */
+.bg-medical-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(20, 184, 166, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 184, 166, 0.04) 1px, transparent 1px);
+}
+
+.bg-dark-grid {
+  background-size: 28px 28px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
