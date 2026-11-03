@@ -73,9 +73,9 @@
       "phone": "+1 (555) 345-6789",
       "email": "alex.sterling@metrohealth.net",
       "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
-      "admissionStatus": "Admitted",
+      "admissionStatus": "Discharged",
       "ward": "Cardiology Ward 3",
-      "bedNumber": "CW-304",
+      "bedNumber": "Discharged - Home Care",
       "primaryDoctorId": "doc-2",
       "primaryDoctorName": "Dr. Dulov G.",
       "diagnosis": "Gastroenteritis & Acid Reflux Induced Cardialgia",
@@ -111,7 +111,8 @@
           "facility": "Gastroenterology Center",
           "notes": "Mild gastric mucosal inflammation, benign antral erythema."
         }
-      ]
+      ],
+      "roomNumber": "Discharged - Home Care"
     },
     {
       "id": "pat-3",
@@ -223,7 +224,7 @@
       "phone": "+1 (555) 678-9012",
       "email": "parents.zhao@kinder.org",
       "avatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
-      "admissionStatus": "Outpatient",
+      "admissionStatus": "Discharged",
       "primaryDoctorId": "doc-5",
       "primaryDoctorName": "Dr. Liam Alistair",
       "diagnosis": "Pediatric Seasonal Asthma & Allergic Rhinitis",
@@ -259,7 +260,9 @@
           "facility": "Pediatric Outpatient Clinic",
           "notes": "FEV1 improved 18% post bronchodilator."
         }
-      ]
+      ],
+      "bedNumber": "Discharged - Home Care",
+      "roomNumber": "Discharged - Home Care"
     }
   ],
   "doctors": [
@@ -894,7 +897,7 @@
       "id": "alt-3",
       "title": "Blood Bank - O-Negative Low",
       "department": "Hematology Bank",
-      "severity": "high",
+      "severity": "low",
       "time": "18 min ago",
       "actionRequired": "Reserve below 4 units; dispatch regional blood center order"
     },
@@ -908,6 +911,56 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "audit-1793696033343-382",
+      "timestamp": "02:23:53 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: Blood Bank - O-Negative Low",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793696033249-999",
+      "timestamp": "02:23:53 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: Blood Bank - O-Negative Low",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793695993486-551",
+      "timestamp": "02:23:13 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Patient Vitals Update",
+      "module": "Patients",
+      "details": "Updated clinical chart for Maya Lin Zhao",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793695987281-743",
+      "timestamp": "02:23:07 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Patient Vitals Update",
+      "module": "Patients",
+      "details": "Updated clinical chart for Alexandro Sterling",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793695912449-20",
+      "timestamp": "02:21:52 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Physician Consultation Reply",
+      "module": "Telehealth",
+      "details": "Dr. Dr. Roger S. replied to patient Maya Lin Zhao: \"hi...\"",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
     {
       "id": "audit-1793695778943-117",
       "timestamp": "02:19:38 pm",
@@ -1131,6 +1184,17 @@
       "senderName": "Dr. Roger S.",
       "text": "hlo",
       "timestamp": "02:12 pm"
+    },
+    {
+      "id": "msg-1793695912448",
+      "patientId": "pat-5",
+      "patientName": "Maya Lin Zhao",
+      "doctorId": "doc-1",
+      "doctorName": "Dr. Roger S.",
+      "sender": "doctor",
+      "senderName": "Dr. Roger S.",
+      "text": "hi",
+      "timestamp": "02:21 pm"
     }
   ],
   "meals": [],
