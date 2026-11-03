@@ -79,20 +79,6 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'analytics', label: 'Analytics' },
   ];
 
-  // Comprehensive Patient Portal tabs
-  const patientTabs = [
-    { id: 'patient-health', label: 'My Health & 3D' },
-    { id: 'patient-appointments', label: 'Appointments' },
-    { id: 'patient-prescriptions', label: 'Prescriptions' },
-    { id: 'patient-labs', label: 'Lab Reports' },
-    { id: 'patient-records', label: 'Medical History' },
-    { id: 'patient-vaccines', label: 'Vaccine Passport' },
-    { id: 'patient-billing', label: 'Billing & Insurance' },
-    { id: 'patient-messages', label: 'Doctor Chat' },
-    { id: 'patient-nutrition', label: 'Nutrition' },
-    { id: 'patient-emergency', label: 'Emergency SOS' },
-  ];
-
   const roles: { role: UserRole; label: string; desc: string }[] = [
     { role: 'SUPER_ADMIN', label: 'Super Admin', desc: 'Hospital Chief & Full Access' },
     { role: 'HOSPITAL_ADMIN', label: 'Hospital Admin', desc: 'Operations & Bed Resources' },
@@ -222,56 +208,44 @@ export const Header: React.FC<HeaderProps> = ({
           </span>
         </div>
 
-        {/* PILL NAVIGATION CONTAINER (EXACT TO ATTACHED IMAGE) */}
-        <nav className="flex items-center gap-1.5 p-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-          {portalMode === 'management' ? (
-            <>
-              {managementPrimaryTabs.map((item) => {
-                const isActive = currentTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      sound.playClick();
-                      setCurrentTab(item.id);
-                    }}
-                    className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                      isActive
-                        ? 'bg-black text-white shadow-sm'
-                        : 'text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                );
-              })}
+        {/* MANAGEMENT PRIMARY TABS (Only shown in management mode) */}
+        {portalMode === 'management' && (
+          <nav className="flex items-center gap-1.5 p-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+            {managementPrimaryTabs.map((item) => {
+              const isActive = currentTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    sound.playClick();
+                    setCurrentTab(item.id);
+                  }}
+                  className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                    isActive
+                      ? 'bg-black text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
+        )}
 
-            </>
-          ) : (
-            <>
-              {/* PATIENT PORTAL TABS: ESSENTIAL ONLY */}
-              {patientTabs.map((item) => {
-                const isActive = currentTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      sound.playClick();
-                      setCurrentTab(item.id);
-                    }}
-                    className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                      isActive
-                        ? 'bg-black text-white shadow-sm'
-                        : 'text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                );
-              })}
-            </>
-          )}
-        </nav>
+        {portalMode === 'doctor' && (
+          <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold text-cyan-600 dark:text-cyan-400">
+            <Stethoscope className="w-4 h-4 text-cyan-500" />
+            <span>Physician Clinical Station • Dr. Roger S., MD</span>
+          </div>
+        )}
+
+        {portalMode === 'patient' && (
+          <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-xs font-bold text-teal-600 dark:text-teal-400">
+            <User className="w-4 h-4 text-teal-500" />
+            <span>Patient Telehealth & Health Portal • Magnus Stephenson</span>
+          </div>
+        )}
 
         {/* RIGHT CIRCULAR BUTTONS (BELL, SETTINGS, AVATAR - MATCHING SCREENSHOT) */}
         <div className="flex items-center gap-2.5 shrink-0">
