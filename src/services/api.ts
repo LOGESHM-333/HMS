@@ -92,6 +92,8 @@ export const api = {
     request<Prescription>('/pharmacy/prescriptions', { method: 'POST', body: JSON.stringify(rx) }),
   dispensePrescription: (id: string) => 
     request<Prescription>(`/pharmacy/prescriptions/${id}/dispense`, { method: 'PUT' }),
+  updatePrescription: (id: string, updates: Partial<Prescription>) => 
+    request<Prescription>(`/pharmacy/prescriptions/${id}`, { method: 'PUT', body: JSON.stringify(updates) }),
 
   // Laboratory
   getLabTests: () => request<LabTest[]>('/lab/tests'),
@@ -111,6 +113,8 @@ export const api = {
   // Staff & Alerts
   getStaff: () => request<Staff[]>('/staff'),
   getAlerts: () => request<CriticalAlert[]>('/alerts'),
+  broadcastAlert: (alert: Omit<CriticalAlert, 'id' | 'time'> & { time?: string }) => 
+    request<CriticalAlert>('/alerts', { method: 'POST', body: JSON.stringify(alert) }),
   acknowledgeAlert: (id: string) => 
     request<{ message: string; alert?: CriticalAlert }>(`/alerts/${id}/acknowledge`, { method: 'POST' }),
 

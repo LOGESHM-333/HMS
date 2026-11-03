@@ -361,6 +361,15 @@ app.put('/api/pharmacy/prescriptions/:id/dispense', (req: Request, res: Response
   res.json(rx);
 });
 
+app.put('/api/pharmacy/prescriptions/:id', (req: Request, res: Response) => {
+  const index = dbData.prescriptions.findIndex(p => p.id === req.params.id);
+  if (index === -1) return res.status(404).json({ error: 'Prescription not found' });
+  dbData.prescriptions[index] = { ...dbData.prescriptions[index], ...req.body };
+  logAudit('Prescription Updated', 'Pharmacy', `Updated Rx #${dbData.prescriptions[index].id} status to ${req.body.status || 'Updated'}`);
+  saveDatabase(dbData);
+  res.json(dbData.prescriptions[index]);
+});
+
 // Laboratory
 app.get('/api/lab/tests', (_req: Request, res: Response) => {
   res.json(dbData.labTests);
@@ -426,6 +435,21 @@ app.get('/api/staff', (_req: Request, res: Response) => {
 // Alerts
 app.get('/api/alerts', (_req: Request, res: Response) => {
   res.json(dbData.alerts);
+});
+
+app.post('/api/alerts', (req: Request, res: Response) => {
+  const newAlert: CriticalAlert = {
+    id: `alt-${Date.now()}`,
+    title: req.body.title || '🚨 Critical Alert Broadcast',
+    department: req.body.department || 'Emergency Medicine',
+    severity: req.body.severity || 'critical',
+    time: req.body.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    actionRequired: req.body.actionRequired || 'Immediate physician review',
+  };
+  dbData.alerts.unshift(newAlert);
+  logAudit('CRITICAL ALERT BROADCAST', newAlert.department, `Doctor broadcasted alert: ${newAlert.title}`);
+  saveDatabase(dbData);
+  res.status(201).json(newAlert);
 });
 
 app.post('/api/alerts/:id/acknowledge', (req: Request, res: Response) => {

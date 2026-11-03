@@ -49,6 +49,7 @@ export interface Patient {
   admissionStatus: 'Outpatient' | 'Admitted' | 'ICU' | 'Discharged';
   ward?: string;
   bedNumber?: string;
+  roomNumber?: string;
   primaryDoctorId: string;
   primaryDoctorName: string;
   diagnosis: string;
@@ -154,7 +155,7 @@ export interface Prescription {
   doctorId: string;
   doctorName: string;
   date: string;
-  status: 'Prescribed' | 'Dispensed' | 'Partial';
+  status: 'Prescribed' | 'Dispensed' | 'Partial' | 'Refilled' | 'Discontinued';
   items: {
     medicineId: string;
     medicineName: string;

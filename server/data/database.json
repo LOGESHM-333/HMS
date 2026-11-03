@@ -859,6 +859,14 @@
   ],
   "alerts": [
     {
+      "id": "alt-1793695778943",
+      "title": "🚨 CODE BLUE - Test Broadcast",
+      "department": "ICU Pod 1",
+      "severity": "critical",
+      "time": "02:19 pm",
+      "actionRequired": "Immediate response"
+    },
+    {
       "id": "alt-sos-1793692681774",
       "title": "🚨 EMERGENCY SOS: Magnus Stephenson Dispatched Unit 4",
       "department": "Emergency Medicine / Trauma",
@@ -900,6 +908,36 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "audit-1793695778943-117",
+      "timestamp": "02:19:38 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "CRITICAL ALERT BROADCAST",
+      "module": "ICU Pod 1",
+      "details": "Doctor broadcasted alert: 🚨 CODE BLUE - Test Broadcast",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793695337746-479",
+      "timestamp": "02:12:17 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Physician Consultation Reply",
+      "module": "Telehealth",
+      "details": "Dr. Dr. Roger S. replied to patient Magnus Stephenson: \"hlo...\"",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793695328589-761",
+      "timestamp": "02:12:08 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Patient Clinical Inquiry",
+      "module": "Telehealth",
+      "details": "Patient Magnus Stephenson sent inquiry to Dr. Roger S.: \"hi logesh...\"",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
     {
       "id": "audit-1793694226255-343",
       "timestamp": "01:53:46 pm",
@@ -1071,6 +1109,28 @@
       "senderName": "Magnus Stephenson",
       "text": "hloo",
       "timestamp": "01:53 pm"
+    },
+    {
+      "id": "msg-1793695328588",
+      "patientId": "pat-1",
+      "patientName": "Magnus Stephenson",
+      "doctorId": "doc-1",
+      "doctorName": "Dr. Roger S.",
+      "sender": "patient",
+      "senderName": "Magnus Stephenson",
+      "text": "hi logesh",
+      "timestamp": "02:12 pm"
+    },
+    {
+      "id": "msg-1793695337745",
+      "patientId": "pat-1",
+      "patientName": "Magnus Stephenson",
+      "doctorId": "doc-1",
+      "doctorName": "Dr. Roger S.",
+      "sender": "doctor",
+      "senderName": "Dr. Roger S.",
+      "text": "hlo",
+      "timestamp": "02:12 pm"
     }
   ],
   "meals": [],

@@ -1048,6 +1048,31 @@ class MockDatabase {
     }
   }
 
+  public broadcastAlert(alert: Omit<CriticalAlert, 'id' | 'time'> & { time?: string }): CriticalAlert {
+    const newAlert: CriticalAlert = {
+      ...alert,
+      id: `alt-${Date.now()}`,
+      time: alert.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    this.alerts.unshift(newAlert);
+    this.logAudit('Alert Broadcasted', newAlert.department, `Broadcasted alert: ${newAlert.title}`);
+    this.saveToStorage();
+    api.broadcastAlert(alert).catch(() => {});
+    return newAlert;
+  }
+
+  public updatePrescription(rxId: string, updates: Partial<Prescription>): Prescription | undefined {
+    const rx = this.prescriptions.find(p => p.id === rxId);
+    if (rx) {
+      Object.assign(rx, updates);
+      this.logAudit('Prescription Updated', 'Pharmacy', `Updated Rx #${rxId}`);
+      this.saveToStorage();
+      api.updatePrescription(rxId, updates).catch(() => {});
+      return rx;
+    }
+    return undefined;
+  }
+
   // Patient Portal Operations
   public updatePatientVitals(patientId: string, vitals: Partial<Patient['vitals']>): Patient | undefined {
     const patient = this.patients.find(p => p.id === patientId);
