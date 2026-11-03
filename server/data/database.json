@@ -901,6 +901,26 @@
   ],
   "auditLogs": [
     {
+      "id": "audit-1793694226255-343",
+      "timestamp": "01:53:46 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Patient Clinical Inquiry",
+      "module": "Telehealth",
+      "details": "Patient Magnus Stephenson sent inquiry to Dr. Roger S.: \"hloo...\"",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793694185290-34",
+      "timestamp": "01:53:05 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Patient Clinical Inquiry",
+      "module": "Telehealth",
+      "details": "Patient Magnus Stephenson sent inquiry to Dr. Roger S.: \"hi sir...\"",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
       "id": "audit-1793694081791-679",
       "timestamp": "01:51:21 pm",
       "userName": "Clinical System",
@@ -1029,6 +1049,28 @@
       "senderName": "Dr. Roger S.",
       "text": "Yes Magnus, take it right after breakfast.",
       "timestamp": "01:51 pm"
+    },
+    {
+      "id": "msg-1793694185290",
+      "patientId": "pat-1",
+      "patientName": "Magnus Stephenson",
+      "doctorId": "doc-1",
+      "doctorName": "Dr. Roger S.",
+      "sender": "patient",
+      "senderName": "Magnus Stephenson",
+      "text": "hi sir",
+      "timestamp": "01:53 pm"
+    },
+    {
+      "id": "msg-1793694226255",
+      "patientId": "pat-1",
+      "patientName": "Magnus Stephenson",
+      "doctorId": "doc-1",
+      "doctorName": "Dr. Roger S.",
+      "sender": "patient",
+      "senderName": "Magnus Stephenson",
+      "text": "hloo",
+      "timestamp": "01:53 pm"
     }
   ],
   "meals": [],
