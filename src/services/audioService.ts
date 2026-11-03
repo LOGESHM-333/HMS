@@ -141,6 +141,37 @@ class AudioService {
       // Silent catch
     }
   }
+
+  // Clinical emergency/warning alarm tone
+  public playWarning() {
+    if (this.isMuted) return;
+    try {
+      this.initContext();
+      if (!this.ctx) return;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(880, this.ctx.currentTime); // A5
+      osc.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.1); // E5
+
+      gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.25);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.28);
+    } catch {
+      // Silent catch
+    }
+  }
+
+  public playAlert() {
+    this.playWarning();
+  }
 }
 
 export const sound = new AudioService();

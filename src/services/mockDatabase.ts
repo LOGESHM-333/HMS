@@ -1047,6 +1047,103 @@ class MockDatabase {
       api.acknowledgeAlert(alertId).catch(() => {});
     }
   }
+
+  // Patient Portal Operations
+  public updatePatientVitals(patientId: string, vitals: Partial<Patient['vitals']>): Patient | undefined {
+    const patient = this.patients.find(p => p.id === patientId);
+    if (patient) {
+      patient.vitals = {
+        ...patient.vitals,
+        ...vitals,
+        lastUpdated: 'Just now'
+      };
+      this.logAudit('Vitals Logged', 'Telemetry', `Logged new vitals for ${patient.name}: BP ${patient.vitals.bloodPressure}, HR ${patient.vitals.pulseRate} bpm`);
+      this.saveToStorage();
+      api.logPatientVitals(patientId, vitals).catch(() => {});
+      return patient;
+    }
+    return undefined;
+  }
+
+  public addPatientHistory(patientId: string, history: { date?: string; event: string; doctor?: string; facility?: string; notes: string }): Patient | undefined {
+    const patient = this.patients.find(p => p.id === patientId);
+    if (patient) {
+      const newRec = {
+        date: history.date || new Date().toISOString().split('T')[0],
+        event: history.event,
+        doctor: history.doctor || 'Dr. Roger S.',
+        facility: history.facility || 'MediCore Specialist Pavilion',
+        notes: history.notes || ''
+      };
+      patient.medicalHistory.unshift(newRec);
+      this.logAudit('Medical History Added', 'EMR', `Added "${newRec.event}" for ${patient.name}`);
+      this.saveToStorage();
+      api.addPatientHistory(patientId, history).catch(() => {});
+      return patient;
+    }
+    return undefined;
+  }
+
+  public addPrescription(rx: Omit<Prescription, 'id' | 'date'>): Prescription {
+    const newRx: Prescription = {
+      ...rx,
+      id: `rx-${Date.now()}`,
+      date: new Date().toISOString().split('T')[0]
+    };
+    this.prescriptions.unshift(newRx);
+    this.logAudit('Prescription Created', 'Pharmacy', `Created prescription for ${newRx.patientName}`);
+    this.saveToStorage();
+    api.createPrescription(rx).catch(() => {});
+    return newRx;
+  }
+
+  public async requestRefill(data: { prescriptionId: string; patientId: string; medicineName: string; requestedRefills: number; pharmacyNote?: string }) {
+    this.logAudit('Refill Requested', 'Pharmacy', `Requested refill for ${data.medicineName}`);
+    try {
+      return await api.requestRefill(data);
+    } catch {
+      return { success: true, message: `Refill order for ${data.medicineName} queued at MediCore Central Pharmacy`, refillId: `refill-${Date.now()}`, status: 'Pending Pharmacist Review' };
+    }
+  }
+
+  public async fileInsuranceClaim(data: { invoiceId: string; patientId: string; policyNumber: string; provider: string; claimAmount: number; diagnosisCode?: string }) {
+    this.logAudit('Claim Filed', 'Billing', `Filed insurance claim for invoice ${data.invoiceId}`);
+    try {
+      return await api.fileInsuranceClaim(data);
+    } catch {
+      return { id: `claim-${Date.now()}`, ...data, status: 'Submitted / Under Review', date: new Date().toISOString().split('T')[0] };
+    }
+  }
+
+  public async triggerEmergencyDispatch(data: { patientId: string; patientName: string; location?: string; condition?: string; notes?: string }) {
+    const alert: CriticalAlert = {
+      id: `alt-sos-${Date.now()}`,
+      title: `🚨 EMERGENCY SOS: ${data.patientName} Dispatched Unit 4`,
+      department: 'Emergency Medicine / Trauma',
+      severity: 'critical',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      actionRequired: `Immediate Trauma Bay preparation. Coordinates: ${data.location || 'Residence'}. Reported: ${data.condition || 'Acute Distress'}.`
+    };
+    this.alerts.unshift(alert);
+    this.logAudit('EMERGENCY SOS DISPATCH', 'Trauma Resuscitation', `Mobile SOS triggered by ${data.patientName}. Unit 4 mobilized.`);
+    this.saveToStorage();
+
+    try {
+      return await api.triggerEmergencyDispatch(data);
+    } catch {
+      return {
+        success: true,
+        dispatchId: `DISPATCH-911-${Date.now().toString().slice(-4)}`,
+        ambulanceUnit: 'MediCore Rapid Response Unit 4 (ALS Spec)',
+        driverParamedic: 'Captain Marcus Vance, EMT-P',
+        etaMinutes: 6,
+        hospitalBay: 'Resuscitation Bay 2 (Prepared)',
+        status: 'En Route',
+        alert
+      };
+    }
+  }
+
   public getAuditLogs(): AuditLog[] { return [...this.auditLogs]; }
 }
 

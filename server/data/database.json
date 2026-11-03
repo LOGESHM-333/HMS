@@ -859,6 +859,14 @@
   ],
   "alerts": [
     {
+      "id": "alt-sos-1793692681774",
+      "title": "🚨 EMERGENCY SOS: Magnus Stephenson Dispatched Unit 4",
+      "department": "Emergency Medicine / Trauma",
+      "severity": "critical",
+      "time": "01:28:01 pm",
+      "actionRequired": "Immediate Trauma Bay preparation. Coordinates: GPS Locked (Residence). Reported: Acute shortness of breath."
+    },
+    {
       "id": "alt-1",
       "title": "ICU Beds Below 10%",
       "department": "Intensive Care Unit",
@@ -892,6 +900,16 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "audit-1793692681774-92",
+      "timestamp": "01:28:01 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "EMERGENCY SOS DISPATCH",
+      "module": "Trauma Resuscitation",
+      "details": "Mobile SOS triggered by Magnus Stephenson. Rapid Response Unit 4 mobilized. Location: Mobile GPS",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
     {
       "id": "audit-1793685758987-744",
       "timestamp": "11:32:38 am",
@@ -952,5 +970,9 @@
       "details": "MediCore REST API engine running on port 5000 with persistent database",
       "ipAddress": "127.0.0.1 [REST API Server]"
     }
-  ]
+  ],
+  "messages": [],
+  "meals": [],
+  "claims": [],
+  "immunizations": []
 }

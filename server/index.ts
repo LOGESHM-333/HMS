@@ -72,6 +72,10 @@ interface DatabaseSchema {
   staff: Staff[];
   alerts: CriticalAlert[];
   auditLogs: AuditLog[];
+  messages?: Array<{ id: string; patientId: string; sender: 'patient' | 'doctor'; senderName: string; text: string; timestamp: string }>;
+  meals?: Array<{ id: string; patientId: string; mealType: string; name: string; calories: number; sodiumMg: number; carbsG: number; timestamp: string }>;
+  claims?: Array<{ id: string; invoiceId: string; patientId: string; policyNumber: string; provider: string; claimAmount: number; diagnosisCode: string; status: string; date: string }>;
+  immunizations?: Array<{ id: string; patientId: string; vaccineName: string; dose: string; date: string; facility: string; lotNumber: string; verified: boolean }>;
 }
 
 let dbData: DatabaseSchema;
@@ -87,7 +91,12 @@ function loadDatabase(): DatabaseSchema {
   if (fs.existsSync(DB_FILE)) {
     try {
       const raw = fs.readFileSync(DB_FILE, 'utf-8');
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (!parsed.messages) parsed.messages = [];
+      if (!parsed.meals) parsed.meals = [];
+      if (!parsed.claims) parsed.claims = [];
+      if (!parsed.immunizations) parsed.immunizations = [];
+      return parsed;
     } catch (e) {
       console.warn('Failed to parse database.json, seeding new database...', e);
     }
@@ -106,6 +115,21 @@ function loadDatabase(): DatabaseSchema {
     invoices: INITIAL_INVOICES,
     staff: INITIAL_STAFF,
     alerts: INITIAL_ALERTS,
+    messages: [
+      { id: 'msg-1', patientId: 'pat-1', sender: 'doctor', senderName: 'Dr. Roger S.', text: 'Hello Magnus, Dr. Roger here. Your latest thoracic scan shows clear lung fields. How are you feeling after adjusting the inhaler dosage?', timestamp: 'Yesterday 14:20' },
+      { id: 'msg-2', patientId: 'pat-1', sender: 'patient', senderName: 'Magnus Stephenson', text: 'Good afternoon Dr. Roger. The morning chest tightness has significantly reduced, no wheezing yesterday.', timestamp: 'Yesterday 15:45' },
+      { id: 'msg-3', patientId: 'pat-1', sender: 'doctor', senderName: 'Dr. Roger S.', text: 'Excellent progress. Keep taking the morning bronchodilator and let me know if any night cough reoccurs.', timestamp: 'Yesterday 16:10' }
+    ],
+    meals: [
+      { id: 'meal-1', patientId: 'pat-1', mealType: 'Breakfast', name: 'Steel-cut Oatmeal with Blueberries & Chia Seeds', calories: 340, sodiumMg: 85, carbsG: 52, timestamp: 'Today 08:15 AM' },
+      { id: 'meal-2', patientId: 'pat-1', mealType: 'Lunch', name: 'Mediterranean Grilled Chicken Salad with Olive Oil', calories: 480, sodiumMg: 280, carbsG: 18, timestamp: 'Today 12:45 PM' }
+    ],
+    claims: [],
+    immunizations: [
+      { id: 'imm-1', patientId: 'pat-1', vaccineName: 'SARS-CoV-2 Spike Protein mRNA (Bivalent Booster)', dose: 'Dose 3 (Booster)', date: '2025-10-14', facility: 'MediCore Central Immunization Hub', lotNumber: 'PFZ-99428-B', verified: true },
+      { id: 'imm-2', patientId: 'pat-1', vaccineName: 'Influenza Quadrivalent Recombinant', dose: 'Annual Dose', date: '2025-11-02', facility: 'MediCore Outpatient Clinic', lotNumber: 'FLU-55102-Q', verified: true },
+      { id: 'imm-3', patientId: 'pat-1', vaccineName: 'Tetanus, Diphtheria, Pertussis (Tdap)', dose: 'Decennial Booster', date: '2022-04-18', facility: 'Memorial Health Center', lotNumber: 'TDP-11094-T', verified: true }
+    ],
     auditLogs: [
       {
         id: `audit-init`,
@@ -204,6 +228,41 @@ app.put('/api/patients/:id', (req: Request, res: Response) => {
   logAudit('Patient Vitals Update', 'Patients', `Updated clinical chart for ${dbData.patients[index].name}`);
   saveDatabase(dbData);
   res.json(dbData.patients[index]);
+});
+
+// Update Patient Vitals
+app.post('/api/patients/:id/vitals', (req: Request, res: Response) => {
+  const patient = dbData.patients.find(p => p.id === req.params.id);
+  if (!patient) return res.status(404).json({ error: 'Patient not found' });
+
+  patient.vitals = {
+    ...patient.vitals,
+    ...req.body,
+    lastUpdated: 'Just now'
+  };
+
+  logAudit('Vitals Logged', 'Telemetry', `Logged new vitals for ${patient.name}: BP ${patient.vitals.bloodPressure}, HR ${patient.vitals.pulseRate} bpm, SpO2 ${patient.vitals.oxygenSaturation}%`);
+  saveDatabase(dbData);
+  res.json(patient);
+});
+
+// Add Patient Medical History Record
+app.post('/api/patients/:id/history', (req: Request, res: Response) => {
+  const patient = dbData.patients.find(p => p.id === req.params.id);
+  if (!patient) return res.status(404).json({ error: 'Patient not found' });
+
+  const newRecord = {
+    date: req.body.date || new Date().toISOString().split('T')[0],
+    event: req.body.event || 'Clinical Consultation',
+    doctor: req.body.doctor || 'Dr. Roger S.',
+    facility: req.body.facility || 'MediCore Specialist Pavilion',
+    notes: req.body.notes || ''
+  };
+
+  patient.medicalHistory.unshift(newRecord);
+  logAudit('Medical History Added', 'EMR', `Added record "${newRecord.event}" to ${patient.name}'s chart`);
+  saveDatabase(dbData);
+  res.json(patient);
 });
 
 app.delete('/api/patients/:id', (req: Request, res: Response) => {
@@ -410,6 +469,156 @@ app.get('/api/ward/stats', (_req: Request, res: Response) => {
       openEscalations: criticalPatients || 3
     }
   });
+});
+
+// Prescription Refill Request
+app.post('/api/prescriptions/refill', (req: Request, res: Response) => {
+  const { prescriptionId, patientId, medicineName, requestedRefills, pharmacyNote } = req.body;
+  const rx = dbData.prescriptions.find(p => p.id === prescriptionId);
+  const patient = dbData.patients.find(p => p.id === patientId);
+
+  logAudit('Refill Requested', 'Pharmacy', `Refill order submitted for ${medicineName} (${requestedRefills} cycles) by ${patient ? patient.name : 'Patient'}`);
+  saveDatabase(dbData);
+
+  res.json({
+    success: true,
+    message: `Refill order for ${medicineName} successfully queued at MediCore Central Pharmacy`,
+    rxId: prescriptionId,
+    refillId: `refill-${Date.now()}`,
+    status: 'Pending Pharmacist Review'
+  });
+});
+
+// Insurance Claim Submission
+app.post('/api/billing/claim', (req: Request, res: Response) => {
+  const { invoiceId, patientId, policyNumber, provider, claimAmount, diagnosisCode } = req.body;
+  const newClaim = {
+    id: `claim-${Date.now()}`,
+    invoiceId,
+    patientId,
+    policyNumber,
+    provider: provider || 'MediCore Platinum Health Plan',
+    claimAmount: Number(claimAmount) || 0,
+    diagnosisCode: diagnosisCode || 'ICD-10 Z00.00',
+    status: 'Submitted / Under Review',
+    date: new Date().toISOString().split('T')[0]
+  };
+
+  if (!dbData.claims) dbData.claims = [];
+  dbData.claims.unshift(newClaim);
+
+  logAudit('Insurance Claim Filed', 'Billing', `Filed claim #${newClaim.id} for $${newClaim.claimAmount} with ${newClaim.provider}`);
+  saveDatabase(dbData);
+  res.status(201).json(newClaim);
+});
+
+app.get('/api/billing/claims/:patientId', (req: Request, res: Response) => {
+  const claims = (dbData.claims || []).filter(c => c.patientId === req.params.patientId);
+  res.json(claims);
+});
+
+// Emergency SOS Dispatch
+app.post('/api/emergency/dispatch', (req: Request, res: Response) => {
+  const { patientId, patientName, location, condition, notes } = req.body;
+  
+  const alert: CriticalAlert = {
+    id: `alt-sos-${Date.now()}`,
+    title: `🚨 EMERGENCY SOS: ${patientName || 'Patient'} Dispatched Unit 4`,
+    department: 'Emergency Medicine / Trauma',
+    severity: 'critical',
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    actionRequired: `Immediate Trauma Bay preparation. Coordinates: ${location || 'GPS Locked (Residence)'}. Reported: ${condition || 'Acute Distress'}.`
+  };
+
+  dbData.alerts.unshift(alert);
+  logAudit('EMERGENCY SOS DISPATCH', 'Trauma Resuscitation', `Mobile SOS triggered by ${patientName || patientId}. Rapid Response Unit 4 mobilized. Location: ${location || 'Mobile GPS'}`);
+  saveDatabase(dbData);
+
+  res.status(201).json({
+    success: true,
+    dispatchId: `DISPATCH-911-${Date.now().toString().slice(-4)}`,
+    ambulanceUnit: 'MediCore Rapid Response Unit 4 (ALS Spec)',
+    driverParamedic: 'Captain Marcus Vance, EMT-P',
+    etaMinutes: 6,
+    hospitalBay: 'Resuscitation Bay 2 (Prepared)',
+    status: 'En Route',
+    alert
+  });
+});
+
+// Doctor Chat Messages
+app.get('/api/messages/:patientId', (req: Request, res: Response) => {
+  const messages = (dbData.messages || []).filter(m => m.patientId === req.params.patientId);
+  res.json(messages);
+});
+
+app.post('/api/messages', (req: Request, res: Response) => {
+  const newMsg = {
+    id: `msg-${Date.now()}`,
+    patientId: req.body.patientId || 'pat-1',
+    sender: req.body.sender || 'patient',
+    senderName: req.body.senderName || 'Patient',
+    text: req.body.text || '',
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+
+  if (!dbData.messages) dbData.messages = [];
+  dbData.messages.push(newMsg);
+
+  saveDatabase(dbData);
+  res.status(201).json(newMsg);
+});
+
+// Nutrition Meal Logging
+app.get('/api/meals/:patientId', (req: Request, res: Response) => {
+  const meals = (dbData.meals || []).filter(m => m.patientId === req.params.patientId);
+  res.json(meals);
+});
+
+app.post('/api/meals', (req: Request, res: Response) => {
+  const newMeal = {
+    id: `meal-${Date.now()}`,
+    patientId: req.body.patientId || 'pat-1',
+    mealType: req.body.mealType || 'Lunch',
+    name: req.body.name || 'Cardiac Healthy Plate',
+    calories: Number(req.body.calories) || 300,
+    sodiumMg: Number(req.body.sodiumMg) || 150,
+    carbsG: Number(req.body.carbsG) || 30,
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+
+  if (!dbData.meals) dbData.meals = [];
+  dbData.meals.push(newMeal);
+
+  logAudit('Nutrition Logged', 'Wellness', `Logged ${newMeal.name} (${newMeal.calories} kcal) for patient`);
+  saveDatabase(dbData);
+  res.status(201).json(newMeal);
+});
+
+// Immunizations
+app.get('/api/immunizations/:patientId', (req: Request, res: Response) => {
+  const list = (dbData.immunizations || []).filter(i => i.patientId === req.params.patientId);
+  res.json(list);
+});
+
+app.post('/api/immunizations', (req: Request, res: Response) => {
+  const newImm = {
+    id: `imm-${Date.now()}`,
+    patientId: req.body.patientId || 'pat-1',
+    vaccineName: req.body.vaccineName || 'Immunization',
+    dose: req.body.dose || 'Dose 1',
+    date: req.body.date || new Date().toISOString().split('T')[0],
+    facility: req.body.facility || 'MediCore Immunization Wing',
+    lotNumber: req.body.lotNumber || `LOT-${Math.floor(10000 + Math.random() * 90000)}`,
+    verified: true
+  };
+
+  if (!dbData.immunizations) dbData.immunizations = [];
+  dbData.immunizations.push(newImm);
+
+  logAudit('Immunization Logged', 'Preventive Care', `Recorded ${newImm.vaccineName} (${newImm.dose})`);
+  saveDatabase(dbData);
+  res.status(201).json(newImm);
 });
 
 // Audit Logs

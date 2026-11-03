@@ -123,6 +123,43 @@ export const api = {
     operationalMetrics: { patientsInClinic: number; inTheWaitingRoom: number; medianWaitMinutes: number; openEscalations: number };
   }>('/ward/stats'),
 
+  // Patient Portal Extended Operations
+  logPatientVitals: (patientId: string, vitals: Partial<Patient['vitals']>) => 
+    request<Patient>(`/patients/${patientId}/vitals`, { method: 'POST', body: JSON.stringify(vitals) }),
+  
+  addPatientHistory: (patientId: string, history: { date?: string; event: string; doctor?: string; facility?: string; notes: string }) => 
+    request<Patient>(`/patients/${patientId}/history`, { method: 'POST', body: JSON.stringify(history) }),
+
+  requestRefill: (data: { prescriptionId: string; patientId: string; medicineName: string; requestedRefills: number; pharmacyNote?: string }) => 
+    request<{ success: boolean; message: string; refillId: string; status: string }>('/prescriptions/refill', { method: 'POST', body: JSON.stringify(data) }),
+
+  fileInsuranceClaim: (data: { invoiceId: string; patientId: string; policyNumber: string; provider: string; claimAmount: number; diagnosisCode?: string }) => 
+    request<any>('/billing/claim', { method: 'POST', body: JSON.stringify(data) }),
+
+  getInsuranceClaims: (patientId: string) => 
+    request<any[]>(`/billing/claims/${patientId}`),
+
+  triggerEmergencyDispatch: (data: { patientId: string; patientName: string; location?: string; condition?: string; notes?: string }) => 
+    request<{ success: boolean; dispatchId: string; ambulanceUnit: string; driverParamedic: string; etaMinutes: number; hospitalBay: string; status: string; alert: CriticalAlert }>('/emergency/dispatch', { method: 'POST', body: JSON.stringify(data) }),
+
+  getMessages: (patientId: string) => 
+    request<Array<{ id: string; patientId: string; sender: 'patient' | 'doctor'; senderName: string; text: string; timestamp: string }>>(`/messages/${patientId}`),
+
+  sendMessage: (data: { patientId: string; sender: 'patient' | 'doctor'; senderName: string; text: string }) => 
+    request<any>('/messages', { method: 'POST', body: JSON.stringify(data) }),
+
+  getMeals: (patientId: string) => 
+    request<Array<{ id: string; patientId: string; mealType: string; name: string; calories: number; sodiumMg: number; carbsG: number; timestamp: string }>>(`/meals/${patientId}`),
+
+  logMeal: (meal: { patientId: string; mealType: string; name: string; calories: number; sodiumMg: number; carbsG: number }) => 
+    request<any>('/meals', { method: 'POST', body: JSON.stringify(meal) }),
+
+  getImmunizations: (patientId: string) => 
+    request<Array<{ id: string; patientId: string; vaccineName: string; dose: string; date: string; facility: string; lotNumber: string; verified: boolean }>>(`/immunizations/${patientId}`),
+
+  addImmunization: (imm: { patientId: string; vaccineName: string; dose: string; date?: string; facility?: string; lotNumber?: string }) => 
+    request<any>('/immunizations', { method: 'POST', body: JSON.stringify(imm) }),
+
   // Audit Logs
   getAuditLogs: () => request<AuditLog[]>('/audit-logs'),
 };
