@@ -240,11 +240,12 @@ export default function App() {
           </>
         )}
 
-        {/* ================= PATIENT PORTAL ROUTES (ESSENTIAL ONLY) ================= */}
+        {/* ================= PATIENT PORTAL ROUTES ================= */}
         {portalMode === 'patient' && (
           <PatientPortal 
             theme={theme} 
             activeSection={currentTab}
+            onSelectSection={setCurrentTab}
           />
         )}
       </main>

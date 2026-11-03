@@ -862,7 +862,7 @@
       "id": "alt-1",
       "title": "ICU Beds Below 10%",
       "department": "Intensive Care Unit",
-      "severity": "critical",
+      "severity": "low",
       "time": "05 min ago",
       "actionRequired": "Triage transfer protocols or prepare overflow ward 4"
     },
@@ -892,6 +892,46 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "audit-1793685758987-744",
+      "timestamp": "11:32:38 am",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: ICU Beds Below 10%",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793685758771-768",
+      "timestamp": "11:32:38 am",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: ICU Beds Below 10%",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793685758593-827",
+      "timestamp": "11:32:38 am",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: ICU Beds Below 10%",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793685752713-142",
+      "timestamp": "11:32:32 am",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: ICU Beds Below 10%",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
     {
       "id": "audit-1793683027111-695",
       "timestamp": "10:47:07 am",

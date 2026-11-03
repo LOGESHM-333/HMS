@@ -78,13 +78,18 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'analytics', label: 'Analytics' },
   ];
 
-  // Patient Portal tabs: ONLY essential features!
+  // Comprehensive Patient Portal tabs
   const patientTabs = [
-    { id: 'patient-health', label: 'My Health & 3D Anatomy' },
+    { id: 'patient-health', label: 'My Health & 3D' },
     { id: 'patient-appointments', label: 'Appointments' },
     { id: 'patient-prescriptions', label: 'Prescriptions' },
     { id: 'patient-labs', label: 'Lab Reports' },
-    { id: 'patient-billing', label: 'Billing' },
+    { id: 'patient-records', label: 'Medical History' },
+    { id: 'patient-vaccines', label: 'Vaccine Passport' },
+    { id: 'patient-billing', label: 'Billing & Insurance' },
+    { id: 'patient-messages', label: 'Doctor Chat' },
+    { id: 'patient-nutrition', label: 'Nutrition' },
+    { id: 'patient-emergency', label: 'Emergency SOS' },
   ];
 
   const roles: { role: UserRole; label: string; desc: string }[] = [
