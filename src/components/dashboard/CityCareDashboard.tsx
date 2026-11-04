@@ -69,19 +69,24 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
       {/* CITYCARE WHITE/LIGHT CARD CONTAINER (MATCHING ATTACHED SCREENSHOT) */}
       <div className={`rounded-[36px] p-6 lg:p-8 transition-all relative overflow-hidden ${
         isDark 
-          ? 'border border-slate-800 text-white shadow-2xl' 
-          : 'border border-slate-200/80 text-[#142C43] shadow-xl'
+          ? 'bg-[#0B1726] border border-slate-800 text-white shadow-2xl' 
+          : 'bg-white border border-slate-200/80 text-[#142C43] shadow-xl'
       }`}>
-        {/* Background Image of MediCore Wellness Hospital */}
+        {/* Background Image of MediCore Wellness Hospital - Bright, Transparent & Well Aligned */}
         <div 
-          className="absolute inset-0 bg-cover bg-center pointer-events-none select-none z-0"
-          style={{ backgroundImage: `url('/assets/medicore-wellness-bg.jpg')` }}
+          className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
+          style={{ 
+            backgroundImage: `url('/assets/medicore-wellness-bg.jpg')`,
+            backgroundPosition: 'center 25%',
+            opacity: isDark ? 0.65 : 0.78,
+            filter: 'brightness(1.22) contrast(1.08) saturate(1.12)',
+          }}
         />
-        {/* Ambient overlay for perfect readability and modern glass aesthetic */}
+        {/* Subtle, crystal-clear gradient sheen that preserves image detail without blur */}
         <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
           isDark 
-            ? 'bg-[#0A1829]/80 backdrop-blur-[1px]' 
-            : 'bg-white/75 backdrop-blur-[1px]'
+            ? 'bg-gradient-to-b from-[#0A1829]/40 via-transparent to-[#0A1829]/50' 
+            : 'bg-gradient-to-b from-white/30 via-transparent to-white/35'
         }`} />
 
         <div className="relative z-10">
