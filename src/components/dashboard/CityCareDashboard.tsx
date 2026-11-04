@@ -67,12 +67,25 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* CITYCARE WHITE/LIGHT CARD CONTAINER (MATCHING ATTACHED SCREENSHOT) */}
-      <div className={`rounded-[36px] p-6 lg:p-8 transition-all ${
+      <div className={`rounded-[36px] p-6 lg:p-8 transition-all relative overflow-hidden ${
         isDark 
-          ? 'bg-[#0E2035]/90 border border-slate-800 text-white shadow-2xl' 
-          : 'bg-[#FFFFFF] border border-slate-200/80 text-[#142C43] shadow-xl'
+          ? 'border border-slate-800 text-white shadow-2xl' 
+          : 'border border-slate-200/80 text-[#142C43] shadow-xl'
       }`}>
-        {/* SUB-HEADER SWITCHER BAR (Management Suite Access) */}
+        {/* Background Image of MediCore Wellness Hospital */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center pointer-events-none select-none z-0"
+          style={{ backgroundImage: `url('/assets/medicore-wellness-bg.jpg')` }}
+        />
+        {/* Ambient overlay for perfect readability and modern glass aesthetic */}
+        <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
+          isDark 
+            ? 'bg-[#0A1829]/80 backdrop-blur-[1px]' 
+            : 'bg-white/75 backdrop-blur-[1px]'
+        }`} />
+
+        <div className="relative z-10">
+          {/* SUB-HEADER SWITCHER BAR (Management Suite Access) */}
         <div className="flex flex-wrap items-center justify-between pb-6 mb-6 border-b border-slate-100 dark:border-slate-800 gap-4">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
@@ -675,6 +688,7 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
               </div>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>
