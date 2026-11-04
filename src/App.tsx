@@ -4,10 +4,11 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { UserRole, ThemeMode, Patient } from './types';
+import { UserRole, ThemeMode, Patient, Doctor } from './types';
 import { db } from './services/mockDatabase';
 import { sound } from './services/audioService';
 import { Header } from './components/navigation/Header';
+import { UnifiedPortalAuth } from './components/auth/UnifiedPortalAuth';
 import { CityCareDashboard } from './components/dashboard/CityCareDashboard';
 import { WardOverview } from './components/ward/WardOverview';
 import { MediFlexView } from './components/dashboard/MediFlexView';
@@ -39,9 +40,29 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const [portalMode, setPortalMode] = useState<'management' | 'doctor' | 'patient'>('management');
-  const [currentTab, setCurrentTab] = useState<string>('dashboard');
-  const [currentRole, setCurrentRole] = useState<UserRole>(db.getRole());
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return Boolean(localStorage.getItem('medicore_authenticated'));
+  });
+
+  const [portalMode, setPortalMode] = useState<'management' | 'doctor' | 'patient'>(() => {
+    const saved = localStorage.getItem('medicore_portal_mode') as 'management' | 'doctor' | 'patient';
+    return saved || 'patient';
+  });
+
+  const [currentTab, setCurrentTab] = useState<string>(() => {
+    const saved = localStorage.getItem('medicore_portal_mode');
+    if (saved === 'patient') return 'patient-health';
+    if (saved === 'doctor') return 'doctor-consult';
+    return 'dashboard';
+  });
+
+  const [currentRole, setCurrentRole] = useState<UserRole>(() => {
+    const saved = localStorage.getItem('medicore_portal_mode');
+    if (saved === 'patient') return 'PATIENT';
+    if (saved === 'doctor') return 'DOCTOR';
+    return db.getRole();
+  });
+
   const [theme, setTheme] = useState<ThemeMode>(db.getTheme());
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -78,18 +99,22 @@ export default function App() {
     setCurrentRole(role);
     if (role === 'PATIENT') {
       setPortalMode('patient');
+      localStorage.setItem('medicore_portal_mode', 'patient');
       setCurrentTab('patient-health');
     } else if (role === 'DOCTOR') {
       setPortalMode('doctor');
+      localStorage.setItem('medicore_portal_mode', 'doctor');
       setCurrentTab('doctor-consult');
     } else {
       setPortalMode('management');
+      localStorage.setItem('medicore_portal_mode', 'management');
       setCurrentTab('dashboard');
     }
   };
 
   const handlePortalModeChange = (mode: 'management' | 'doctor' | 'patient') => {
     setPortalMode(mode);
+    localStorage.setItem('medicore_portal_mode', mode);
     if (mode === 'patient') {
       setCurrentRole('PATIENT');
       db.setRole('PATIENT');
@@ -115,6 +140,16 @@ export default function App() {
     db.setSelectedPatient(patient.id);
   };
 
+  const handleLogout = () => {
+    sound.playClick();
+    localStorage.removeItem('medicore_authenticated');
+    localStorage.removeItem('medicore_portal_mode');
+    localStorage.removeItem('medicore_patient_auth');
+    localStorage.removeItem('medicore_patient_id');
+    localStorage.removeItem('medicore_doctor_id');
+    setIsAuthenticated(false);
+  };
+
   // Quick command search items
   const quickSearchActions = [
     { label: 'Executive Hospital Command Dashboard', tab: 'dashboard', mode: 'management', icon: Sparkles },
@@ -137,6 +172,38 @@ export default function App() {
 
   const isDark = theme === 'dark';
 
+  // DIRECT ROOT ENTRY: If unauthenticated, show Unified Login/Signup page directly!
+  if (!isAuthenticated) {
+    return (
+      <UnifiedPortalAuth
+        theme={theme}
+        onLoginPatient={(patient) => {
+          localStorage.setItem('medicore_authenticated', 'true');
+          localStorage.setItem('medicore_portal_mode', 'patient');
+          localStorage.setItem('medicore_patient_auth', 'true');
+          localStorage.setItem('medicore_patient_id', patient.id);
+          setIsAuthenticated(true);
+          setPortalMode('patient');
+          setCurrentRole('PATIENT');
+          db.setRole('PATIENT');
+          setCurrentTab('patient-health');
+        }}
+        onLoginDoctor={(doctor) => {
+          localStorage.setItem('medicore_authenticated', 'true');
+          localStorage.setItem('medicore_portal_mode', 'doctor');
+          if (doctor) {
+            localStorage.setItem('medicore_doctor_id', doctor.id);
+          }
+          setIsAuthenticated(true);
+          setPortalMode('doctor');
+          setCurrentRole('DOCTOR');
+          db.setRole('DOCTOR');
+          setCurrentTab('doctor-consult');
+        }}
+      />
+    );
+  }
+
   return (
     <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 relative ${
       isDark ? 'text-white' : 'text-[#142C43]'
@@ -158,147 +225,148 @@ export default function App() {
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* GLOBAL ENTERPRISE HEADER WITH CITYCARE BRANDING & PORTAL TOGGLE */}
         <Header
-        currentTab={currentTab}
-        setCurrentTab={setCurrentTab}
-        portalMode={portalMode}
-        onPortalModeChange={handlePortalModeChange}
-        currentRole={currentRole}
-        onRoleChange={handleRoleChange}
-        theme={theme}
-        onToggleTheme={handleToggleTheme}
-        onOpenSearch={() => setIsSearchOpen(true)}
-      />
+          currentTab={currentTab}
+          setCurrentTab={setCurrentTab}
+          portalMode={portalMode}
+          onPortalModeChange={handlePortalModeChange}
+          currentRole={currentRole}
+          onRoleChange={handleRoleChange}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
+          onOpenSearch={() => setIsSearchOpen(true)}
+          onLogout={handleLogout}
+        />
 
-      {/* MAIN VIEWPORT CONTAINER */}
-      <main className="flex-1 max-w-[1720px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-6">
-        {/* ================= MANAGEMENT PORTAL ROUTES ================= */}
-        {portalMode === 'management' && (
-          <>
-            {currentTab === 'dashboard' && (
-              <CityCareDashboard
-                theme={theme}
-                currentRole={currentRole}
-                onNavigateTab={setCurrentTab}
-                onSelectPatient={handleSelectPatientFor3D}
-                onSwitchToMediFlex={() => setCurrentTab('mediflex')}
-              />
-            )}
+        {/* MAIN VIEWPORT CONTAINER */}
+        <main className="flex-1 max-w-[1720px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-6">
+          {/* ================= MANAGEMENT PORTAL ROUTES ================= */}
+          {portalMode === 'management' && (
+            <>
+              {currentTab === 'dashboard' && (
+                <CityCareDashboard
+                  theme={theme}
+                  currentRole={currentRole}
+                  onNavigateTab={setCurrentTab}
+                  onSelectPatient={handleSelectPatientFor3D}
+                  onSwitchToMediFlex={() => setCurrentTab('mediflex')}
+                />
+              )}
 
-            {currentTab === 'ward' && (
-              <WardOverview
-                theme={theme}
-                currentRole={currentRole}
-                onNavigateTab={setCurrentTab}
-                onOpenSearch={() => setIsSearchOpen(true)}
-                onToggleTheme={handleToggleTheme}
-                onSelectPatientFor3D={(p) => {
-                  handleSelectPatientFor3D(p);
-                  setCurrentTab('mediflex');
-                }}
-              />
-            )}
+              {currentTab === 'ward' && (
+                <WardOverview
+                  theme={theme}
+                  currentRole={currentRole}
+                  onNavigateTab={setCurrentTab}
+                  onOpenSearch={() => setIsSearchOpen(true)}
+                  onToggleTheme={handleToggleTheme}
+                  onSelectPatientFor3D={(p) => {
+                    handleSelectPatientFor3D(p);
+                    setCurrentTab('mediflex');
+                  }}
+                />
+              )}
 
-            {currentTab === 'mediflex' && (
-              <MediFlexView
-                theme={theme}
-                onOpenDetails={() => setCurrentTab('patients')}
-              />
-            )}
+              {currentTab === 'mediflex' && (
+                <MediFlexView
+                  theme={theme}
+                  onOpenDetails={() => setCurrentTab('patients')}
+                />
+              )}
 
-            {currentTab === 'patients' && (
-              <PatientDirectory
-                theme={theme}
-                onSelectPatientFor3D={(p) => {
-                  handleSelectPatientFor3D(p);
-                  setCurrentTab('mediflex');
-                }}
-              />
-            )}
+              {currentTab === 'patients' && (
+                <PatientDirectory
+                  theme={theme}
+                  onSelectPatientFor3D={(p) => {
+                    handleSelectPatientFor3D(p);
+                    setCurrentTab('mediflex');
+                  }}
+                />
+              )}
 
-            {currentTab === 'appointments' && (
-              <AppointmentManager theme={theme} />
-            )}
+              {currentTab === 'appointments' && (
+                <AppointmentManager theme={theme} />
+              )}
 
-            {currentTab === 'doctors' && (
-              <DoctorDirectory theme={theme} />
-            )}
+              {currentTab === 'doctors' && (
+                <DoctorDirectory theme={theme} />
+              )}
 
-            {currentTab === 'analytics' && (
-              <AnalyticsReports theme={theme} />
-            )}
+              {currentTab === 'analytics' && (
+                <AnalyticsReports theme={theme} />
+              )}
 
-            {currentTab === 'beds' && (
-              <BedManagement theme={theme} />
-            )}
+              {currentTab === 'beds' && (
+                <BedManagement theme={theme} />
+              )}
 
-            {currentTab === 'emr' && (
-              <MedicalRecords
-                theme={theme}
-                onOpen3DAnatomy={(pat) => {
-                  handleSelectPatientFor3D(pat);
-                  setCurrentTab('mediflex');
-                }}
-              />
-            )}
+              {currentTab === 'emr' && (
+                <MedicalRecords
+                  theme={theme}
+                  onOpen3DAnatomy={(pat) => {
+                    handleSelectPatientFor3D(pat);
+                    setCurrentTab('mediflex');
+                  }}
+                />
+              )}
 
-            {currentTab === 'pharmacy' && (
-              <PharmacyManager theme={theme} />
-            )}
+              {currentTab === 'pharmacy' && (
+                <PharmacyManager theme={theme} />
+              )}
 
-            {currentTab === 'laboratory' && (
-              <LabManager theme={theme} />
-            )}
+              {currentTab === 'laboratory' && (
+                <LabManager theme={theme} />
+              )}
 
-            {currentTab === 'billing' && (
-              <BillingManager theme={theme} />
-            )}
+              {currentTab === 'billing' && (
+                <BillingManager theme={theme} />
+              )}
 
-            {currentTab === 'staff' && (
-              <StaffManagement theme={theme} />
-            )}
+              {currentTab === 'staff' && (
+                <StaffManagement theme={theme} />
+              )}
 
-            {currentTab === 'settings' && (
-              <SettingsView theme={theme} />
-            )}
-          </>
-        )}
+              {currentTab === 'settings' && (
+                <SettingsView theme={theme} />
+              )}
+            </>
+          )}
 
-        {/* ================= DOCTOR PORTAL ROUTES ================= */}
-        {portalMode === 'doctor' && (
-          <DoctorPortal 
-            theme={theme}
-            onSwitchToPatientPortal={() => handlePortalModeChange('patient')}
-          />
-        )}
+          {/* ================= DOCTOR PORTAL ROUTES ================= */}
+          {portalMode === 'doctor' && (
+            <DoctorPortal 
+              theme={theme}
+              onSwitchToPatientPortal={() => handlePortalModeChange('patient')}
+            />
+          )}
 
-        {/* ================= PATIENT PORTAL ROUTES ================= */}
-        {portalMode === 'patient' && (
-          <PatientPortal 
-            theme={theme} 
-            activeSection={currentTab}
-            onSelectSection={setCurrentTab}
-            onSwitchToDoctorPortal={() => handlePortalModeChange('doctor')}
-          />
-        )}
-      </main>
+          {/* ================= PATIENT PORTAL ROUTES ================= */}
+          {portalMode === 'patient' && (
+            <PatientPortal 
+              theme={theme} 
+              activeSection={currentTab}
+              onSelectSection={setCurrentTab}
+              onSwitchToDoctorPortal={() => handlePortalModeChange('doctor')}
+            />
+          )}
+        </main>
 
-      {/* FOOTER */}
-      <footer className={`py-6 border-t text-xs transition-colors duration-300 ${
-        isDark ? 'border-slate-800 text-slate-500' : 'border-slate-200 text-slate-400'
-      }`}>
-        <div className="max-w-[1720px] mx-auto px-4 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-teal-600 dark:text-teal-400">MediCore OS</span>
-            <span>•</span>
-            <span>Enterprise 3D Hospital Operating & Clinical Intelligence System</span>
+        {/* FOOTER */}
+        <footer className={`py-6 border-t text-xs transition-colors duration-300 ${
+          isDark ? 'border-slate-800 text-slate-500' : 'border-slate-200 text-slate-400'
+        }`}>
+          <div className="max-w-[1720px] mx-auto px-4 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-teal-600 dark:text-teal-400">MediCore OS</span>
+              <span>•</span>
+              <span>Enterprise 3D Hospital Operating & Clinical Intelligence System</span>
+            </div>
+            <div className="flex items-center gap-4 text-[11px]">
+              <span>Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 font-mono text-[10px]">Cmd</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 font-mono text-[10px]">K</kbd> for Global Search</span>
+              <span>•</span>
+              <span>HIPAA / HL7 FHIR Compliant</span>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span>Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 font-mono text-[10px]">Cmd</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 font-mono text-[10px]">K</kbd> for Global Search</span>
-            <span>•</span>
-            <span>HIPAA / HL7 FHIR Compliant</span>
-          </div>
-        </div>
-      </footer>
+        </footer>
       </div>
 
       {/* GLOBAL SEARCH DIALOG (CMD+K) */}

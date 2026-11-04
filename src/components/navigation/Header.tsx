@@ -48,6 +48,7 @@ interface HeaderProps {
   theme: ThemeMode;
   onToggleTheme: () => void;
   onOpenSearch?: () => void;
+  onLogout?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -59,7 +60,8 @@ export const Header: React.FC<HeaderProps> = ({
   onRoleChange,
   theme,
   onToggleTheme,
-  onOpenSearch
+  onOpenSearch,
+  onLogout
 }) => {
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -353,6 +355,22 @@ export const Header: React.FC<HeaderProps> = ({
                       </button>
                     );
                   })}
+
+                  {onLogout && (
+                    <div className="pt-2 mt-2 border-t border-slate-200 dark:border-slate-800">
+                      <button
+                        onClick={() => {
+                          sound.playClick();
+                          setRoleMenuOpen(false);
+                          onLogout();
+                        }}
+                        className="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl text-xs font-bold text-rose-500 hover:text-white hover:bg-rose-600 bg-rose-500/10 border border-rose-500/20 transition-all cursor-pointer"
+                      >
+                        <LogOut className="w-3.5 h-3.5" />
+                        <span>Sign Out of Hospital System</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

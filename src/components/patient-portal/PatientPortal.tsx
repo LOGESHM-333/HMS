@@ -58,13 +58,15 @@ interface PatientPortalProps {
   activeSection?: string;
   onSelectSection?: (section: string) => void;
   onSwitchToDoctorPortal?: () => void;
+  onLogout?: () => void;
 }
 
 export const PatientPortal: React.FC<PatientPortalProps> = ({ 
   theme, 
   activeSection = 'patient-health',
   onSelectSection,
-  onSwitchToDoctorPortal
+  onSwitchToDoctorPortal,
+  onLogout
 }) => {
   const isDark = theme === 'dark';
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
