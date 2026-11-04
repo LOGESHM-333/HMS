@@ -18,8 +18,7 @@ import {
   Stethoscope,
   Loader2,
   AlertCircle,
-  CheckCircle2,
-  ShieldCheck
+  CheckCircle2
 } from 'lucide-react';
 
 interface UnifiedPortalAuthProps {
@@ -265,15 +264,10 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
       <div className="absolute inset-0 bg-black/20 pointer-events-none" />
 
       {/* Top Header Badge */}
-      <div className="absolute top-6 left-6 right-6 z-20 flex items-center justify-between pointer-events-none">
+      <div className="absolute top-6 left-6 z-20 flex items-center pointer-events-none">
         <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/20 text-white shadow-lg pointer-events-auto">
           <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
           <span className="font-extrabold text-xs tracking-tight">MediCore Hospital OS</span>
-        </div>
-
-        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/40 backdrop-blur-md border border-emerald-400/30 text-emerald-300 text-[11px] font-bold shadow-md pointer-events-auto">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          <span>HIPAA & HL7 Encrypted</span>
         </div>
       </div>
 
