@@ -41,8 +41,8 @@ import {
 interface HeaderProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
-  portalMode: 'management' | 'doctor' | 'patient';
-  onPortalModeChange: (mode: 'management' | 'doctor' | 'patient') => void;
+  portalMode: 'management' | 'doctor' | 'nurse' | 'patient';
+  onPortalModeChange: (mode: 'management' | 'doctor' | 'nurse' | 'patient') => void;
   currentRole: UserRole;
   onRoleChange: (role: UserRole) => void;
   theme: ThemeMode;
@@ -276,7 +276,9 @@ export const Header: React.FC<HeaderProps> = ({
                   ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=256"
                   : portalMode === 'doctor'
                     ? "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=256"
-                    : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"}
+                    : portalMode === 'nurse'
+                      ? "https://images.unsplash.com/photo-1594824813571-638f02614d3f?auto=format&fit=crop&q=80&w=256"
+                      : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"}
                 alt="Profile"
                 className="w-full h-full object-cover rounded-full"
               />
@@ -294,14 +296,18 @@ export const Header: React.FC<HeaderProps> = ({
                       ? 'Magnus Stephenson' 
                       : portalMode === 'doctor' 
                         ? 'Dr. Roger S., MD' 
-                        : 'Alexandro Vance'}
+                        : portalMode === 'nurse'
+                          ? 'Nurse Sarah Jenkins, RN, BSN'
+                          : 'Alexandro Vance'}
                   </div>
                   <div className="text-xs text-teal-600 dark:text-teal-400 font-bold mt-0.5">
                     {portalMode === 'patient' 
                       ? 'Verified Patient #PT-88412' 
                       : portalMode === 'doctor' 
                         ? 'Attending Physician #DOC-402' 
-                        : 'Hospital Chief Administrator'}
+                        : portalMode === 'nurse'
+                          ? 'Head Charge Nurse • ICU Station'
+                          : 'Hospital Chief Administrator'}
                   </div>
                 </div>
 
@@ -313,7 +319,8 @@ export const Header: React.FC<HeaderProps> = ({
                     const isSelected = 
                       (portalMode === 'patient' && r.role === 'PATIENT') ||
                       (portalMode === 'doctor' && r.role === 'DOCTOR') ||
-                      (portalMode === 'management' && currentRole === r.role && r.role !== 'PATIENT' && r.role !== 'DOCTOR');
+                      (portalMode === 'nurse' && r.role === 'NURSE') ||
+                      (portalMode === 'management' && currentRole === r.role && r.role !== 'PATIENT' && r.role !== 'DOCTOR' && r.role !== 'NURSE');
 
                     return (
                       <button
@@ -327,7 +334,11 @@ export const Header: React.FC<HeaderProps> = ({
                           } else if (r.role === 'DOCTOR') {
                             onRoleChange('DOCTOR');
                             onPortalModeChange('doctor');
-                            setCurrentTab('doctor-chat');
+                            setCurrentTab('doctor-consult');
+                          } else if (r.role === 'NURSE') {
+                            onRoleChange('NURSE');
+                            onPortalModeChange('nurse');
+                            setCurrentTab('nurse-rounds');
                           } else {
                             onRoleChange(r.role);
                             onPortalModeChange('management');

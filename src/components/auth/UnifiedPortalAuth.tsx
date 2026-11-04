@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Patient, Doctor, ThemeMode, UserRole } from '../../types';
+import { Patient, Doctor, ThemeMode } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
 import {
@@ -16,6 +16,7 @@ import {
   EyeOff,
   Heart,
   Stethoscope,
+  Activity,
   Loader2,
   AlertCircle,
   CheckCircle2
@@ -25,13 +26,15 @@ interface UnifiedPortalAuthProps {
   theme: ThemeMode;
   onLoginPatient: (patient: Patient) => void;
   onLoginDoctor: (doctor?: Doctor) => void;
+  onLoginNurse: (nurseName?: string) => void;
 }
 
 export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
   onLoginPatient,
-  onLoginDoctor
+  onLoginDoctor,
+  onLoginNurse
 }) => {
-  const [portalCategory, setPortalCategory] = useState<'patient' | 'doctor'>('patient');
+  const [portalCategory, setPortalCategory] = useState<'patient' | 'doctor' | 'nurse'>('patient');
   const [authView, setAuthView] = useState<'login' | 'signup' | 'forgot'>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -58,7 +61,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
   const existingDoctors = db.getDoctors();
 
   // Reset form when changing category
-  const handleCategorySwitch = (category: 'patient' | 'doctor') => {
+  const handleCategorySwitch = (category: 'patient' | 'doctor' | 'nurse') => {
     sound.playClick();
     setPortalCategory(category);
     setAuthView('login');
@@ -68,16 +71,18 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
     setPassword('');
   };
 
-  // Handle Login for either Patient or Doctor
+  // Handle Login
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
     if (!email.trim()) {
       setErrorMessage(
-        portalCategory === 'patient' 
-          ? 'Please enter your email address or patient code.' 
-          : 'Please enter your doctor ID or clinical email.'
+        portalCategory === 'patient'
+          ? 'Please enter your email address or patient code.'
+          : portalCategory === 'doctor'
+            ? 'Please enter your doctor ID or clinical email.'
+            : 'Please enter your nurse ID or hospital email.'
       );
       return;
     }
@@ -102,7 +107,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
         setTimeout(() => {
           onLoginPatient(patient);
         }, 500);
-      } else {
+      } else if (portalCategory === 'doctor') {
         const foundDoc = existingDoctors.find(
           d =>
             d.name.toLowerCase().includes(email.trim().toLowerCase()) ||
@@ -113,6 +118,12 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
         setSuccessMessage(`Welcome, ${doctor.name}! Accessing Clinical Station...`);
         setTimeout(() => {
           onLoginDoctor(doctor);
+        }, 500);
+      } else {
+        sound.playSuccess();
+        setSuccessMessage('Welcome, Nurse Sarah Jenkins, RN! Opening Head Nurse Station...');
+        setTimeout(() => {
+          onLoginNurse('Nurse Sarah Jenkins, RN');
         }, 500);
       }
       setLoading(false);
@@ -241,12 +252,18 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
         setTimeout(() => {
           onLoginPatient(patient);
         }, 500);
-      } else {
+      } else if (portalCategory === 'doctor') {
         const doctor = existingDoctors[0];
         sound.playSuccess();
         setSuccessMessage(`Google SSO Verified: ${doctor.name}`);
         setTimeout(() => {
           onLoginDoctor(doctor);
+        }, 500);
+      } else {
+        sound.playSuccess();
+        setSuccessMessage(`Google SSO Verified: ${selectedName}`);
+        setTimeout(() => {
+          onLoginNurse(selectedName);
         }, 500);
       }
       setLoading(false);
@@ -272,35 +289,48 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
       </div>
 
       {/* Central Fully Transparent Frosted Glass Card */}
-      <div className="relative z-10 w-full max-w-[430px] my-10 animate-in fade-in zoom-in-95 duration-300">
-        <div className="rounded-[28px] border border-white/20 p-6 sm:p-8 shadow-[0_16px_45px_rgba(0,0,0,0.4)] bg-black/30 backdrop-blur-xl text-white">
+      <div className="relative z-10 w-full max-w-[450px] my-10 animate-in fade-in zoom-in-95 duration-300">
+        <div className="rounded-[28px] border border-white/20 p-5 sm:p-8 shadow-[0_16px_45px_rgba(0,0,0,0.4)] bg-black/30 backdrop-blur-xl text-white">
 
-          {/* ================= PORTAL SPLIT SWITCHER (PATIENT vs DOCTOR) ================= */}
-          <div className="grid grid-cols-2 p-1.5 mb-6 rounded-2xl bg-black/40 backdrop-blur-md border border-white/15">
+          {/* ================= 3-WAY PORTAL SPLIT SWITCHER ================= */}
+          <div className="grid grid-cols-3 p-1.5 mb-6 rounded-2xl bg-black/40 backdrop-blur-md border border-white/15">
             <button
               type="button"
               onClick={() => handleCategorySwitch('patient')}
-              className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 portalCategory === 'patient'
                   ? 'bg-[#0095F6] text-white shadow-lg shadow-[#0095F6]/30'
                   : 'text-white/70 hover:text-white hover:bg-white/5'
               }`}
             >
-              <Heart className="w-3.5 h-3.5" />
-              <span>Patient Portal</span>
+              <Heart className="w-3.5 h-3.5 shrink-0" />
+              <span>Patient</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleCategorySwitch('doctor')}
-              className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 portalCategory === 'doctor'
                   ? 'bg-[#0095F6] text-white shadow-lg shadow-[#0095F6]/30'
                   : 'text-white/70 hover:text-white hover:bg-white/5'
               }`}
             >
-              <Stethoscope className="w-3.5 h-3.5" />
-              <span>Doctor Portal</span>
+              <Stethoscope className="w-3.5 h-3.5 shrink-0" />
+              <span>Doctor</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleCategorySwitch('nurse')}
+              className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                portalCategory === 'nurse'
+                  ? 'bg-[#0095F6] text-white shadow-lg shadow-[#0095F6]/30'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Activity className="w-3.5 h-3.5 shrink-0 text-emerald-300" />
+              <span>Head Nurse</span>
             </button>
           </div>
 
@@ -319,10 +349,10 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
             </div>
           )}
 
-          {/* ================= VIEW 1: LOGIN (EXACT REQUESTED LAYOUT) ================= */}
+          {/* ================= VIEW 1: LOGIN ================= */}
           {authView === 'login' && (
             <form onSubmit={handleLogin} className="space-y-4">
-              {/* Email Address Input */}
+              {/* Email Address / ID Input */}
               <div className="relative">
                 <Mail className="w-4 h-4 text-white/70 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
@@ -333,7 +363,9 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                   placeholder={
                     portalCategory === 'patient'
                       ? "Email address or patient code"
-                      : "Doctor ID or hospital email"
+                      : portalCategory === 'doctor'
+                        ? "Doctor ID or hospital email"
+                        : "Nurse ID or hospital email (e.g. stf-1)"
                   }
                   className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-white/20 bg-black/25 hover:bg-black/35 focus:bg-black/45 backdrop-blur-md text-white placeholder:text-white/60 text-sm focus:outline-hidden focus:border-[#0095F6] transition-all shadow-inner"
                 />
@@ -347,7 +379,13 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                   required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder={portalCategory === 'patient' ? "Password" : "Password / PIN"}
+                  placeholder={
+                    portalCategory === 'patient'
+                      ? "Password"
+                      : portalCategory === 'doctor'
+                        ? "Doctor Password / PIN"
+                        : "Nurse PIN / Password"
+                  }
                   className="w-full pl-11 pr-11 py-3.5 rounded-xl border border-white/20 bg-black/25 hover:bg-black/35 focus:bg-black/45 backdrop-blur-md text-white placeholder:text-white/60 text-sm focus:outline-hidden focus:border-[#0095F6] transition-all shadow-inner"
                 />
                 <button
@@ -359,7 +397,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                 </button>
               </div>
 
-              {/* Vibrant Blue Log In Button */}
+              {/* Blue Log In Button */}
               <button
                 type="submit"
                 disabled={loading}
@@ -371,7 +409,13 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                     <span>Signing in...</span>
                   </>
                 ) : (
-                  <span>{portalCategory === 'patient' ? 'Log In' : 'Log In to Station'}</span>
+                  <span>
+                    {portalCategory === 'patient'
+                      ? 'Log In'
+                      : portalCategory === 'doctor'
+                        ? 'Log In to Doctor Station'
+                        : 'Log In to Nurse Station'}
+                  </span>
                 )}
               </button>
 
@@ -398,7 +442,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                 <div className="h-px bg-white/25 flex-1" />
               </div>
 
-              {/* Continue with Google (White Button) */}
+              {/* Continue with Google */}
               <button
                 type="button"
                 onClick={() => {
@@ -428,8 +472,8 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                 <span>Continue with Google</span>
               </button>
 
-              {/* Patient: Create New Account | Doctor: Demo Doctor Pills */}
-              {portalCategory === 'patient' ? (
+              {/* Bottom Section: Patient Signup OR Doctor Quick Access OR Nurse Quick Access */}
+              {portalCategory === 'patient' && (
                 <button
                   type="button"
                   onClick={() => {
@@ -441,10 +485,12 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                 >
                   Create new account
                 </button>
-              ) : (
+              )}
+
+              {portalCategory === 'doctor' && (
                 <div className="pt-2 border-t border-white/15">
                   <p className="text-[11px] font-bold text-white/60 mb-2">
-                    ⚡ Quick Doctor Access (1-Click Station Entry):
+                    ⚡ Quick Doctor Access (1-Click Entry):
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {existingDoctors.slice(0, 2).map(d => (
@@ -465,6 +511,35 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                       </button>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {portalCategory === 'nurse' && (
+                <div className="pt-2 border-t border-white/15">
+                  <p className="text-[11px] font-bold text-white/60 mb-2">
+                    ⚡ Quick Head Nurse Access (1-Click Station Entry):
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sound.playSuccess();
+                      onLoginNurse('Nurse Sarah Jenkins, RN');
+                    }}
+                    className="w-full p-2.5 rounded-xl text-left bg-black/30 hover:bg-black/50 border border-white/20 transition-all cursor-pointer text-xs flex items-center gap-3"
+                  >
+                    <img
+                      src="https://images.unsplash.com/photo-1594824813571-638f02614d3f?w=150&auto=format&fit=crop&q=80"
+                      alt="Head Nurse Sarah"
+                      className="w-8 h-8 rounded-full object-cover ring-2 ring-emerald-400/50"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-white truncate">Nurse Sarah Jenkins, RN, BSN</p>
+                      <p className="text-[11px] text-emerald-300 truncate">Head Charge Nurse • ICU & Surgical Wing</p>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+                      Enter
+                    </span>
+                  </button>
                 </div>
               )}
             </form>
@@ -644,12 +719,12 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
             <div className="py-4">
               <h3 className="font-bold text-base text-white mb-1">Choose an account</h3>
               <p className="text-xs text-white/70 mb-4">
-                to continue to <strong className="text-white">MediCore {portalCategory === 'patient' ? 'Patient Portal' : 'Doctor Portal'}</strong>
+                to continue to <strong className="text-white">MediCore {portalCategory === 'patient' ? 'Patient Portal' : portalCategory === 'doctor' ? 'Doctor Portal' : 'Head Nurse Station'}</strong>
               </p>
 
               {/* Accounts List */}
               <div className="space-y-2">
-                {portalCategory === 'patient' ? (
+                {portalCategory === 'patient' && (
                   <>
                     <button
                       type="button"
@@ -699,7 +774,9 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                       </div>
                     </button>
                   </>
-                ) : (
+                )}
+
+                {portalCategory === 'doctor' && (
                   <>
                     <button
                       type="button"
@@ -746,6 +823,58 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                           Dr. Sophia Chen, MD (Critical Care)
                         </p>
                         <p className="text-[11px] text-white/70 truncate">dr.sophia@medicore.io</p>
+                      </div>
+                    </button>
+                  </>
+                )}
+
+                {portalCategory === 'nurse' && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSelectGoogleAccount(
+                          'nurse.sarah@medicore.io',
+                          'Nurse Sarah Jenkins, RN, BSN',
+                          'https://images.unsplash.com/photo-1594824813571-638f02614d3f?w=150&auto=format&fit=crop&q=80'
+                        )
+                      }
+                      className="w-full p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 flex items-center gap-3 transition-all text-left group cursor-pointer"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1594824813571-638f02614d3f?w=150&auto=format&fit=crop&q=80"
+                        alt="Nurse Sarah Jenkins"
+                        className="w-9 h-9 rounded-full object-cover ring-2 ring-[#0095F6]/40"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-white group-hover:text-[#0095F6] transition-colors">
+                          Nurse Sarah Jenkins, RN, BSN
+                        </p>
+                        <p className="text-[11px] text-white/70 truncate">nurse.sarah@medicore.io • Head Charge Nurse</p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSelectGoogleAccount(
+                          'nurse.clara@medicore.io',
+                          'Nurse Clara Higgins, RN',
+                          'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
+                        )
+                      }
+                      className="w-full p-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 flex items-center gap-3 transition-all text-left group cursor-pointer"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80"
+                        alt="Nurse Clara Higgins"
+                        className="w-9 h-9 rounded-full object-cover ring-2 ring-[#0095F6]/40"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-white group-hover:text-[#0095F6] transition-colors">
+                          Nurse Clara Higgins, RN
+                        </p>
+                        <p className="text-[11px] text-white/70 truncate">nurse.clara@medicore.io • Staff Nurse II</p>
                       </div>
                     </button>
                   </>
@@ -807,4 +936,3 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
     </div>
   );
 };
-

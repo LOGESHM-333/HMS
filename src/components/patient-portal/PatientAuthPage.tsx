@@ -11,12 +11,14 @@ interface PatientAuthPageProps {
   theme: ThemeMode;
   onLoginSuccess: (patient: Patient) => void;
   onSwitchToDoctorPortal?: () => void;
+  onLoginNurse?: () => void;
 }
 
 export const PatientAuthPage: React.FC<PatientAuthPageProps> = ({
   theme,
   onLoginSuccess,
-  onSwitchToDoctorPortal
+  onSwitchToDoctorPortal,
+  onLoginNurse
 }) => {
   return (
     <UnifiedPortalAuth
@@ -27,6 +29,7 @@ export const PatientAuthPage: React.FC<PatientAuthPageProps> = ({
           onSwitchToDoctorPortal();
         }
       }}
+      onLoginNurse={onLoginNurse || (() => {})}
     />
   );
 };

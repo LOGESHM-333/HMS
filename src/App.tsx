@@ -24,6 +24,7 @@ import { StaffManagement } from './components/staff/StaffManagement';
 import { AnalyticsReports } from './components/analytics/AnalyticsReports';
 import { PatientPortal } from './components/patient-portal/PatientPortal';
 import { DoctorPortal } from './components/doctor-portal/DoctorPortal';
+import { HeadNursePortal } from './components/nurse-portal/HeadNursePortal';
 import { SettingsView } from './components/settings/SettingsView';
 import { 
   Search, 
@@ -44,8 +45,8 @@ export default function App() {
     return Boolean(localStorage.getItem('medicore_authenticated'));
   });
 
-  const [portalMode, setPortalMode] = useState<'management' | 'doctor' | 'patient'>(() => {
-    const saved = localStorage.getItem('medicore_portal_mode') as 'management' | 'doctor' | 'patient';
+  const [portalMode, setPortalMode] = useState<'management' | 'doctor' | 'nurse' | 'patient'>(() => {
+    const saved = localStorage.getItem('medicore_portal_mode') as 'management' | 'doctor' | 'nurse' | 'patient';
     return saved || 'patient';
   });
 
@@ -53,6 +54,7 @@ export default function App() {
     const saved = localStorage.getItem('medicore_portal_mode');
     if (saved === 'patient') return 'patient-health';
     if (saved === 'doctor') return 'doctor-consult';
+    if (saved === 'nurse') return 'nurse-rounds';
     return 'dashboard';
   });
 
@@ -60,6 +62,7 @@ export default function App() {
     const saved = localStorage.getItem('medicore_portal_mode');
     if (saved === 'patient') return 'PATIENT';
     if (saved === 'doctor') return 'DOCTOR';
+    if (saved === 'nurse') return 'NURSE';
     return db.getRole();
   });
 
@@ -105,6 +108,10 @@ export default function App() {
       setPortalMode('doctor');
       localStorage.setItem('medicore_portal_mode', 'doctor');
       setCurrentTab('doctor-consult');
+    } else if (role === 'NURSE') {
+      setPortalMode('nurse');
+      localStorage.setItem('medicore_portal_mode', 'nurse');
+      setCurrentTab('nurse-rounds');
     } else {
       setPortalMode('management');
       localStorage.setItem('medicore_portal_mode', 'management');
@@ -112,7 +119,7 @@ export default function App() {
     }
   };
 
-  const handlePortalModeChange = (mode: 'management' | 'doctor' | 'patient') => {
+  const handlePortalModeChange = (mode: 'management' | 'doctor' | 'nurse' | 'patient') => {
     setPortalMode(mode);
     localStorage.setItem('medicore_portal_mode', mode);
     if (mode === 'patient') {
@@ -123,6 +130,10 @@ export default function App() {
       setCurrentRole('DOCTOR');
       db.setRole('DOCTOR');
       setCurrentTab('doctor-consult');
+    } else if (mode === 'nurse') {
+      setCurrentRole('NURSE');
+      db.setRole('NURSE');
+      setCurrentTab('nurse-rounds');
     } else {
       setCurrentRole('SUPER_ADMIN');
       db.setRole('SUPER_ADMIN');
@@ -153,6 +164,7 @@ export default function App() {
   // Quick command search items
   const quickSearchActions = [
     { label: 'Executive Hospital Command Dashboard', tab: 'dashboard', mode: 'management', icon: Sparkles },
+    { label: 'Head Nurse Station - Ward Census & MAR', tab: 'nurse-rounds', mode: 'nurse', icon: Activity },
     { label: 'MediFlex 3D Organ & Clinical Intelligence', tab: 'mediflex', mode: 'management', icon: Heart },
     { label: 'Patient Directory & Health Records', tab: 'patients', mode: 'management', icon: FileText },
     { label: 'Schedule Doctor Consultation', tab: 'appointments', mode: 'management', icon: Calendar },
@@ -200,6 +212,15 @@ export default function App() {
           db.setRole('DOCTOR');
           setCurrentTab('doctor-consult');
         }}
+        onLoginNurse={() => {
+          localStorage.setItem('medicore_authenticated', 'true');
+          localStorage.setItem('medicore_portal_mode', 'nurse');
+          setIsAuthenticated(true);
+          setPortalMode('nurse');
+          setCurrentRole('NURSE');
+          db.setRole('NURSE');
+          setCurrentTab('nurse-rounds');
+        }}
       />
     );
   }
@@ -223,7 +244,7 @@ export default function App() {
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* GLOBAL ENTERPRISE HEADER WITH CITYCARE BRANDING & PORTAL TOGGLE */}
+        {/* GLOBAL ENTERPRISE HEADER WITH BRANDING & PORTAL TOGGLE */}
         <Header
           currentTab={currentTab}
           setCurrentTab={setCurrentTab}
@@ -339,6 +360,16 @@ export default function App() {
             />
           )}
 
+          {/* ================= HEAD NURSE PORTAL ROUTES ================= */}
+          {portalMode === 'nurse' && (
+            <HeadNursePortal 
+              theme={theme}
+              onLogout={handleLogout}
+              onSwitchToDoctorPortal={() => handlePortalModeChange('doctor')}
+              onSwitchToPatientPortal={() => handlePortalModeChange('patient')}
+            />
+          )}
+
           {/* ================= PATIENT PORTAL ROUTES ================= */}
           {portalMode === 'patient' && (
             <PatientPortal 
@@ -363,7 +394,7 @@ export default function App() {
             <div className="flex items-center gap-4 text-[11px]">
               <span>Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 font-mono text-[10px]">Cmd</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 font-mono text-[10px]">K</kbd> for Global Search</span>
               <span>•</span>
-              <span>HIPAA / HL7 FHIR Compliant</span>
+              <span>Protected Health System Station</span>
             </div>
           </div>
         </footer>
@@ -405,6 +436,10 @@ export default function App() {
                         setPortalMode('patient');
                         setCurrentRole('PATIENT');
                         db.setRole('PATIENT');
+                      } else if (action.mode === 'nurse') {
+                        setPortalMode('nurse');
+                        setCurrentRole('NURSE');
+                        db.setRole('NURSE');
                       } else {
                         setPortalMode('management');
                       }
