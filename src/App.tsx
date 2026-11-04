@@ -138,11 +138,26 @@ export default function App() {
   const isDark = theme === 'dark';
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${
-      isDark ? 'bg-[#07111E] text-white' : 'bg-[#EDF2F7] text-[#142C43]'
+    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 relative ${
+      isDark ? 'text-white' : 'text-[#142C43]'
     }`}>
-      {/* GLOBAL ENTERPRISE HEADER WITH CITYCARE BRANDING & PORTAL TOGGLE */}
-      <Header
+      {/* GLOBAL BACKGROUND IMAGE WITH AMBIENT BACKDROP */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('/assets/medical-bg.jpg')`,
+        }}
+      >
+        <div className={`absolute inset-0 transition-colors duration-300 ${
+          isDark 
+            ? 'bg-[#07111E]/90 backdrop-blur-[1px]' 
+            : 'bg-[#EDF2F7]/88 backdrop-blur-[1px]'
+        }`} />
+      </div>
+
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* GLOBAL ENTERPRISE HEADER WITH CITYCARE BRANDING & PORTAL TOGGLE */}
+        <Header
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
         portalMode={portalMode}
@@ -284,6 +299,7 @@ export default function App() {
           </div>
         </div>
       </footer>
+      </div>
 
       {/* GLOBAL SEARCH DIALOG (CMD+K) */}
       {isSearchOpen && (
