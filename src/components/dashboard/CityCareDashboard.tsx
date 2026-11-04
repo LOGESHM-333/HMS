@@ -100,7 +100,7 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-cyan-500/15 backdrop-blur-md text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 shadow-xs">
               Holographic Diagnostic Active
             </span>
 
@@ -109,7 +109,7 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
                 sound.playClick();
                 onNavigateTab('ward');
               }}
-              className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#E6F4F1] hover:bg-[#D4EFEA] text-[#0C4E44] dark:bg-teal-950/70 dark:text-teal-300 dark:border dark:border-teal-800 flex items-center gap-1.5 transition-all shadow-xs"
+              className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-teal-500/15 hover:bg-teal-500/25 backdrop-blur-md text-[#0C4E44] dark:text-teal-300 border border-teal-500/30 flex items-center gap-1.5 transition-all shadow-xs"
             >
               <LayoutGrid className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
               <span>Ward Overview (Scrub)</span>
@@ -121,9 +121,9 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
                   sound.playClick();
                   onSwitchToMediFlex();
                 }}
-                className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#E2F0FE] hover:bg-[#CFE5FD] text-[#1E3A8A] flex items-center gap-1.5 transition-all shadow-xs"
+                className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-500/15 hover:bg-blue-500/25 backdrop-blur-md text-[#1E3A8A] dark:text-blue-300 border border-blue-500/30 flex items-center gap-1.5 transition-all shadow-xs"
               >
-                <Heart className="w-3.5 h-3.5 text-blue-600" />
+                <Heart className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                 <span>MediFlex Clinical View</span>
               </button>
             )}
@@ -297,11 +297,11 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
             <div className="grid grid-cols-2 gap-4">
               {/* Card 1: Total Patients */}
               <div className={`p-5 rounded-3xl border transition-all hover:shadow-md ${
-                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-[#FAFCFB] border-slate-200/70'
+                isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
               }`}>
                 <div className="flex items-center justify-between text-slate-400 mb-2">
                   <span className="text-xs font-semibold">Total Patients</span>
-                  <button className="text-slate-400 hover:text-black dark:hover:text-white">
+                  <button className="text-slate-400 hover:text-black dark:hover:text-white p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
                 </div>
@@ -317,11 +317,11 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
 
               {/* Card 2: Available Beds */}
               <div className={`p-5 rounded-3xl border transition-all hover:shadow-md ${
-                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-[#FAFCFB] border-slate-200/70'
+                isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
               }`}>
                 <div className="flex items-center justify-between text-slate-400 mb-2">
                   <span className="text-xs font-semibold">Available Beds</span>
-                  <button className="text-slate-400 hover:text-black dark:hover:text-white">
+                  <button className="text-slate-400 hover:text-black dark:hover:text-white p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
                 </div>
@@ -345,11 +345,11 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
 
               {/* Card 3: Duty Doctor */}
               <div className={`p-5 rounded-3xl border transition-all hover:shadow-md ${
-                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-[#FAFCFB] border-slate-200/70'
+                isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
               }`}>
                 <div className="flex items-center justify-between text-slate-400 mb-2">
                   <span className="text-xs font-semibold">Duty Doctor</span>
-                  <button className="text-slate-400 hover:text-black dark:hover:text-white">
+                  <button className="text-slate-400 hover:text-black dark:hover:text-white p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
                 </div>
@@ -373,11 +373,11 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
 
               {/* Card 4: Appointments */}
               <div className={`p-5 rounded-3xl border transition-all hover:shadow-md ${
-                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-[#FAFCFB] border-slate-200/70'
+                isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
               }`}>
                 <div className="flex items-center justify-between text-slate-400 mb-2">
                   <span className="text-xs font-semibold">Appointments</span>
-                  <button className="text-slate-400 hover:text-black dark:hover:text-white">
+                  <button className="text-slate-400 hover:text-black dark:hover:text-white p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
                 </div>
@@ -403,7 +403,7 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
 
             {/* PATIENT ADMISSION TREND AREA CHART (EXACT TO ATTACHED IMAGE) */}
             <div className={`p-6 rounded-3xl border transition-all ${
-              isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-[#FAFCFB] border-slate-200/70'
+              isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
             }`}>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 dark:text-white">
@@ -411,14 +411,14 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
                 </h3>
 
                 {/* Filter toggle pills: Daily, Weekly, Daily/Monthly */}
-                <div className="flex items-center gap-1.5 p-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs">
+                <div className="flex items-center gap-1.5 p-1 rounded-full bg-slate-100/70 dark:bg-slate-800/70 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 text-xs">
                   <button
                     onClick={() => {
                       sound.playClick();
                       setTrendTime('Daily');
                     }}
                     className={`px-3 py-1 rounded-full font-medium transition-all ${
-                      trendTime === 'Daily' ? 'bg-black text-white' : 'text-slate-500'
+                      trendTime === 'Daily' ? 'bg-black/90 text-white shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white'
                     }`}
                   >
                     Daily
@@ -429,7 +429,7 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
                       setTrendTime('Weekly');
                     }}
                     className={`px-3 py-1 rounded-full font-bold transition-all ${
-                      trendTime === 'Weekly' ? 'bg-black text-white shadow-xs' : 'text-slate-500'
+                      trendTime === 'Weekly' ? 'bg-black/90 text-white shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white'
                     }`}
                   >
                     Weekly
@@ -440,7 +440,7 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
                       setTrendTime('Monthly');
                     }}
                     className={`px-3 py-1 rounded-full font-medium transition-all ${
-                      trendTime === 'Monthly' ? 'bg-black text-white' : 'text-slate-500'
+                      trendTime === 'Monthly' ? 'bg-black/90 text-white shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white'
                     }`}
                   >
                     Monthly
