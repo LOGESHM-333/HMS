@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediCore - Patient Portal Background Options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #090d16;
+      color: #e2e8f0;
+      padding: 32px 20px 80px;
+    }
+    .header {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto 40px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(14, 165, 233, 0.15);
+      border: 1px solid rgba(14, 165, 233, 0.35);
+      color: #38bdf8;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.subtitle {
+      color: #94a3b8;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .gallery {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 28px;
+    }
+    .card {
+      background: #111827;
+      border-radius: 18px;
+      border: 1px solid #1f2937;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: #38bdf8;
+      box-shadow: 0 20px 35px -10px rgba(56, 189, 248, 0.25);
+    }
+    .card-img-wrapper {
+      position: relative;
+      width: 100%;
+      height: 230px;
+      overflow: hidden;
+      background: #030712;
+    }
+    .card-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .card:hover .card-img-wrapper img {
+      transform: scale(1.04);
+    }
+    .option-tag {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .card-content {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 8px;
+    }
+    .card-desc {
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.55;
+      margin-bottom: 16px;
+      flex: 1;
+    }
+    .badge-pill {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      background: #1e293b;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+      width: fit-content;
+    }
+    .select-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .select-btn:hover {
+      opacity: 0.9;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal.active { display: flex; }
+    .modal img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 14px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+    .modal-close {
+      position: absolute;
+      top: 24px;
+      right: 32px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="badge">MediCore Design Studio</div>
+    <h1>Patient Portal Sign-up Background Options</h1>
+    <p class="subtitle">Ungalukku pidicha background option-ai paarthu therivu seiyavum. Click the images to zoom in full screen.</p>
+  </div>
+
+  <div class="gallery">
+    <!-- Option 1 -->
+    <div class="card">
+      <div class="card-img-wrapper" onclick="openModal('/assets/backgrounds/bg-option-1-futuristic.jpg')">
+        <img src="/assets/backgrounds/bg-option-1-futuristic.jpg" alt="Option 1">
+        <div class="option-tag">Option 1</div>
+      </div>
+      <div class="card-content">
+        <div class="card-title">Futuristic Medical Atrium</div>
+        <div class="badge-pill">Cyan & Blue Glow • Glassmorphism</div>
+        <p class="card-desc">Modern architectural glass atrium with soft ambient cyan neon, translucent health telemetry HUD overlays, tranquil high-tech aesthetic.</p>
+        <button class="select-btn" onclick="openModal('/assets/backgrounds/bg-option-1-futuristic.jpg')">🔍 View Fullscreen</button>
+      </div>
+    </div>
+
+    <!-- Option 2 -->
+    <div class="card">
+      <div class="card-img-wrapper" onclick="openModal('/assets/backgrounds/bg-option-2-warm-caring.jpg')">
+        <img src="/assets/backgrounds/bg-option-2-warm-caring.jpg" alt="Option 2">
+        <div class="option-tag">Option 2</div>
+      </div>
+      <div class="card-content">
+        <div class="card-title">Warm & Caring Healthcare</div>
+        <div class="badge-pill">Human Touch • Sunlight • Wood & Teal</div>
+        <p class="card-desc">Doctor and patient in soft warm focus, natural morning sunlight streaming through windows, calm and reassuring hospital environment.</p>
+        <button class="select-btn" onclick="openModal('/assets/backgrounds/bg-option-2-warm-caring.jpg')">🔍 View Fullscreen</button>
+      </div>
+    </div>
+
+    <!-- Option 3 -->
+    <div class="card">
+      <div class="card-img-wrapper" onclick="openModal('/assets/backgrounds/bg-option-3-dna-tech.jpg')">
+        <img src="/assets/backgrounds/bg-option-3-dna-tech.jpg" alt="Option 3">
+        <div class="option-tag">Option 3</div>
+      </div>
+      <div class="card-content">
+        <div class="card-title">3D DNA & Anatomy Tech</div>
+        <div class="badge-pill">3D Bio-Tech • Deep Navy • Hologram</div>
+        <p class="card-desc">Glowing double helix DNA and anatomical network lines in deep space navy gradient. Perfectly complements the MediCore 3D anatomy system.</p>
+        <button class="select-btn" onclick="openModal('/assets/backgrounds/bg-option-3-dna-tech.jpg')">🔍 View Fullscreen</button>
+      </div>
+    </div>
+
+    <!-- Option 4 -->
+    <div class="card">
+      <div class="card-img-wrapper" onclick="openModal('/assets/backgrounds/bg-option-4-wellness.jpg')">
+        <img src="/assets/backgrounds/bg-option-4-wellness.jpg" alt="Option 4">
+        <div class="option-tag">Option 4</div>
+      </div>
+      <div class="card-content">
+        <div class="card-title">Clean Scandinavian Wellness</div>
+        <div class="badge-pill">Vertical Living Wall • White Marble • Spa Vibe</div>
+        <p class="card-desc">Bright, airy hospital wellness lobby with lush vertical plant walls, polished white marble, and serene natural daylight for a calm healing vibe.</p>
+        <button class="select-btn" onclick="openModal('/assets/backgrounds/bg-option-4-wellness.jpg')">🔍 View Fullscreen</button>
+      </div>
+    </div>
+
+    <!-- Option 5 -->
+    <div class="card">
+      <div class="card-img-wrapper" onclick="openModal('/assets/backgrounds/bg-option-5-smart-health.jpg')">
+        <img src="/assets/backgrounds/bg-option-5-smart-health.jpg" alt="Option 5">
+        <div class="option-tag">Option 5</div>
+      </div>
+      <div class="card-content">
+        <div class="card-title">Digital Smart Health & Desk</div>
+        <div class="badge-pill">Doctor Desk • Tablet Telemetry • Cinematic</div>
+        <p class="card-desc">Tablet displaying real-time patient ECG vitals alongside a sleek stethoscope with warm cinematic hospital bokeh in the background.</p>
+        <button class="select-btn" onclick="openModal('/assets/backgrounds/bg-option-5-smart-health.jpg')">🔍 View Fullscreen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="imageModal" class="modal" onclick="closeModal()">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <img id="modalImg" src="" alt="Fullscreen Preview">
+  </div>
+
+  <script>
+    function openModal(src) {
+      document.getElementById('modalImg').src = src;
+      document.getElementById('imageModal').classList.add('active');
+    }
+    function closeModal() {
+      document.getElementById('imageModal').classList.remove('active');
+    }
+  </script>
+</body>
+</html>
+
