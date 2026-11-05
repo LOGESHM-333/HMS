@@ -40,7 +40,8 @@ import {
   Trash2,
   Stethoscope,
   X,
-  Zap
+  Zap,
+  Building2
 } from 'lucide-react';
 
 interface HeadNursePortalProps {
@@ -48,6 +49,8 @@ interface HeadNursePortalProps {
   onLogout?: () => void;
   onSwitchToDoctorPortal?: () => void;
   onSwitchToPatientPortal?: () => void;
+  onSwitchToAdminPortal?: () => void;
+  onSwitchToSuperAdminPortal?: () => void;
 }
 
 interface MarItem {
@@ -176,7 +179,9 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
   theme,
   onLogout,
   onSwitchToDoctorPortal,
-  onSwitchToPatientPortal
+  onSwitchToPatientPortal,
+  onSwitchToAdminPortal,
+  onSwitchToSuperAdminPortal
 }) => {
   const isDark = theme === 'dark';
 
@@ -776,6 +781,34 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
           </button>
 
           {/* Quick Portal Switch Buttons (Instant Signout + Route to Login) */}
+          {onSwitchToAdminPortal && (
+            <button
+              onClick={() => {
+                sound.playClick();
+                onSwitchToAdminPortal();
+              }}
+              className="px-3 py-2 rounded-xl text-xs font-bold border border-teal-500/30 bg-teal-500/15 hover:bg-teal-500/25 text-teal-700 dark:text-teal-300 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              title="Switch to Hospital Admin Portal"
+            >
+              <Building2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <span>Admin</span>
+            </button>
+          )}
+
+          {onSwitchToSuperAdminPortal && (
+            <button
+              onClick={() => {
+                sound.playClick();
+                onSwitchToSuperAdminPortal();
+              }}
+              className="px-3 py-2 rounded-xl text-xs font-bold border border-purple-500/30 bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              title="Switch to Enterprise Super Admin"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+              <span>Super Admin</span>
+            </button>
+          )}
+
           {onSwitchToDoctorPortal && (
             <button
               onClick={() => {

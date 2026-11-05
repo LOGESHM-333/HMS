@@ -18,7 +18,10 @@ import {
   CriticalAlert,
   AuditLog,
   UserRole,
-  ThemeMode
+  ThemeMode,
+  ManagedUser,
+  FacilityNode,
+  EnterpriseSecurityConfig
 } from '../types';
 import { api } from './api';
 
@@ -694,6 +697,161 @@ const INITIAL_ALERTS: CriticalAlert[] = [
   },
 ];
 
+const INITIAL_SYSTEM_USERS: ManagedUser[] = [
+  {
+    id: 'usr-root-1',
+    name: 'Dr. Eleanor Vance, MD, CISSP',
+    email: 'superadmin@medicore.org',
+    role: 'SUPER_ADMIN',
+    department: 'Enterprise Health Governance & Executive Board',
+    facility: 'MediCore Enterprise Health Network (All Facilities)',
+    mfaEnabled: true,
+    status: 'Active',
+    lastLogin: 'Just now'
+  },
+  {
+    id: 'usr-admin-1',
+    name: 'Marcus Vance, MHA',
+    email: 'admin@medicore.org',
+    role: 'HOSPITAL_ADMIN',
+    department: 'Hospital Administration & Clinical Operations',
+    facility: 'MediCore Central Hospital (Flagship)',
+    mfaEnabled: true,
+    status: 'Active',
+    lastLogin: '12 mins ago'
+  },
+  {
+    id: 'usr-doc-1',
+    name: 'Dr. Roger S., MD',
+    email: 'roger.s@medicore.org',
+    role: 'DOCTOR',
+    department: 'Pulmonology & Critical Care',
+    facility: 'MediCore Central Hospital',
+    mfaEnabled: true,
+    status: 'Active',
+    lastLogin: '4 mins ago'
+  },
+  {
+    id: 'usr-doc-2',
+    name: 'Dr. Sophia Chen, MD',
+    email: 'sophia.chen@medicore.org',
+    role: 'DOCTOR',
+    department: 'Cardiovascular Surgery',
+    facility: 'CityCare Metropolitan Pavilion',
+    mfaEnabled: true,
+    status: 'Active',
+    lastLogin: '1 hour ago'
+  },
+  {
+    id: 'usr-nurse-1',
+    name: 'Nurse Sarah Jenkins, RN, BSN',
+    email: 'sarah.j@medicore.org',
+    role: 'NURSE',
+    department: 'Intensive Care Unit (ICU)',
+    facility: 'MediCore Central Hospital',
+    mfaEnabled: true,
+    status: 'Active',
+    lastLogin: '2 mins ago'
+  },
+  {
+    id: 'usr-pharm-1',
+    name: 'Alexandre Dubois, RPh',
+    email: 'alex.d@medicore.org',
+    role: 'PHARMACIST',
+    department: 'Central Pharmacy & Formulary',
+    facility: 'MediCore Central Hospital',
+    mfaEnabled: false,
+    status: 'Active',
+    lastLogin: 'Yesterday'
+  },
+  {
+    id: 'usr-lab-1',
+    name: 'Elena Kozlova, MLS',
+    email: 'elena.k@medicore.org',
+    role: 'LAB_TECH',
+    department: 'Pathology & Diagnostic Laboratory',
+    facility: 'MediCore Central Hospital',
+    mfaEnabled: true,
+    status: 'Active',
+    lastLogin: '35 mins ago'
+  },
+  {
+    id: 'usr-acc-1',
+    name: 'Marcus Brody, CPA',
+    email: 'm.brody@medicore.org',
+    role: 'ACCOUNTANT',
+    department: 'Hospital Revenue & Finance',
+    facility: 'MediCore Central Hospital',
+    mfaEnabled: false,
+    status: 'Active',
+    lastLogin: '3 hours ago'
+  }
+];
+
+const INITIAL_FACILITIES: FacilityNode[] = [
+  {
+    id: 'fac-1',
+    name: 'MediCore Central Hospital (Flagship)',
+    city: 'New York, NY',
+    type: 'Academic Medical Center & Level 1 Trauma',
+    totalBeds: 620,
+    occupiedBeds: 584,
+    icusTotal: 48,
+    icusOccupied: 42,
+    dutyPhysicians: 185,
+    status: 'Optimal',
+    director: 'Dr. Eleanor Vance, MD'
+  },
+  {
+    id: 'fac-2',
+    name: 'CityCare Metropolitan Pavilion',
+    city: 'Brooklyn, NY',
+    type: 'General Acute & Surgical Hospital',
+    totalBeds: 450,
+    occupiedBeds: 402,
+    icusTotal: 32,
+    icusOccupied: 28,
+    dutyPhysicians: 120,
+    status: 'High Load',
+    director: 'Marcus Vance, MHA'
+  },
+  {
+    id: 'fac-3',
+    name: 'St. Jude Wellness & Rehabilitation',
+    city: 'Queens, NY',
+    type: 'Specialty Rehabilitation & Chronic Care',
+    totalBeds: 180,
+    occupiedBeds: 136,
+    icusTotal: 12,
+    icusOccupied: 8,
+    dutyPhysicians: 45,
+    status: 'Optimal',
+    director: 'Dr. Maya Patel, MD'
+  },
+  {
+    id: 'fac-4',
+    name: 'Westside Trauma & Surgical Center',
+    city: 'Manhattan, NY',
+    type: 'Emergency Surge & Critical Care',
+    totalBeds: 220,
+    occupiedBeds: 201,
+    icusTotal: 24,
+    icusOccupied: 22,
+    dutyPhysicians: 62,
+    status: 'Surge Alert',
+    director: 'Dr. Julian Hayes, MD'
+  }
+];
+
+const INITIAL_SECURITY_CONFIG: EnterpriseSecurityConfig = {
+  lockdownActive: false,
+  maintenanceMode: false,
+  strictMfaEnforced: true,
+  lastBackupTime: '14 minutes ago',
+  backendApiStatus: 'Online',
+  encryptionStandard: 'AES-256-GCM / TLS 1.3 / FIPS 140-3'
+};
+
 class MockDatabase {
   private currentRole: UserRole = 'HOSPITAL_ADMIN';
   private currentTheme: ThemeMode = 'mint';
@@ -710,6 +868,9 @@ class MockDatabase {
   private alerts: CriticalAlert[] = INITIAL_ALERTS;
   private auditLogs: AuditLog[] = [];
   private selectedPatientId: string = 'pat-1';
+  private systemUsers: ManagedUser[] = INITIAL_SYSTEM_USERS;
+  private facilities: FacilityNode[] = INITIAL_FACILITIES;
+  private securityConfig: EnterpriseSecurityConfig = INITIAL_SECURITY_CONFIG;
 
   constructor() {
     this.loadFromStorage();
@@ -1183,6 +1344,92 @@ class MockDatabase {
     }
   }
 
+  // Enterprise & Super Admin RBAC & Governance Methods
+  public getSystemUsers(): ManagedUser[] {
+    return [...this.systemUsers];
+  }
+
+  public addSystemUser(userData: Omit<ManagedUser, 'id' | 'lastLogin'>): ManagedUser {
+    const newUser: ManagedUser = {
+      ...userData,
+      id: `usr-${Date.now()}`,
+      lastLogin: 'Never (Account Created)'
+    };
+    this.systemUsers.unshift(newUser);
+    this.logAudit('RBAC USER PROVISIONED', 'Security / Identity', `Account created for ${newUser.name} with role ${newUser.role} in ${newUser.facility}`);
+    this.saveToStorage();
+    return newUser;
+  }
+
+  public toggleUserStatus(userId: string): void {
+    const user = this.systemUsers.find(u => u.id === userId);
+    if (user) {
+      user.status = user.status === 'Active' ? 'Suspended' : 'Active';
+      this.logAudit('USER STATUS OVERRIDE', 'Security / RBAC', `Status of ${user.name} changed to ${user.status}`);
+      this.saveToStorage();
+    }
+  }
+
+  public toggleUserMfa(userId: string): void {
+    const user = this.systemUsers.find(u => u.id === userId);
+    if (user) {
+      user.mfaEnabled = !user.mfaEnabled;
+      this.logAudit('MFA POLICY OVERRIDE', 'Security / Auth', `2FA requirement for ${user.name} set to ${user.mfaEnabled}`);
+      this.saveToStorage();
+    }
+  }
+
+  public resetUserCredentials(userId: string): void {
+    const user = this.systemUsers.find(u => u.id === userId);
+    if (user) {
+      this.logAudit('CREDENTIAL ROTATION', 'Security / Auth', `Temporary one-time security ticket dispatched for ${user.email}`);
+      this.saveToStorage();
+    }
+  }
+
+  public getFacilities(): FacilityNode[] {
+    return [...this.facilities];
+  }
+
+  public getSecurityConfig(): EnterpriseSecurityConfig {
+    return { ...this.securityConfig };
+  }
+
+  public updateSecurityConfig(partial: Partial<EnterpriseSecurityConfig>): void {
+    this.securityConfig = { ...this.securityConfig, ...partial };
+    this.logAudit('ENTERPRISE SECURITY CONFIG UPDATE', 'Security / Governance', `Enterprise parameters updated: ${Object.keys(partial).join(', ')}`);
+    this.saveToStorage();
+  }
+
+  public triggerSystemBackup(): string {
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    this.securityConfig.lastBackupTime = `Today at ${time} (AES-256 Encrypted)`;
+    this.logAudit('DATABASE BACKUP SNAPSHOT', 'Infrastructure', `Automated cryptographically signed snapshot created and synced to cold vault.`);
+    this.saveToStorage();
+    return this.securityConfig.lastBackupTime;
+  }
+
+  public triggerEmergencyLockdown(reason: string): void {
+    this.securityConfig.lockdownActive = !this.securityConfig.lockdownActive;
+    const action = this.securityConfig.lockdownActive ? 'FACILITY LOCKDOWN ENGAGED' : 'FACILITY LOCKDOWN TERMINATED';
+    this.logAudit(action, 'Emergency Protocols', `Reason: ${reason}. Executive override authorized by Super Administrator.`);
+    this.saveToStorage();
+  }
+
+  public triggerBroadcastAlert(title: string, message: string): void {
+    const alert: CriticalAlert = {
+      id: `broadcast-${Date.now()}`,
+      title: `[ENTERPRISE BROADCAST] ${title}`,
+      department: 'Executive Enterprise Command',
+      severity: 'critical',
+      time: 'Just now',
+      actionRequired: message
+    };
+    this.alerts.unshift(alert);
+    this.logAudit('STAT ENTERPRISE BROADCAST', 'System Operations', `Broadcast transmitted to all active clinical terminals: "${title}"`);
+    this.saveToStorage();
+  }
+
   public getAuditLogs(): AuditLog[] { return [...this.auditLogs]; }
 }
 
@@ -1199,5 +1446,8 @@ export {
   INITIAL_BEDS,
   INITIAL_INVOICES,
   INITIAL_STAFF,
-  INITIAL_ALERTS
+  INITIAL_ALERTS,
+  INITIAL_SYSTEM_USERS,
+  INITIAL_FACILITIES,
+  INITIAL_SECURITY_CONFIG
 };

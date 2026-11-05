@@ -7,9 +7,10 @@ import React, { useState, useEffect } from 'react';
 import { UserRole, ThemeMode, Patient, Doctor } from './types';
 import { db } from './services/mockDatabase';
 import { sound } from './services/audioService';
-import { Header } from './components/navigation/Header';
-import { UnifiedPortalAuth } from './components/auth/UnifiedPortalAuth';
+import { Header, HeaderPortalMode } from './components/navigation/Header';
+import { UnifiedPortalAuth, AuthPortalCategory } from './components/auth/UnifiedPortalAuth';
 import { CityCareDashboard } from './components/dashboard/CityCareDashboard';
+import { SuperAdminDashboard } from './components/super-admin/SuperAdminDashboard';
 import { WardOverview } from './components/ward/WardOverview';
 import { MediFlexView } from './components/dashboard/MediFlexView';
 import { PatientDirectory } from './components/patients/PatientDirectory';
@@ -45,13 +46,14 @@ export default function App() {
     return Boolean(localStorage.getItem('medicore_authenticated'));
   });
 
-  const [portalMode, setPortalMode] = useState<'management' | 'doctor' | 'nurse' | 'patient'>(() => {
-    const saved = localStorage.getItem('medicore_portal_mode') as 'management' | 'doctor' | 'nurse' | 'patient';
+  const [portalMode, setPortalMode] = useState<HeaderPortalMode>(() => {
+    const saved = localStorage.getItem('medicore_portal_mode') as HeaderPortalMode;
     return saved || 'patient';
   });
 
   const [currentTab, setCurrentTab] = useState<string>(() => {
     const saved = localStorage.getItem('medicore_portal_mode');
+    if (saved === 'super-admin') return 'overview';
     if (saved === 'patient') return 'patient-health';
     if (saved === 'doctor') return 'doctor-consult';
     if (saved === 'nurse') return 'nurse-rounds';
@@ -60,6 +62,8 @@ export default function App() {
 
   const [currentRole, setCurrentRole] = useState<UserRole>(() => {
     const saved = localStorage.getItem('medicore_portal_mode');
+    if (saved === 'super-admin') return 'SUPER_ADMIN';
+    if (saved === 'admin' || saved === 'management') return 'HOSPITAL_ADMIN';
     if (saved === 'patient') return 'PATIENT';
     if (saved === 'doctor') return 'DOCTOR';
     if (saved === 'nurse') return 'NURSE';
@@ -100,7 +104,15 @@ export default function App() {
   const handleRoleChange = (role: UserRole) => {
     db.setRole(role);
     setCurrentRole(role);
-    if (role === 'PATIENT') {
+    if (role === 'SUPER_ADMIN') {
+      setPortalMode('super-admin');
+      localStorage.setItem('medicore_portal_mode', 'super-admin');
+      setCurrentTab('overview');
+    } else if (role === 'HOSPITAL_ADMIN') {
+      setPortalMode('admin');
+      localStorage.setItem('medicore_portal_mode', 'admin');
+      setCurrentTab('dashboard');
+    } else if (role === 'PATIENT') {
       setPortalMode('patient');
       localStorage.setItem('medicore_portal_mode', 'patient');
       setCurrentTab('patient-health');
@@ -113,16 +125,24 @@ export default function App() {
       localStorage.setItem('medicore_portal_mode', 'nurse');
       setCurrentTab('nurse-rounds');
     } else {
-      setPortalMode('management');
-      localStorage.setItem('medicore_portal_mode', 'management');
+      setPortalMode('admin');
+      localStorage.setItem('medicore_portal_mode', 'admin');
       setCurrentTab('dashboard');
     }
   };
 
-  const handlePortalModeChange = (mode: 'management' | 'doctor' | 'nurse' | 'patient') => {
+  const handlePortalModeChange = (mode: HeaderPortalMode) => {
     setPortalMode(mode);
     localStorage.setItem('medicore_portal_mode', mode);
-    if (mode === 'patient') {
+    if (mode === 'super-admin') {
+      setCurrentRole('SUPER_ADMIN');
+      db.setRole('SUPER_ADMIN');
+      setCurrentTab('overview');
+    } else if (mode === 'admin' || mode === 'management') {
+      setCurrentRole('HOSPITAL_ADMIN');
+      db.setRole('HOSPITAL_ADMIN');
+      setCurrentTab('dashboard');
+    } else if (mode === 'patient') {
       setCurrentRole('PATIENT');
       db.setRole('PATIENT');
       setCurrentTab('patient-health');
@@ -134,10 +154,6 @@ export default function App() {
       setCurrentRole('NURSE');
       db.setRole('NURSE');
       setCurrentTab('nurse-rounds');
-    } else {
-      setCurrentRole('SUPER_ADMIN');
-      db.setRole('SUPER_ADMIN');
-      setCurrentTab('dashboard');
     }
   };
 
@@ -161,20 +177,20 @@ export default function App() {
     setIsAuthenticated(false);
   };
 
-  const [authInitialCategory, setAuthInitialCategory] = useState<'patient' | 'doctor' | 'nurse'>(() => {
-    const saved = localStorage.getItem('medicore_portal_mode') as 'patient' | 'doctor' | 'nurse';
-    return (saved === 'doctor' || saved === 'nurse' || saved === 'patient') ? saved : 'patient';
+  const [authInitialCategory, setAuthInitialCategory] = useState<AuthPortalCategory>(() => {
+    const saved = localStorage.getItem('medicore_portal_mode') as AuthPortalCategory;
+    return (saved === 'super-admin' || saved === 'admin' || saved === 'doctor' || saved === 'nurse' || saved === 'patient') ? saved : 'patient';
   });
 
   // Switch Portal: Immediately sign out and route to unified login page on that portal tab!
-  const handleSwitchPortal = (targetMode: 'management' | 'doctor' | 'nurse' | 'patient') => {
+  const handleSwitchPortal = (targetMode: HeaderPortalMode) => {
     sound.playClick();
     localStorage.removeItem('medicore_authenticated');
     localStorage.removeItem('medicore_patient_auth');
     localStorage.removeItem('medicore_patient_id');
     localStorage.removeItem('medicore_doctor_id');
 
-    const cat: 'patient' | 'doctor' | 'nurse' = targetMode === 'management' ? 'doctor' : targetMode;
+    const cat: AuthPortalCategory = targetMode === 'management' ? 'admin' : targetMode;
     setAuthInitialCategory(cat);
     localStorage.setItem('medicore_portal_mode', cat);
     setPortalMode(targetMode);
@@ -183,19 +199,21 @@ export default function App() {
 
   // Quick command search items
   const quickSearchActions = [
-    { label: 'Executive Hospital Command Dashboard', tab: 'dashboard', mode: 'management', icon: Sparkles },
-    { label: 'Head Nurse Station - Ward Census & MAR', tab: 'nurse-rounds', mode: 'nurse', icon: Activity },
-    { label: 'MediFlex 3D Organ & Clinical Intelligence', tab: 'mediflex', mode: 'management', icon: Heart },
-    { label: 'Patient Directory & Health Records', tab: 'patients', mode: 'management', icon: FileText },
-    { label: 'Schedule Doctor Consultation', tab: 'appointments', mode: 'management', icon: Calendar },
-    { label: 'Hospital Ward Beds & ICU Status', tab: 'beds', mode: 'management', icon: BedIcon },
-    { label: 'Pharmacy Inventory & Prescriptions', tab: 'pharmacy', mode: 'management', icon: Pill },
-    { label: 'Laboratory Diagnostics & CT Scans', tab: 'laboratory', mode: 'management', icon: Activity },
-    { label: 'Billing & Patient Invoices', tab: 'billing', mode: 'management', icon: ShieldCheck },
-    { label: 'Patient Portal - Essential Health & 3D', tab: 'patient-health', mode: 'patient', icon: Activity },
-    { label: 'Patient Portal - My Consultations', tab: 'patient-appointments', mode: 'patient', icon: Calendar },
-    { label: 'Patient Portal - Active Prescriptions', tab: 'patient-prescriptions', mode: 'patient', icon: Pill },
-    { label: 'Patient Portal - Lab Test Reports', tab: 'patient-labs', mode: 'patient', icon: FileText },
+    { label: 'Super Admin Multi-Hospital Network Telemetry', tab: 'overview', mode: 'super-admin' as const, icon: Sparkles },
+    { label: 'Enterprise RBAC User Administration & Audit', tab: 'rbac', mode: 'super-admin' as const, icon: ShieldCheck },
+    { label: 'Executive Hospital Command Dashboard', tab: 'dashboard', mode: 'admin' as const, icon: Sparkles },
+    { label: 'Head Nurse Station - Ward Census & MAR', tab: 'nurse-rounds', mode: 'nurse' as const, icon: Activity },
+    { label: 'MediFlex 3D Organ & Clinical Intelligence', tab: 'mediflex', mode: 'admin' as const, icon: Heart },
+    { label: 'Patient Directory & Health Records', tab: 'patients', mode: 'admin' as const, icon: FileText },
+    { label: 'Schedule Doctor Consultation', tab: 'appointments', mode: 'admin' as const, icon: Calendar },
+    { label: 'Hospital Ward Beds & ICU Status', tab: 'beds', mode: 'admin' as const, icon: BedIcon },
+    { label: 'Pharmacy Inventory & Prescriptions', tab: 'pharmacy', mode: 'admin' as const, icon: Pill },
+    { label: 'Laboratory Diagnostics & CT Scans', tab: 'laboratory', mode: 'admin' as const, icon: Activity },
+    { label: 'Billing & Patient Invoices', tab: 'billing', mode: 'admin' as const, icon: ShieldCheck },
+    { label: 'Patient Portal - Essential Health & 3D', tab: 'patient-health', mode: 'patient' as const, icon: Activity },
+    { label: 'Patient Portal - My Consultations', tab: 'patient-appointments', mode: 'patient' as const, icon: Calendar },
+    { label: 'Patient Portal - Active Prescriptions', tab: 'patient-prescriptions', mode: 'patient' as const, icon: Pill },
+    { label: 'Patient Portal - Lab Test Reports', tab: 'patient-labs', mode: 'patient' as const, icon: FileText },
   ];
 
   const filteredSearch = quickSearchActions.filter(a =>
@@ -242,6 +260,24 @@ export default function App() {
           db.setRole('NURSE');
           setCurrentTab('nurse-rounds');
         }}
+        onLoginAdmin={(adminName) => {
+          localStorage.setItem('medicore_authenticated', 'true');
+          localStorage.setItem('medicore_portal_mode', 'admin');
+          setIsAuthenticated(true);
+          setPortalMode('admin');
+          setCurrentRole('HOSPITAL_ADMIN');
+          db.setRole('HOSPITAL_ADMIN');
+          setCurrentTab('dashboard');
+        }}
+        onLoginSuperAdmin={(superAdminName) => {
+          localStorage.setItem('medicore_authenticated', 'true');
+          localStorage.setItem('medicore_portal_mode', 'super-admin');
+          setIsAuthenticated(true);
+          setPortalMode('super-admin');
+          setCurrentRole('SUPER_ADMIN');
+          db.setRole('SUPER_ADMIN');
+          setCurrentTab('overview');
+        }}
       />
     );
   }
@@ -249,6 +285,11 @@ export default function App() {
   // Dynamic portal background tailored to each clinical domain
   const getPortalBackground = (mode: string) => {
     switch (mode) {
+      case 'super-admin':
+        return {
+          img: '/assets/backgrounds/bg-option-1-futuristic.jpg',
+          pos: 'center center',
+        };
       case 'doctor':
         return {
           img: '/assets/medical-bg.jpg',
@@ -264,6 +305,7 @@ export default function App() {
           img: '/assets/backgrounds/bg-option-2-warm-caring.jpg',
           pos: 'center 35%',
         };
+      case 'admin':
       case 'management':
       default:
         return {
@@ -313,8 +355,20 @@ export default function App() {
 
         {/* MAIN VIEWPORT CONTAINER */}
         <main className="flex-1 max-w-[1720px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-6">
-          {/* ================= MANAGEMENT PORTAL ROUTES ================= */}
-          {portalMode === 'management' && (
+          {/* ================= SUPER ADMIN ENTERPRISE GOVERNANCE ================= */}
+          {portalMode === 'super-admin' && (
+            <SuperAdminDashboard
+              theme={theme}
+              onLogout={handleLogout}
+              onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
+              onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}
+              onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
+              onSwitchToPatientPortal={() => handleSwitchPortal('patient')}
+            />
+          )}
+
+          {/* ================= HOSPITAL ADMIN / MANAGEMENT PORTAL ROUTES ================= */}
+          {(portalMode === 'admin' || portalMode === 'management') && (
             <>
               {currentTab === 'dashboard' && (
                 <CityCareDashboard
@@ -411,6 +465,8 @@ export default function App() {
               theme={theme}
               onSwitchToPatientPortal={() => handleSwitchPortal('patient')}
               onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
+              onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
+              onSwitchToSuperAdminPortal={() => handleSwitchPortal('super-admin')}
               onLogout={handleLogout}
             />
           )}
@@ -422,6 +478,8 @@ export default function App() {
               onLogout={handleLogout}
               onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}
               onSwitchToPatientPortal={() => handleSwitchPortal('patient')}
+              onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
+              onSwitchToSuperAdminPortal={() => handleSwitchPortal('super-admin')}
             />
           )}
 
@@ -433,6 +491,8 @@ export default function App() {
               onSelectSection={setCurrentTab}
               onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}
               onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
+              onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
+              onSwitchToSuperAdminPortal={() => handleSwitchPortal('super-admin')}
               onLogout={handleLogout}
             />
           )}

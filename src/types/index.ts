@@ -255,3 +255,38 @@ export interface AuditLog {
   details: string;
   ipAddress: string;
 }
+
+export interface ManagedUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  department: string;
+  facility: string;
+  mfaEnabled: boolean;
+  status: 'Active' | 'Suspended' | 'Pending Verification';
+  lastLogin: string;
+}
+
+export interface FacilityNode {
+  id: string;
+  name: string;
+  city: string;
+  type: string;
+  totalBeds: number;
+  occupiedBeds: number;
+  icusTotal: number;
+  icusOccupied: number;
+  dutyPhysicians: number;
+  status: 'Optimal' | 'High Load' | 'Surge Alert';
+  director: string;
+}
+
+export interface EnterpriseSecurityConfig {
+  lockdownActive: boolean;
+  maintenanceMode: boolean;
+  strictMfaEnforced: boolean;
+  lastBackupTime: string;
+  backendApiStatus: 'Online' | 'Degraded' | 'Offline';
+  encryptionStandard: string;
+}

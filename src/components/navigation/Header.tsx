@@ -38,12 +38,14 @@ import {
   Stethoscope
 } from 'lucide-react';
 
+export type HeaderPortalMode = 'super-admin' | 'admin' | 'management' | 'doctor' | 'nurse' | 'patient';
+
 interface HeaderProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
-  portalMode: 'management' | 'doctor' | 'nurse' | 'patient';
-  onPortalModeChange: (mode: 'management' | 'doctor' | 'nurse' | 'patient') => void;
-  onSwitchPortal?: (mode: 'management' | 'doctor' | 'nurse' | 'patient') => void;
+  portalMode: HeaderPortalMode;
+  onPortalModeChange: (mode: HeaderPortalMode) => void;
+  onSwitchPortal?: (mode: HeaderPortalMode) => void;
   currentRole: UserRole;
   onRoleChange: (role: UserRole) => void;
   theme: ThemeMode;
@@ -109,30 +111,46 @@ export const Header: React.FC<HeaderProps> = ({
             Active Workspace:
           </span>
           <span className="font-bold text-teal-600 dark:text-teal-400">
-            {portalMode === 'management' 
-              ? 'Hospital Enterprise Management' 
-              : portalMode === 'doctor'
-                ? 'Physician Consultation & Tele-Chat'
-                : portalMode === 'nurse'
-                  ? 'Head Nurse Clinical Station'
-                  : 'Patient Self-Service'}
+            {portalMode === 'super-admin'
+              ? 'Enterprise Super Admin Governance Command'
+              : (portalMode === 'admin' || portalMode === 'management')
+                ? 'Hospital Enterprise Operations' 
+                : portalMode === 'doctor'
+                  ? 'Physician Consultation & Tele-Chat'
+                  : portalMode === 'nurse'
+                    ? 'Head Nurse Clinical Station'
+                    : 'Patient Self-Service'}
           </span>
 
           {/* Quick Portal Switch Buttons (Instant Signout + Route to Login) */}
           <div className="flex items-center gap-1.5 ml-1 sm:ml-3">
             <span className="text-[10px] text-slate-400 hidden lg:inline">Switch Portal:</span>
-            {portalMode !== 'patient' && (
+            {portalMode !== 'super-admin' && (
               <button
                 onClick={() => {
                   sound.playClick();
-                  if (onSwitchPortal) onSwitchPortal('patient');
-                  else onPortalModeChange('patient');
+                  if (onSwitchPortal) onSwitchPortal('super-admin');
+                  else onPortalModeChange('super-admin');
                 }}
-                className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/20 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
-                title="Switch & Login to Patient Portal"
+                className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 border border-purple-400/30 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                title="Switch & Login to Enterprise Super Admin Command"
               >
-                <Heart className="w-2.5 h-2.5" />
-                <span>Patient</span>
+                <ShieldCheck className="w-2.5 h-2.5 text-amber-400" />
+                <span>Super Admin</span>
+              </button>
+            )}
+            {portalMode !== 'admin' && portalMode !== 'management' && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  if (onSwitchPortal) onSwitchPortal('admin');
+                  else onPortalModeChange('admin');
+                }}
+                className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-teal-500/10 hover:bg-teal-500/20 text-teal-700 dark:text-teal-300 border border-teal-500/20 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                title="Switch & Login to Hospital Admin Portal"
+              >
+                <Building2 className="w-2.5 h-2.5 text-teal-500" />
+                <span>Hospital Admin</span>
               </button>
             )}
             {portalMode !== 'doctor' && (
@@ -163,6 +181,20 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>Head Nurse</span>
               </button>
             )}
+            {portalMode !== 'patient' && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  if (onSwitchPortal) onSwitchPortal('patient');
+                  else onPortalModeChange('patient');
+                }}
+                className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-pink-500/10 hover:bg-pink-500/20 text-pink-600 dark:text-pink-400 border border-pink-500/20 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                title="Switch & Login to Patient Portal"
+              >
+                <Heart className="w-2.5 h-2.5 text-pink-500" />
+                <span>Patient</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -191,7 +223,9 @@ export const Header: React.FC<HeaderProps> = ({
         <div 
           onClick={() => {
             sound.playClick();
-            if (portalMode === 'management') {
+            if (portalMode === 'super-admin') {
+              setCurrentTab('overview');
+            } else if (portalMode === 'admin' || portalMode === 'management') {
               setCurrentTab('dashboard');
             } else {
               setCurrentTab('patient-health');
@@ -208,8 +242,16 @@ export const Header: React.FC<HeaderProps> = ({
           </span>
         </div>
 
-        {/* MANAGEMENT PRIMARY TABS (Only shown in management mode) */}
-        {portalMode === 'management' && (
+        {/* SUPER ADMIN STATUS BADGE */}
+        {portalMode === 'super-admin' && (
+          <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-blue-500/15 border border-purple-500/30 text-xs font-bold text-purple-600 dark:text-purple-300 shadow-xs">
+            <ShieldCheck className="w-4 h-4 text-amber-400" />
+            <span>Enterprise Multi-Node Governance • Dr. Eleanor Vance, CISSP</span>
+          </div>
+        )}
+
+        {/* MANAGEMENT / ADMIN PRIMARY TABS (Only shown in management or admin mode) */}
+        {(portalMode === 'admin' || portalMode === 'management') && (
           <nav className="flex items-center gap-1.5 p-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
             {managementPrimaryTabs.map((item) => {
               const isActive = currentTab === item.id;
@@ -330,13 +372,15 @@ export const Header: React.FC<HeaderProps> = ({
               className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 via-orange-400 to-rose-400 p-0.5 overflow-hidden flex items-center justify-center ring-2 ring-transparent hover:ring-teal-500 transition-all shadow-xs"
             >
               <img
-                src={portalMode === 'patient' 
-                  ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=256"
-                  : portalMode === 'doctor'
-                    ? "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=256"
-                    : portalMode === 'nurse'
-                      ? "https://images.unsplash.com/photo-1594824813571-638f02614d3f?auto=format&fit=crop&q=80&w=256"
-                      : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"}
+                src={portalMode === 'super-admin'
+                  ? "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=256"
+                  : portalMode === 'patient' 
+                    ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=256"
+                    : portalMode === 'doctor'
+                      ? "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=256"
+                      : portalMode === 'nurse'
+                        ? "https://images.unsplash.com/photo-1594824813571-638f02614d3f?auto=format&fit=crop&q=80&w=256"
+                        : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"}
                 alt="Profile"
                 className="w-full h-full object-cover rounded-full"
               />
@@ -350,22 +394,26 @@ export const Header: React.FC<HeaderProps> = ({
                 {/* Active User Header */}
                 <div className="pb-3 mb-2 border-b border-slate-100 dark:border-slate-800">
                   <div className="font-extrabold text-sm text-slate-900 dark:text-white">
-                    {portalMode === 'patient' 
-                      ? 'Magnus Stephenson' 
-                      : portalMode === 'doctor' 
-                        ? 'Dr. Roger S., MD' 
-                        : portalMode === 'nurse'
-                          ? 'Nurse Sarah Jenkins, RN, BSN'
-                          : 'Alexandro Vance'}
+                    {portalMode === 'super-admin'
+                      ? 'Dr. Eleanor Vance, MD, CISSP'
+                      : portalMode === 'patient' 
+                        ? 'Magnus Stephenson' 
+                        : portalMode === 'doctor' 
+                          ? 'Dr. Roger S., MD' 
+                          : portalMode === 'nurse'
+                            ? 'Nurse Sarah Jenkins, RN, BSN'
+                            : 'Marcus Vance, MHA'}
                   </div>
                   <div className="text-xs text-teal-600 dark:text-teal-400 font-bold mt-0.5">
-                    {portalMode === 'patient' 
-                      ? 'Verified Patient #PT-88412' 
-                      : portalMode === 'doctor' 
-                        ? 'Attending Physician #DOC-402' 
-                        : portalMode === 'nurse'
-                          ? 'Head Charge Nurse • ICU Station'
-                          : 'Hospital Chief Administrator'}
+                    {portalMode === 'super-admin'
+                      ? 'Enterprise Super Admin • Level 5 Root'
+                      : portalMode === 'patient' 
+                        ? 'Verified Patient #PT-88412' 
+                        : portalMode === 'doctor' 
+                          ? 'Attending Physician #DOC-402' 
+                          : portalMode === 'nurse'
+                            ? 'Head Charge Nurse • ICU Station'
+                            : 'Hospital Operations Administrator'}
                   </div>
                 </div>
 
@@ -375,10 +423,11 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                   {roles.map((r) => {
                     const isSelected = 
+                      (portalMode === 'super-admin' && r.role === 'SUPER_ADMIN') ||
+                      ((portalMode === 'admin' || portalMode === 'management') && r.role === 'HOSPITAL_ADMIN') ||
                       (portalMode === 'patient' && r.role === 'PATIENT') ||
                       (portalMode === 'doctor' && r.role === 'DOCTOR') ||
-                      (portalMode === 'nurse' && r.role === 'NURSE') ||
-                      (portalMode === 'management' && currentRole === r.role && r.role !== 'PATIENT' && r.role !== 'DOCTOR' && r.role !== 'NURSE');
+                      (portalMode === 'nurse' && r.role === 'NURSE');
 
                     return (
                       <button
@@ -387,7 +436,23 @@ export const Header: React.FC<HeaderProps> = ({
                           sound.playClick();
                           setRoleMenuOpen(false);
 
-                          if (r.role === 'PATIENT') {
+                          if (r.role === 'SUPER_ADMIN') {
+                            if (portalMode !== 'super-admin' && onSwitchPortal) {
+                              onSwitchPortal('super-admin');
+                            } else {
+                              onRoleChange('SUPER_ADMIN');
+                              onPortalModeChange('super-admin');
+                              setCurrentTab('overview');
+                            }
+                          } else if (r.role === 'HOSPITAL_ADMIN') {
+                            if (portalMode !== 'admin' && portalMode !== 'management' && onSwitchPortal) {
+                              onSwitchPortal('admin');
+                            } else {
+                              onRoleChange('HOSPITAL_ADMIN');
+                              onPortalModeChange('admin');
+                              setCurrentTab('dashboard');
+                            }
+                          } else if (r.role === 'PATIENT') {
                             if (portalMode !== 'patient' && onSwitchPortal) {
                               onSwitchPortal('patient');
                             } else {
@@ -412,11 +477,11 @@ export const Header: React.FC<HeaderProps> = ({
                               setCurrentTab('nurse-rounds');
                             }
                           } else {
-                            if (onSwitchPortal && portalMode !== 'management') {
-                              onSwitchPortal('doctor');
+                            if (onSwitchPortal && portalMode !== 'management' && portalMode !== 'admin') {
+                              onSwitchPortal('admin');
                             } else {
                               onRoleChange(r.role);
-                              onPortalModeChange('management');
+                              onPortalModeChange('admin');
                               setCurrentTab('dashboard');
                             }
                           }

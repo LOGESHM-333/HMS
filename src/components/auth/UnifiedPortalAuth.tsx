@@ -19,24 +19,33 @@ import {
   Activity,
   Loader2,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Building2,
+  ShieldCheck,
+  Server
 } from 'lucide-react';
+
+export type AuthPortalCategory = 'patient' | 'doctor' | 'nurse' | 'admin' | 'super-admin';
 
 interface UnifiedPortalAuthProps {
   theme: ThemeMode;
-  initialCategory?: 'patient' | 'doctor' | 'nurse';
+  initialCategory?: AuthPortalCategory;
   onLoginPatient: (patient: Patient) => void;
   onLoginDoctor: (doctor?: Doctor) => void;
   onLoginNurse: (nurseName?: string) => void;
+  onLoginAdmin?: (adminName?: string) => void;
+  onLoginSuperAdmin?: (superAdminName?: string) => void;
 }
 
 export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
   initialCategory = 'patient',
   onLoginPatient,
   onLoginDoctor,
-  onLoginNurse
+  onLoginNurse,
+  onLoginAdmin,
+  onLoginSuperAdmin
 }) => {
-  const [portalCategory, setPortalCategory] = useState<'patient' | 'doctor' | 'nurse'>(initialCategory);
+  const [portalCategory, setPortalCategory] = useState<AuthPortalCategory>(initialCategory);
 
   // Sync category if initialCategory changes
   React.useEffect(() => {
@@ -70,7 +79,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
   const existingDoctors = db.getDoctors();
 
   // Reset form when changing category
-  const handleCategorySwitch = (category: 'patient' | 'doctor' | 'nurse') => {
+  const handleCategorySwitch = (category: AuthPortalCategory) => {
     sound.playClick();
     setPortalCategory(category);
     setAuthView('login');
@@ -91,12 +100,20 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
           ? 'Please enter your email address or patient code.'
           : portalCategory === 'doctor'
             ? 'Please enter your doctor ID or clinical email.'
-            : 'Please enter your nurse ID or hospital email.'
+            : portalCategory === 'nurse'
+              ? 'Please enter your nurse ID or hospital email.'
+              : portalCategory === 'admin'
+                ? 'Please enter your hospital administrator email or staff ID.'
+                : 'Please enter your enterprise root administrator ID or email.'
       );
       return;
     }
     if (!password) {
-      setErrorMessage('Please enter your password / security credential.');
+      setErrorMessage(
+        portalCategory === 'super-admin'
+          ? 'Please enter your enterprise master key / MFA security passkey.'
+          : 'Please enter your password / security credential.'
+      );
       return;
     }
 
@@ -128,11 +145,36 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
         setTimeout(() => {
           onLoginDoctor(doctor);
         }, 500);
-      } else {
+      } else if (portalCategory === 'nurse') {
         sound.playSuccess();
         setSuccessMessage('Welcome, Nurse Sarah Jenkins, RN! Opening Head Nurse Station...');
         setTimeout(() => {
           onLoginNurse('Nurse Sarah Jenkins, RN');
+        }, 500);
+      } else if (portalCategory === 'admin') {
+        const adminUsers = db.getSystemUsers().filter(u => u.role === 'HOSPITAL_ADMIN');
+        const matched = adminUsers.find(u => 
+          u.email.toLowerCase() === email.trim().toLowerCase() ||
+          u.name.toLowerCase().includes(email.trim().toLowerCase())
+        );
+        const adminName = matched ? matched.name : 'Marcus Vance, MHA';
+        sound.playSuccess();
+        setSuccessMessage(`Welcome, ${adminName}! Launching Hospital Executive Station...`);
+        setTimeout(() => {
+          if (onLoginAdmin) onLoginAdmin(adminName);
+        }, 500);
+      } else {
+        // Super Admin
+        const superUsers = db.getSystemUsers().filter(u => u.role === 'SUPER_ADMIN');
+        const matched = superUsers.find(u => 
+          u.email.toLowerCase() === email.trim().toLowerCase() ||
+          u.name.toLowerCase().includes(email.trim().toLowerCase())
+        );
+        const superName = matched ? matched.name : 'Dr. Eleanor Vance, MD, CISSP';
+        sound.playSuccess();
+        setSuccessMessage(`Master Clearance Granted: ${superName}. Opening Enterprise Super Admin Command...`);
+        setTimeout(() => {
+          if (onLoginSuperAdmin) onLoginSuperAdmin(superName);
         }, 500);
       }
       setLoading(false);
@@ -268,26 +310,54 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
         setTimeout(() => {
           onLoginDoctor(doctor);
         }, 500);
-      } else {
+      } else if (portalCategory === 'nurse') {
         sound.playSuccess();
         setSuccessMessage(`Google SSO Verified: ${selectedName}`);
         setTimeout(() => {
           onLoginNurse(selectedName);
+        }, 500);
+      } else if (portalCategory === 'admin') {
+        sound.playSuccess();
+        setSuccessMessage(`Google SSO Verified: ${selectedName} (Hospital Admin)`);
+        setTimeout(() => {
+          if (onLoginAdmin) onLoginAdmin(selectedName);
+        }, 500);
+      } else {
+        sound.playSuccess();
+        setSuccessMessage(`Master Google SSO Cleared: ${selectedName} (Enterprise Super Admin)`);
+        setTimeout(() => {
+          if (onLoginSuperAdmin) onLoginSuperAdmin(selectedName);
         }, 500);
       }
       setLoading(false);
     }, 600);
   };
 
+  const getPortalBgImage = () => {
+    switch (portalCategory) {
+      case 'super-admin':
+        return '/assets/backgrounds/bg-option-1-futuristic.jpg';
+      case 'admin':
+        return '/assets/backgrounds/bg-option-4-wellness.jpg';
+      case 'doctor':
+        return '/assets/medical-bg.jpg';
+      case 'nurse':
+        return '/assets/backgrounds/bg-option-5-smart-health.jpg';
+      case 'patient':
+      default:
+        return '/assets/backgrounds/bg-option-2-warm-caring.jpg';
+    }
+  };
+
   return (
     <div
-      className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 bg-cover bg-center overflow-hidden transition-all"
+      className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 bg-cover bg-center overflow-hidden transition-all duration-700"
       style={{
-        backgroundImage: `url('/assets/backgrounds/bg-option-2-warm-caring.jpg')`
+        backgroundImage: `url('${getPortalBgImage()}')`
       }}
     >
       {/* Soft translucent tint to keep warm clinic background image vibrant */}
-      <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] pointer-events-none" />
 
       {/* Top Header Badge */}
       <div className="absolute top-6 left-6 z-20 flex items-center pointer-events-none">
@@ -298,49 +368,102 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
       </div>
 
       {/* Central Fully Transparent Frosted Glass Card */}
-      <div className="relative z-10 w-full max-w-[450px] my-10 animate-in fade-in zoom-in-95 duration-300">
-        <div className="rounded-[28px] border border-white/20 p-5 sm:p-8 shadow-[0_16px_45px_rgba(0,0,0,0.4)] bg-black/30 backdrop-blur-xl text-white">
+      <div className="relative z-10 w-full max-w-[490px] my-10 animate-in fade-in zoom-in-95 duration-300">
+        <div className="rounded-[28px] border border-white/20 p-5 sm:p-8 shadow-[0_16px_45px_rgba(0,0,0,0.4)] bg-black/35 backdrop-blur-xl text-white">
 
-          {/* ================= 3-WAY PORTAL SPLIT SWITCHER ================= */}
-          <div className="grid grid-cols-3 p-1.5 mb-6 rounded-2xl bg-black/40 backdrop-blur-md border border-white/15">
-            <button
-              type="button"
-              onClick={() => handleCategorySwitch('patient')}
-              className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                portalCategory === 'patient'
-                  ? 'bg-[#0095F6] text-white shadow-lg shadow-[#0095F6]/30'
-                  : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Heart className="w-3.5 h-3.5 shrink-0" />
-              <span>Patient</span>
-            </button>
+          {/* ================= 5-WAY HIERARCHICAL PORTAL SWITCHER ================= */}
+          <div className="mb-5 space-y-2">
+            <div className="flex items-center justify-between px-1 text-[11px] font-bold text-white/70">
+              <span>SELECT SYSTEM PORTAL</span>
+              <span className={`text-[10px] uppercase px-2 py-0.5 rounded-full font-bold transition-colors ${
+                portalCategory === 'super-admin'
+                  ? 'bg-purple-500/30 text-purple-200 border border-purple-400/30'
+                  : portalCategory === 'admin'
+                    ? 'bg-teal-500/30 text-teal-200 border border-teal-400/30'
+                    : 'bg-blue-500/30 text-blue-200 border border-blue-400/30'
+              }`}>
+                {portalCategory === 'super-admin'
+                  ? 'Enterprise Root Security'
+                  : portalCategory === 'admin'
+                    ? 'Hospital Administration'
+                    : portalCategory === 'doctor'
+                      ? 'Clinical Practice'
+                      : portalCategory === 'nurse'
+                        ? 'Ward Station'
+                        : 'Patient Portal'}
+              </span>
+            </div>
 
-            <button
-              type="button"
-              onClick={() => handleCategorySwitch('doctor')}
-              className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                portalCategory === 'doctor'
-                  ? 'bg-[#0095F6] text-white shadow-lg shadow-[#0095F6]/30'
-                  : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Stethoscope className="w-3.5 h-3.5 shrink-0" />
-              <span>Doctor</span>
-            </button>
+            {/* Row 1: Clinical Portals */}
+            <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-black/40 backdrop-blur-md border border-white/15">
+              <button
+                type="button"
+                onClick={() => handleCategorySwitch('patient')}
+                className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  portalCategory === 'patient'
+                    ? 'bg-[#0095F6] text-white shadow-lg shadow-[#0095F6]/30'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Heart className="w-3.5 h-3.5 shrink-0" />
+                <span>Patient</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleCategorySwitch('nurse')}
-              className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                portalCategory === 'nurse'
-                  ? 'bg-[#0095F6] text-white shadow-lg shadow-[#0095F6]/30'
-                  : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Activity className="w-3.5 h-3.5 shrink-0 text-emerald-300" />
-              <span>Head Nurse</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleCategorySwitch('doctor')}
+                className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  portalCategory === 'doctor'
+                    ? 'bg-[#0095F6] text-white shadow-lg shadow-[#0095F6]/30'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Stethoscope className="w-3.5 h-3.5 shrink-0" />
+                <span>Doctor</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleCategorySwitch('nurse')}
+                className={`py-2 px-1 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  portalCategory === 'nurse'
+                    ? 'bg-[#0095F6] text-white shadow-lg shadow-[#0095F6]/30'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Activity className="w-3.5 h-3.5 shrink-0 text-emerald-300" />
+                <span>Head Nurse</span>
+              </button>
+            </div>
+
+            {/* Row 2: Management & Enterprise Governance Portals */}
+            <div className="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-black/40 backdrop-blur-md border border-white/15">
+              <button
+                type="button"
+                onClick={() => handleCategorySwitch('admin')}
+                className={`py-2 px-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  portalCategory === 'admin'
+                    ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg shadow-teal-500/30'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5 shrink-0 text-teal-200" />
+                <span>Hospital Admin</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleCategorySwitch('super-admin')}
+                className={`py-2 px-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  portalCategory === 'super-admin'
+                    ? 'bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white shadow-lg shadow-purple-600/40 ring-1 ring-purple-300/40'
+                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-amber-300" />
+                <span>Super Admin</span>
+              </button>
+            </div>
           </div>
 
           {/* Alert Messages */}
@@ -374,7 +497,11 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                       ? "Email address or patient code"
                       : portalCategory === 'doctor'
                         ? "Doctor ID or hospital email"
-                        : "Nurse ID or hospital email (e.g. stf-1)"
+                        : portalCategory === 'nurse'
+                          ? "Nurse ID or hospital email (e.g. stf-1)"
+                          : portalCategory === 'admin'
+                            ? "Admin hospital email (e.g. admin@medicore.io)"
+                            : "Enterprise root email (e.g. superadmin@medicore.io)"
                   }
                   className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-white/20 bg-black/25 hover:bg-black/35 focus:bg-black/45 backdrop-blur-md text-white placeholder:text-white/60 text-sm focus:outline-hidden focus:border-[#0095F6] transition-all shadow-inner"
                 />
@@ -393,7 +520,11 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                       ? "Password"
                       : portalCategory === 'doctor'
                         ? "Doctor Password / PIN"
-                        : "Nurse PIN / Password"
+                        : portalCategory === 'nurse'
+                          ? "Nurse PIN / Password"
+                          : portalCategory === 'admin'
+                            ? "Admin Security Key / Password"
+                            : "Enterprise Master Key / Hardware Token"
                   }
                   className="w-full pl-11 pr-11 py-3.5 rounded-xl border border-white/20 bg-black/25 hover:bg-black/35 focus:bg-black/45 backdrop-blur-md text-white placeholder:text-white/60 text-sm focus:outline-hidden focus:border-[#0095F6] transition-all shadow-inner"
                 />
@@ -406,16 +537,22 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                 </button>
               </div>
 
-              {/* Blue Log In Button */}
+              {/* Dynamic Styled Log In Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 px-4 rounded-xl font-bold text-sm bg-[#0095F6] hover:bg-[#1877F2] active:bg-[#0081d6] text-white flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#0095F6]/30 active:scale-[0.99] cursor-pointer disabled:opacity-60"
+                className={`w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 transition-all shadow-lg active:scale-[0.99] cursor-pointer disabled:opacity-60 ${
+                  portalCategory === 'super-admin'
+                    ? 'bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 shadow-purple-600/30'
+                    : portalCategory === 'admin'
+                      ? 'bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 shadow-teal-500/30'
+                      : 'bg-[#0095F6] hover:bg-[#1877F2] active:bg-[#0081d6] shadow-[#0095F6]/30'
+                }`}
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Signing in...</span>
+                    <span>Authorizing credentials...</span>
                   </>
                 ) : (
                   <span>
@@ -423,7 +560,11 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                       ? 'Log In'
                       : portalCategory === 'doctor'
                         ? 'Log In to Doctor Station'
-                        : 'Log In to Nurse Station'}
+                        : portalCategory === 'nurse'
+                          ? 'Log In to Nurse Station'
+                          : portalCategory === 'admin'
+                            ? 'Log In to Hospital Administration'
+                            : 'Authorize Super Admin Command'}
                   </span>
                 )}
               </button>
@@ -438,7 +579,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                   }}
                   className="text-xs text-white/80 hover:text-white transition-colors cursor-pointer drop-shadow-xs"
                 >
-                  Forgot password?
+                  Forgot credentials?
                 </button>
               </div>
 
@@ -481,7 +622,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                 <span>Continue with Google</span>
               </button>
 
-              {/* Bottom Section: Patient Signup OR Doctor Quick Access OR Nurse Quick Access */}
+              {/* Bottom Quick Access Buttons per Role */}
               {portalCategory === 'patient' && (
                 <button
                   type="button"
@@ -547,6 +688,70 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                     </div>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
                       Enter
+                    </span>
+                  </button>
+                </div>
+              )}
+
+              {portalCategory === 'admin' && (
+                <div className="pt-2 border-t border-white/15">
+                  <p className="text-[11px] font-bold text-white/60 mb-2">
+                    ⚡ Quick Hospital Admin Access (1-Click Entry):
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sound.playSuccess();
+                      if (onLoginAdmin) onLoginAdmin('Marcus Vance, MHA');
+                    }}
+                    className="w-full p-2.5 rounded-xl text-left bg-black/30 hover:bg-black/50 border border-teal-400/30 transition-all cursor-pointer text-xs flex items-center gap-3"
+                  >
+                    <img
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
+                      alt="Marcus Vance"
+                      className="w-8 h-8 rounded-full object-cover ring-2 ring-teal-400/50 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-bold text-white truncate">Marcus Vance, MHA</p>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300">ADMIN</span>
+                      </div>
+                      <p className="text-[11px] text-teal-300 truncate">Hospital Operations Administrator • MediCore Central</p>
+                    </div>
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-teal-500 text-white shadow-xs">
+                      Enter
+                    </span>
+                  </button>
+                </div>
+              )}
+
+              {portalCategory === 'super-admin' && (
+                <div className="pt-2 border-t border-white/15">
+                  <p className="text-[11px] font-bold text-white/60 mb-2">
+                    ⚡ Quick Super Admin Access (1-Click Root Clearance):
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sound.playSuccess();
+                      if (onLoginSuperAdmin) onLoginSuperAdmin('Dr. Eleanor Vance, MD, CISSP');
+                    }}
+                    className="w-full p-2.5 rounded-xl text-left bg-gradient-to-r from-purple-950/60 to-slate-900/60 hover:from-purple-900/70 hover:to-slate-800/70 border border-purple-500/40 transition-all cursor-pointer text-xs flex items-center gap-3 ring-1 ring-purple-400/30"
+                  >
+                    <img
+                      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80"
+                      alt="Dr. Eleanor Vance"
+                      className="w-8 h-8 rounded-full object-cover ring-2 ring-purple-400 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-bold text-white truncate">Dr. Eleanor Vance, MD, CISSP</p>
+                        <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-purple-500/30 text-purple-200 border border-purple-400/40">LEVEL 5 ROOT</span>
+                      </div>
+                      <p className="text-[11px] text-purple-300 truncate">Enterprise Super Admin & Root Security Officer</p>
+                    </div>
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-purple-600 text-white shadow-md shadow-purple-600/40">
+                      Clearance
                     </span>
                   </button>
                 </div>
@@ -884,6 +1089,112 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                           Nurse Clara Higgins, RN
                         </p>
                         <p className="text-[11px] text-white/70 truncate">nurse.clara@medicore.io • Staff Nurse II</p>
+                      </div>
+                    </button>
+                  </>
+                )}
+
+                {portalCategory === 'admin' && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSelectGoogleAccount(
+                          'marcus.vance@medicore.io',
+                          'Marcus Vance, MHA',
+                          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+                        )
+                      }
+                      className="w-full p-3 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 border border-teal-400/20 flex items-center gap-3 transition-all text-left group cursor-pointer"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
+                        alt="Marcus Vance"
+                        className="w-9 h-9 rounded-full object-cover ring-2 ring-teal-400/50"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs font-bold text-white group-hover:text-teal-300 transition-colors">
+                            Marcus Vance, MHA
+                          </p>
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-300">ADMIN</span>
+                        </div>
+                        <p className="text-[11px] text-white/70 truncate">marcus.vance@medicore.io • Hospital Operations</p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSelectGoogleAccount(
+                          'admin@medicore.io',
+                          'Hospital Admin Desk',
+                          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'
+                        )
+                      }
+                      className="w-full p-3 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 border border-teal-400/20 flex items-center gap-3 transition-all text-left group cursor-pointer"
+                    >
+                      <div className="w-9 h-9 rounded-full bg-teal-600/40 border border-teal-400/40 flex items-center justify-center text-teal-200">
+                        <Building2 className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-white group-hover:text-teal-300 transition-colors">
+                          Executive Hospital Operations Desk
+                        </p>
+                        <p className="text-[11px] text-white/70 truncate">admin@medicore.io</p>
+                      </div>
+                    </button>
+                  </>
+                )}
+
+                {portalCategory === 'super-admin' && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSelectGoogleAccount(
+                          'eleanor.vance@medicore.io',
+                          'Dr. Eleanor Vance, MD, CISSP',
+                          'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
+                        )
+                      }
+                      className="w-full p-3 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-400/30 flex items-center gap-3 transition-all text-left group cursor-pointer ring-1 ring-purple-400/20"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80"
+                        alt="Dr. Eleanor Vance"
+                        className="w-9 h-9 rounded-full object-cover ring-2 ring-purple-400"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">
+                            Dr. Eleanor Vance, MD, CISSP
+                          </p>
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-purple-500/30 text-purple-200">ROOT</span>
+                        </div>
+                        <p className="text-[11px] text-purple-200/80 truncate">eleanor.vance@medicore.io • Enterprise Super Admin</p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSelectGoogleAccount(
+                          'root.security@medicore.io',
+                          'Enterprise Root Infrastructure',
+                          'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=150&auto=format&fit=crop&q=80'
+                        )
+                      }
+                      className="w-full p-3 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-400/30 flex items-center gap-3 transition-all text-left group cursor-pointer ring-1 ring-purple-400/20"
+                    >
+                      <div className="w-9 h-9 rounded-full bg-purple-600/40 border border-purple-400/40 flex items-center justify-center text-purple-200">
+                        <ShieldCheck className="w-4 h-4 text-amber-300" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">
+                          Enterprise Security & Audit Gateway
+                        </p>
+                        <p className="text-[11px] text-purple-200/80 truncate">root.security@medicore.io</p>
                       </div>
                     </button>
                   </>

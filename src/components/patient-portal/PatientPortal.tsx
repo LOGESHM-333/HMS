@@ -49,7 +49,8 @@ import {
   Radio,
   Navigation,
   Stethoscope,
-  LogOut
+  LogOut,
+  Building2
 } from 'lucide-react';
 import { PatientAuthPage } from './PatientAuthPage';
 
@@ -59,6 +60,8 @@ interface PatientPortalProps {
   onSelectSection?: (section: string) => void;
   onSwitchToDoctorPortal?: () => void;
   onSwitchToNursePortal?: () => void;
+  onSwitchToAdminPortal?: () => void;
+  onSwitchToSuperAdminPortal?: () => void;
   onLogout?: () => void;
 }
 
@@ -68,6 +71,8 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
   onSelectSection,
   onSwitchToDoctorPortal,
   onSwitchToNursePortal,
+  onSwitchToAdminPortal,
+  onSwitchToSuperAdminPortal,
   onLogout
 }) => {
   const isDark = theme === 'dark';
@@ -691,6 +696,34 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
               <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
               <span>Emergency SOS</span>
             </button>
+
+            {onSwitchToAdminPortal && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onSwitchToAdminPortal();
+                }}
+                className="px-3.5 py-2 rounded-full text-xs font-bold bg-teal-500/15 hover:bg-teal-500/25 text-teal-700 dark:text-teal-300 border border-teal-500/30 backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                title="Switch to Hospital Admin Portal"
+              >
+                <Building2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <span>Hospital Admin</span>
+              </button>
+            )}
+
+            {onSwitchToSuperAdminPortal && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onSwitchToSuperAdminPortal();
+                }}
+                className="px-3.5 py-2 rounded-full text-xs font-bold bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 border border-purple-500/30 backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                title="Switch to Enterprise Super Admin"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                <span>Super Admin</span>
+              </button>
+            )}
 
             {onSwitchToDoctorPortal && (
               <button
@@ -1613,6 +1646,34 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                 </span>
               </div>
             </div>
+            {onSwitchToAdminPortal && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onSwitchToAdminPortal();
+                }}
+                className="px-3.5 py-2 rounded-full text-xs font-bold bg-teal-500/15 hover:bg-teal-500/25 text-teal-700 dark:text-teal-300 border border-teal-500/30 backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                title="Switch to Hospital Admin Portal"
+              >
+                <Building2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <span>Hospital Admin</span>
+              </button>
+            )}
+
+            {onSwitchToSuperAdminPortal && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onSwitchToSuperAdminPortal();
+                }}
+                className="px-3.5 py-2 rounded-full text-xs font-bold bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 border border-purple-500/30 backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                title="Switch to Enterprise Super Admin"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                <span>Super Admin</span>
+              </button>
+            )}
+
             {onSwitchToDoctorPortal && (
               <button
                 type="button"

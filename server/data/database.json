@@ -644,7 +644,7 @@
       "wardId": "w-icu",
       "wardName": "Intensive Care Unit",
       "type": "ICU",
-      "status": "Occupied",
+      "status": "Cleaning",
       "patientId": "pat-3",
       "patientName": "Elena Rostova-Smith",
       "admittedDate": "2026-03-30"
@@ -655,7 +655,10 @@
       "wardId": "w-icu",
       "wardName": "Intensive Care Unit",
       "type": "ICU",
-      "status": "Available"
+      "status": "Occupied",
+      "patientId": "pat-3",
+      "patientName": "Elena Rostova-Smith",
+      "admittedDate": "2026-11-05"
     },
     {
       "id": "b-103",
@@ -865,7 +868,7 @@
       "id": "alt-1793695778943",
       "title": "🚨 CODE BLUE - Test Broadcast",
       "department": "ICU Pod 1",
-      "severity": "critical",
+      "severity": "low",
       "time": "02:19 pm",
       "actionRequired": "Immediate response"
     },
@@ -873,7 +876,7 @@
       "id": "alt-sos-1793692681774",
       "title": "🚨 EMERGENCY SOS: Magnus Stephenson Dispatched Unit 4",
       "department": "Emergency Medicine / Trauma",
-      "severity": "critical",
+      "severity": "low",
       "time": "01:28:01 pm",
       "actionRequired": "Immediate Trauma Bay preparation. Coordinates: GPS Locked (Residence). Reported: Acute shortness of breath."
     },
@@ -911,6 +914,116 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "audit-1793875166196-542",
+      "timestamp": "04:09:26 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Bed Status Modified",
+      "module": "Bed Management",
+      "details": "Bed ICU-02 status updated to Occupied",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793875166194-737",
+      "timestamp": "04:09:26 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Patient Vitals Update",
+      "module": "Patients",
+      "details": "Updated clinical chart for Elena Rostova-Smith",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793875161796-212",
+      "timestamp": "04:09:21 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Bed Status Modified",
+      "module": "Bed Management",
+      "details": "Bed ICU-01 status updated to Cleaning",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793875161794-111",
+      "timestamp": "04:09:21 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Patient Vitals Update",
+      "module": "Patients",
+      "details": "Updated clinical chart for Elena Rostova-Smith",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793875158105-115",
+      "timestamp": "04:09:18 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: 🚨 EMERGENCY SOS: Magnus Stephenson Dispatched Unit 4",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793875157409-171",
+      "timestamp": "04:09:17 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: 🚨 CODE BLUE - Test Broadcast",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793875157257-872",
+      "timestamp": "04:09:17 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: 🚨 CODE BLUE - Test Broadcast",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793875157065-133",
+      "timestamp": "04:09:17 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: 🚨 CODE BLUE - Test Broadcast",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793875156865-347",
+      "timestamp": "04:09:16 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: 🚨 CODE BLUE - Test Broadcast",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793875156641-573",
+      "timestamp": "04:09:16 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: 🚨 CODE BLUE - Test Broadcast",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
+    {
+      "id": "audit-1793875156208-821",
+      "timestamp": "04:09:16 pm",
+      "userName": "Clinical System",
+      "userRole": "SUPER_ADMIN",
+      "action": "Critical Alert Acknowledged",
+      "module": "Telemetry",
+      "details": "Acknowledged alert: 🚨 CODE BLUE - Test Broadcast",
+      "ipAddress": "127.0.0.1 [Active REST API]"
+    },
     {
       "id": "audit-1793696033343-382",
       "timestamp": "02:23:53 pm",

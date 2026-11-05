@@ -49,13 +49,16 @@ import {
   ChevronRight,
   ShieldAlert,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Building2
 } from 'lucide-react';
 
 interface DoctorPortalProps {
   theme: ThemeMode;
   onSwitchToPatientPortal?: () => void;
   onSwitchToNursePortal?: () => void;
+  onSwitchToAdminPortal?: () => void;
+  onSwitchToSuperAdminPortal?: () => void;
   onLogout?: () => void;
 }
 
@@ -75,6 +78,8 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
   theme,
   onSwitchToPatientPortal,
   onSwitchToNursePortal,
+  onSwitchToAdminPortal,
+  onSwitchToSuperAdminPortal,
   onLogout
 }) => {
   const isDark = theme === 'dark';
@@ -759,14 +764,25 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
             </button>
 
             {/* Quick Portal Switch Buttons (Instant Signout + Route to Login) */}
-            {onSwitchToPatientPortal && (
+            {onSwitchToAdminPortal && (
               <button
-                onClick={onSwitchToPatientPortal}
-                className="px-3 py-2 rounded-xl border border-pink-500/30 bg-pink-500/15 hover:bg-pink-500/25 text-pink-700 dark:text-pink-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
-                title="Switch to Patient Portal"
+                onClick={onSwitchToAdminPortal}
+                className="px-3 py-2 rounded-xl border border-teal-500/30 bg-teal-500/15 hover:bg-teal-500/25 text-teal-700 dark:text-teal-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
+                title="Switch to Hospital Admin"
               >
-                <Heart className="w-3.5 h-3.5 text-pink-500" />
-                <span>Patient Portal</span>
+                <Building2 className="w-3.5 h-3.5 text-teal-500" />
+                <span>Hospital Admin</span>
+              </button>
+            )}
+
+            {onSwitchToSuperAdminPortal && (
+              <button
+                onClick={onSwitchToSuperAdminPortal}
+                className="px-3 py-2 rounded-xl border border-purple-500/30 bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
+                title="Switch to Super Admin Command"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                <span>Super Admin</span>
               </button>
             )}
 
