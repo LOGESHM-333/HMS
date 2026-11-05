@@ -161,6 +161,26 @@ export default function App() {
     setIsAuthenticated(false);
   };
 
+  const [authInitialCategory, setAuthInitialCategory] = useState<'patient' | 'doctor' | 'nurse'>(() => {
+    const saved = localStorage.getItem('medicore_portal_mode') as 'patient' | 'doctor' | 'nurse';
+    return (saved === 'doctor' || saved === 'nurse' || saved === 'patient') ? saved : 'patient';
+  });
+
+  // Switch Portal: Immediately sign out and route to unified login page on that portal tab!
+  const handleSwitchPortal = (targetMode: 'management' | 'doctor' | 'nurse' | 'patient') => {
+    sound.playClick();
+    localStorage.removeItem('medicore_authenticated');
+    localStorage.removeItem('medicore_patient_auth');
+    localStorage.removeItem('medicore_patient_id');
+    localStorage.removeItem('medicore_doctor_id');
+
+    const cat: 'patient' | 'doctor' | 'nurse' = targetMode === 'management' ? 'doctor' : targetMode;
+    setAuthInitialCategory(cat);
+    localStorage.setItem('medicore_portal_mode', cat);
+    setPortalMode(targetMode);
+    setIsAuthenticated(false);
+  };
+
   // Quick command search items
   const quickSearchActions = [
     { label: 'Executive Hospital Command Dashboard', tab: 'dashboard', mode: 'management', icon: Sparkles },
@@ -189,6 +209,7 @@ export default function App() {
     return (
       <UnifiedPortalAuth
         theme={theme}
+        initialCategory={authInitialCategory}
         onLoginPatient={(patient) => {
           localStorage.setItem('medicore_authenticated', 'true');
           localStorage.setItem('medicore_portal_mode', 'patient');
@@ -281,6 +302,7 @@ export default function App() {
           setCurrentTab={setCurrentTab}
           portalMode={portalMode}
           onPortalModeChange={handlePortalModeChange}
+          onSwitchPortal={handleSwitchPortal}
           currentRole={currentRole}
           onRoleChange={handleRoleChange}
           theme={theme}
@@ -387,7 +409,9 @@ export default function App() {
           {portalMode === 'doctor' && (
             <DoctorPortal 
               theme={theme}
-              onSwitchToPatientPortal={() => handlePortalModeChange('patient')}
+              onSwitchToPatientPortal={() => handleSwitchPortal('patient')}
+              onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
+              onLogout={handleLogout}
             />
           )}
 
@@ -396,8 +420,8 @@ export default function App() {
             <HeadNursePortal 
               theme={theme}
               onLogout={handleLogout}
-              onSwitchToDoctorPortal={() => handlePortalModeChange('doctor')}
-              onSwitchToPatientPortal={() => handlePortalModeChange('patient')}
+              onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}
+              onSwitchToPatientPortal={() => handleSwitchPortal('patient')}
             />
           )}
 
@@ -407,7 +431,9 @@ export default function App() {
               theme={theme} 
               activeSection={currentTab}
               onSelectSection={setCurrentTab}
-              onSwitchToDoctorPortal={() => handlePortalModeChange('doctor')}
+              onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}
+              onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
+              onLogout={handleLogout}
             />
           )}
         </main>

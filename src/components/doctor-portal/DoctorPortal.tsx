@@ -43,6 +43,7 @@ import {
   VideoOff,
   PhoneOff,
   Radio,
+  LogOut,
   Eye,
   Sliders,
   ChevronRight,
@@ -54,6 +55,8 @@ import {
 interface DoctorPortalProps {
   theme: ThemeMode;
   onSwitchToPatientPortal?: () => void;
+  onSwitchToNursePortal?: () => void;
+  onLogout?: () => void;
 }
 
 interface MessageItem {
@@ -70,7 +73,9 @@ interface MessageItem {
 
 export const DoctorPortal: React.FC<DoctorPortalProps> = ({ 
   theme,
-  onSwitchToPatientPortal 
+  onSwitchToPatientPortal,
+  onSwitchToNursePortal,
+  onLogout
 }) => {
   const isDark = theme === 'dark';
   const [activeTab, setActiveTab] = useState<'doctor-chat' | 'doctor-patients' | 'doctor-rx' | 'doctor-labs' | 'doctor-schedule' | 'doctor-soap' | 'doctor-3d' | 'doctor-alerts'>('doctor-chat');
@@ -676,21 +681,21 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
       <div className={`p-6 lg:p-8 rounded-[36px] border transition-all relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
         isDark ? 'bg-[#0B1726] border-slate-800 text-white shadow-2xl' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xl'
       }`}>
-        {/* Portal-Specific Background: Physician & Clinical Holographic Telemetry - Bright, Transparent & Well Aligned */}
+        {/* Portal-Specific Background: Physician & Clinical Holographic Telemetry - Balanced Brightness & Well Aligned */}
         <div 
           className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
           style={{ 
             backgroundImage: `url('/assets/medical-bg.jpg')`,
             backgroundPosition: 'left 25%',
-            opacity: isDark ? 0.78 : 0.90,
-            filter: 'brightness(1.36) contrast(1.08) saturate(1.18)',
+            opacity: isDark ? 0.65 : 0.78,
+            filter: 'brightness(1.04) contrast(1.05) saturate(1.10)',
           }}
         />
-        {/* Subtle, crystal-clear gradient sheen that preserves image detail without blur */}
+        {/* Soft, balanced contrast overlay that preserves clinical hologram clarity without glare */}
         <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
           isDark 
-            ? 'bg-gradient-to-b from-[#0A1829]/25 via-transparent to-[#0A1829]/35' 
-            : 'bg-gradient-to-b from-white/10 via-transparent to-white/15'
+            ? 'bg-gradient-to-r from-[#0A1829]/75 via-[#0A1829]/40 to-[#0A1829]/65' 
+            : 'bg-gradient-to-r from-white/60 via-white/35 to-white/55'
         }`} />
 
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full">
@@ -719,11 +724,11 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
             </div>
           </div>
 
-          {/* Quick Actions */}
+          {/* Quick Actions & Section Navigation Controls */}
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setRxModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl border border-teal-500/30 bg-teal-500/15 hover:bg-teal-500/25 backdrop-blur-md text-[#0C4E44] dark:text-teal-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs"
+              className="px-3.5 py-2 rounded-xl border border-teal-500/40 bg-teal-500/20 hover:bg-teal-500/30 text-teal-800 dark:text-teal-200 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
               <span>Write Rx</span>
@@ -731,15 +736,15 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
 
             <button
               onClick={() => setLabModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl border border-cyan-500/30 bg-cyan-500/15 hover:bg-cyan-500/25 backdrop-blur-md text-cyan-700 dark:text-cyan-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs"
+              className="px-3.5 py-2 rounded-xl border border-sky-500/40 bg-sky-500/20 hover:bg-sky-500/30 text-sky-800 dark:text-sky-200 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
             >
-              <Activity className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+              <Activity className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
               <span>Order Lab</span>
             </button>
 
             <button
               onClick={() => setSoapModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl border border-amber-500/30 bg-amber-500/15 hover:bg-amber-500/25 backdrop-blur-md text-amber-700 dark:text-amber-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs"
+              className="px-3.5 py-2 rounded-xl border border-amber-500/40 bg-amber-500/20 hover:bg-amber-500/30 text-amber-800 dark:text-amber-200 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
             >
               <ClipboardList className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
               <span>SOAP Note</span>
@@ -747,11 +752,45 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
 
             <button
               onClick={() => setBroadcastModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-rose-600/90 text-white hover:bg-rose-700 backdrop-blur-md transition-all text-xs font-bold flex items-center gap-1.5 shadow-md"
+              className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition-all text-xs flex items-center gap-1.5 shadow-md shadow-rose-600/30 cursor-pointer"
             >
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>Code Blue</span>
             </button>
+
+            {/* Quick Portal Switch Buttons (Instant Signout + Route to Login) */}
+            {onSwitchToPatientPortal && (
+              <button
+                onClick={onSwitchToPatientPortal}
+                className="px-3 py-2 rounded-xl border border-pink-500/30 bg-pink-500/15 hover:bg-pink-500/25 text-pink-700 dark:text-pink-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
+                title="Switch to Patient Portal"
+              >
+                <Heart className="w-3.5 h-3.5 text-pink-500" />
+                <span>Patient Portal</span>
+              </button>
+            )}
+
+            {onSwitchToNursePortal && (
+              <button
+                onClick={onSwitchToNursePortal}
+                className="px-3 py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
+                title="Switch to Head Nurse Station"
+              >
+                <Activity className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Head Nurse</span>
+              </button>
+            )}
+
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 text-slate-700 dark:text-slate-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
+                title="Sign Out of Doctor Station"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Sign Out</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

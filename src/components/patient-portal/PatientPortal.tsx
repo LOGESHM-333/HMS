@@ -58,6 +58,7 @@ interface PatientPortalProps {
   activeSection?: string;
   onSelectSection?: (section: string) => void;
   onSwitchToDoctorPortal?: () => void;
+  onSwitchToNursePortal?: () => void;
   onLogout?: () => void;
 }
 
@@ -66,6 +67,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
   activeSection = 'patient-health',
   onSelectSection,
   onSwitchToDoctorPortal,
+  onSwitchToNursePortal,
   onLogout
 }) => {
   const isDark = theme === 'dark';
@@ -596,24 +598,6 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
     { id: 'patient-emergency', label: 'Emergency SOS', icon: AlertTriangle, alert: true },
   ];
 
-  if (!isAuthenticated) {
-    return (
-      <PatientAuthPage
-        theme={theme}
-        onLoginSuccess={(pat) => {
-          setPatient(pat);
-          setIsAuthenticated(true);
-          try {
-            localStorage.setItem('medicore_patient_auth', 'true');
-            localStorage.setItem('medicore_patient_id', pat.id);
-          } catch (e) {}
-          refreshCollections();
-        }}
-        onSwitchToDoctorPortal={onSwitchToDoctorPortal}
-      />
-    );
-  }
-
   return (
     <div className="space-y-6 animate-in fade-in duration-300 pb-16">
       {/* Toast Notification */}
@@ -702,21 +686,54 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
 
             <button
               onClick={() => handleSectionChange('patient-emergency')}
-              className="px-4 py-2 rounded-full text-xs font-bold bg-rose-500/15 hover:bg-rose-500/25 backdrop-blur-md text-rose-700 dark:text-rose-300 border border-rose-500/30 transition-all flex items-center gap-1.5 shadow-xs"
+              className="px-4 py-2 rounded-full text-xs font-bold bg-rose-500/15 hover:bg-rose-500/25 backdrop-blur-md text-rose-700 dark:text-rose-300 border border-rose-500/30 transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
               <span>Emergency SOS</span>
             </button>
 
+            {onSwitchToDoctorPortal && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onSwitchToDoctorPortal();
+                }}
+                className="px-3.5 py-2 rounded-full text-xs font-bold bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                title="Switch to Doctor Portal"
+              >
+                <Stethoscope className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+                <span>Doctor Portal</span>
+              </button>
+            )}
+
+            {onSwitchToNursePortal && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onSwitchToNursePortal();
+                }}
+                className="px-3.5 py-2 rounded-full text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                title="Switch to Head Nurse Station"
+              >
+                <Activity className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>Head Nurse</span>
+              </button>
+            )}
+
             <button
               onClick={() => {
                 sound.playClick();
-                setIsAuthenticated(false);
-                try {
-                  localStorage.removeItem('medicore_patient_auth');
-                } catch (e) {}
+                if (onLogout) {
+                  onLogout();
+                } else {
+                  setIsAuthenticated(false);
+                  try {
+                    localStorage.removeItem('medicore_patient_auth');
+                    localStorage.removeItem('medicore_authenticated');
+                  } catch (e) {}
+                }
               }}
-              className="px-3.5 py-2 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 bg-slate-500/10 hover:bg-rose-500/15 backdrop-blur-md border border-slate-300/60 dark:border-slate-700/60 hover:border-rose-300/60 transition-all flex items-center gap-1.5 shadow-xs"
+              className="px-3.5 py-2 rounded-full text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-white bg-slate-100/80 dark:bg-slate-800/80 hover:bg-rose-600 border border-slate-300/80 dark:border-slate-700/80 hover:border-rose-600 backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
               title="Sign out of patient portal"
             >
               <LogOut className="w-3.5 h-3.5" />

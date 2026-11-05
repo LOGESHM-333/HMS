@@ -43,6 +43,7 @@ interface HeaderProps {
   setCurrentTab: (tab: string) => void;
   portalMode: 'management' | 'doctor' | 'nurse' | 'patient';
   onPortalModeChange: (mode: 'management' | 'doctor' | 'nurse' | 'patient') => void;
+  onSwitchPortal?: (mode: 'management' | 'doctor' | 'nurse' | 'patient') => void;
   currentRole: UserRole;
   onRoleChange: (role: UserRole) => void;
   theme: ThemeMode;
@@ -56,6 +57,7 @@ export const Header: React.FC<HeaderProps> = ({
   setCurrentTab,
   portalMode,
   onPortalModeChange,
+  onSwitchPortal,
   currentRole,
   onRoleChange,
   theme,
@@ -101,7 +103,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className={`px-4 lg:px-8 py-2 border-b text-xs flex items-center justify-between ${
         isDark ? 'bg-slate-950/60 border-slate-800/80' : 'bg-slate-100/70 border-slate-200/60'
       }`}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span className="font-semibold text-slate-600 dark:text-slate-300 hidden sm:inline">
             Active Workspace:
@@ -111,8 +113,57 @@ export const Header: React.FC<HeaderProps> = ({
               ? 'Hospital Enterprise Management' 
               : portalMode === 'doctor'
                 ? 'Physician Consultation & Tele-Chat'
-                : 'Patient Self-Service'}
+                : portalMode === 'nurse'
+                  ? 'Head Nurse Clinical Station'
+                  : 'Patient Self-Service'}
           </span>
+
+          {/* Quick Portal Switch Buttons (Instant Signout + Route to Login) */}
+          <div className="flex items-center gap-1.5 ml-1 sm:ml-3">
+            <span className="text-[10px] text-slate-400 hidden lg:inline">Switch Portal:</span>
+            {portalMode !== 'patient' && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  if (onSwitchPortal) onSwitchPortal('patient');
+                  else onPortalModeChange('patient');
+                }}
+                className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/20 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                title="Switch & Login to Patient Portal"
+              >
+                <Heart className="w-2.5 h-2.5" />
+                <span>Patient</span>
+              </button>
+            )}
+            {portalMode !== 'doctor' && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  if (onSwitchPortal) onSwitchPortal('doctor');
+                  else onPortalModeChange('doctor');
+                }}
+                className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                title="Switch & Login to Doctor Portal"
+              >
+                <Stethoscope className="w-2.5 h-2.5" />
+                <span>Doctor</span>
+              </button>
+            )}
+            {portalMode !== 'nurse' && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  if (onSwitchPortal) onSwitchPortal('nurse');
+                  else onPortalModeChange('nurse');
+                }}
+                className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                title="Switch & Login to Head Nurse Station"
+              >
+                <Activity className="w-2.5 h-2.5" />
+                <span>Head Nurse</span>
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-3 text-slate-500">
@@ -186,6 +237,13 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold text-cyan-600 dark:text-cyan-400">
             <Stethoscope className="w-4 h-4 text-cyan-500" />
             <span>Physician Clinical Station • Dr. Roger S., MD</span>
+          </div>
+        )}
+
+        {portalMode === 'nurse' && (
+          <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+            <Activity className="w-4 h-4 text-emerald-500" />
+            <span>Head Nurse Station • Nurse Sarah Jenkins, RN, BSN</span>
           </div>
         )}
 
@@ -327,24 +385,41 @@ export const Header: React.FC<HeaderProps> = ({
                         key={r.role}
                         onClick={() => {
                           sound.playClick();
-                          if (r.role === 'PATIENT') {
-                            onRoleChange('PATIENT');
-                            onPortalModeChange('patient');
-                            setCurrentTab('patient-health');
-                          } else if (r.role === 'DOCTOR') {
-                            onRoleChange('DOCTOR');
-                            onPortalModeChange('doctor');
-                            setCurrentTab('doctor-consult');
-                          } else if (r.role === 'NURSE') {
-                            onRoleChange('NURSE');
-                            onPortalModeChange('nurse');
-                            setCurrentTab('nurse-rounds');
-                          } else {
-                            onRoleChange(r.role);
-                            onPortalModeChange('management');
-                            setCurrentTab('dashboard');
-                          }
                           setRoleMenuOpen(false);
+
+                          if (r.role === 'PATIENT') {
+                            if (portalMode !== 'patient' && onSwitchPortal) {
+                              onSwitchPortal('patient');
+                            } else {
+                              onRoleChange('PATIENT');
+                              onPortalModeChange('patient');
+                              setCurrentTab('patient-health');
+                            }
+                          } else if (r.role === 'DOCTOR') {
+                            if (portalMode !== 'doctor' && onSwitchPortal) {
+                              onSwitchPortal('doctor');
+                            } else {
+                              onRoleChange('DOCTOR');
+                              onPortalModeChange('doctor');
+                              setCurrentTab('doctor-consult');
+                            }
+                          } else if (r.role === 'NURSE') {
+                            if (portalMode !== 'nurse' && onSwitchPortal) {
+                              onSwitchPortal('nurse');
+                            } else {
+                              onRoleChange('NURSE');
+                              onPortalModeChange('nurse');
+                              setCurrentTab('nurse-rounds');
+                            }
+                          } else {
+                            if (onSwitchPortal && portalMode !== 'management') {
+                              onSwitchPortal('doctor');
+                            } else {
+                              onRoleChange(r.role);
+                              onPortalModeChange('management');
+                              setCurrentTab('dashboard');
+                            }
+                          }
                         }}
                         className={`w-full flex items-center justify-between p-3 rounded-2xl text-xs text-left transition-all ${
                           isSelected
