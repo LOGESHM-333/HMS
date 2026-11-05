@@ -1010,6 +1010,20 @@ class MockDatabase {
     }
   }
 
+  public updateBedStatus(bedId: string, status: Bed['status']) {
+    const bed = this.beds.find(b => b.id === bedId);
+    if (bed) {
+      bed.status = status;
+      if (status === 'Available') {
+        bed.patientId = undefined;
+        bed.patientName = undefined;
+      }
+      this.logAudit('Bed Status Updated', 'Inpatient', `Bed ${bed.bedNumber} status updated to ${status}`);
+      this.saveToStorage();
+      api.updateBed(bedId, { status, patientId: bed.patientId, patientName: bed.patientName }).catch(() => {});
+    }
+  }
+
   // Billing & Invoices
   public getInvoices(): Invoice[] { return [...this.invoices]; }
   public payInvoice(invoiceId: string, paymentMethod: string) {

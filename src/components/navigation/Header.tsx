@@ -240,6 +240,13 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         )}
 
+        {portalMode === 'nurse' && (
+          <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+            <Activity className="w-4 h-4 text-emerald-500" />
+            <span>Head Nurse Station • Nurse Sarah Jenkins, RN, BSN</span>
+          </div>
+        )}
+
         {portalMode === 'patient' && (
           <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-xs font-bold text-teal-600 dark:text-teal-400">
             <User className="w-4 h-4 text-teal-500" />
