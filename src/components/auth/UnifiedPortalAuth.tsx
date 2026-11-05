@@ -24,17 +24,26 @@ import {
 
 interface UnifiedPortalAuthProps {
   theme: ThemeMode;
+  initialCategory?: 'patient' | 'doctor' | 'nurse';
   onLoginPatient: (patient: Patient) => void;
   onLoginDoctor: (doctor?: Doctor) => void;
   onLoginNurse: (nurseName?: string) => void;
 }
 
 export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
+  initialCategory = 'patient',
   onLoginPatient,
   onLoginDoctor,
   onLoginNurse
 }) => {
-  const [portalCategory, setPortalCategory] = useState<'patient' | 'doctor' | 'nurse'>('patient');
+  const [portalCategory, setPortalCategory] = useState<'patient' | 'doctor' | 'nurse'>(initialCategory);
+
+  // Sync category if initialCategory changes
+  React.useEffect(() => {
+    if (initialCategory) {
+      setPortalCategory(initialCategory);
+    }
+  }, [initialCategory]);
   const [authView, setAuthView] = useState<'login' | 'signup' | 'forgot'>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);

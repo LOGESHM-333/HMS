@@ -442,6 +442,35 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
             <span>Rapid Triage</span>
           </button>
 
+          {/* Quick Portal Switch Buttons (Instant Signout + Route to Login) */}
+          {onSwitchToDoctorPortal && (
+            <button
+              onClick={() => {
+                sound.playClick();
+                onSwitchToDoctorPortal();
+              }}
+              className="px-3 py-2 rounded-xl text-xs font-bold bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Switch to Doctor Portal"
+            >
+              <Stethoscope className="w-3.5 h-3.5 text-cyan-500" />
+              <span>Doctor Portal</span>
+            </button>
+          )}
+
+          {onSwitchToPatientPortal && (
+            <button
+              onClick={() => {
+                sound.playClick();
+                onSwitchToPatientPortal();
+              }}
+              className="px-3 py-2 rounded-xl text-xs font-bold bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Switch to Patient Portal"
+            >
+              <Heart className="w-3.5 h-3.5 text-teal-500" />
+              <span>Patient Portal</span>
+            </button>
+          )}
+
           {onLogout && (
             <button
               onClick={() => {

@@ -43,6 +43,7 @@ import {
   VideoOff,
   PhoneOff,
   Radio,
+  LogOut,
   Eye,
   Sliders,
   ChevronRight,
@@ -54,6 +55,8 @@ import {
 interface DoctorPortalProps {
   theme: ThemeMode;
   onSwitchToPatientPortal?: () => void;
+  onSwitchToNursePortal?: () => void;
+  onLogout?: () => void;
 }
 
 interface MessageItem {
@@ -70,7 +73,9 @@ interface MessageItem {
 
 export const DoctorPortal: React.FC<DoctorPortalProps> = ({ 
   theme,
-  onSwitchToPatientPortal 
+  onSwitchToPatientPortal,
+  onSwitchToNursePortal,
+  onLogout
 }) => {
   const isDark = theme === 'dark';
   const [activeTab, setActiveTab] = useState<'doctor-chat' | 'doctor-patients' | 'doctor-rx' | 'doctor-labs' | 'doctor-schedule' | 'doctor-soap' | 'doctor-3d' | 'doctor-alerts'>('doctor-chat');
@@ -729,11 +734,45 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
 
           <button
             onClick={() => setBroadcastModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-rose-600 text-white hover:bg-rose-700 transition-all text-xs font-bold flex items-center gap-1.5 shadow-md"
+            className="px-3.5 py-2 rounded-xl bg-rose-600 text-white hover:bg-rose-700 transition-all text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer"
           >
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>Code Blue</span>
           </button>
+
+          {/* Quick Portal Switch Buttons (Instant Signout + Route to Login) */}
+          {onSwitchToPatientPortal && (
+            <button
+              onClick={onSwitchToPatientPortal}
+              className="px-3 py-2 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/20 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+              title="Switch to Patient Portal"
+            >
+              <Heart className="w-3.5 h-3.5 text-teal-500" />
+              <span>Patient Portal</span>
+            </button>
+          )}
+
+          {onSwitchToNursePortal && (
+            <button
+              onClick={onSwitchToNursePortal}
+              className="px-3 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+              title="Switch to Head Nurse Station"
+            >
+              <Activity className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Head Nurse</span>
+            </button>
+          )}
+
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-600 hover:text-white text-rose-500 border border-rose-500/20 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+              title="Sign Out of Doctor Station"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
+            </button>
+          )}
         </div>
       </div>
 
