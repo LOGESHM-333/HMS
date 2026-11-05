@@ -126,21 +126,21 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
           ? 'bg-[#0B1726] border-slate-800 text-white' 
           : 'bg-white border-slate-200/90 text-slate-900'
       }`}>
-        {/* Background Image of MediCore Wellness Hospital - Bright, Transparent & Well Aligned */}
+        {/* Portal-Specific Background: Futuristic Medical Atrium & Ward Care - Bright, Transparent & Well Aligned */}
         <div 
           className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
           style={{ 
-            backgroundImage: `url('/assets/medicore-wellness-bg.jpg')`,
-            backgroundPosition: 'center 25%',
-            opacity: isDark ? 0.50 : 0.70,
-            filter: 'brightness(1.22) contrast(1.08) saturate(1.12)',
+            backgroundImage: `url('/assets/backgrounds/bg-option-1-futuristic.jpg')`,
+            backgroundPosition: 'center 30%',
+            opacity: isDark ? 0.65 : 0.85,
+            filter: 'brightness(1.32) contrast(1.08) saturate(1.15)',
           }}
         />
         {/* Subtle, crystal-clear gradient sheen that preserves image detail without blur */}
         <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
           isDark 
-            ? 'bg-gradient-to-b from-[#0A1829]/50 via-transparent to-[#0A1829]/55' 
-            : 'bg-gradient-to-b from-white/40 via-transparent to-white/45'
+            ? 'bg-gradient-to-b from-[#0A1829]/30 via-transparent to-[#0A1829]/40' 
+            : 'bg-gradient-to-b from-white/15 via-transparent to-white/20'
         }`} />
         
         {/* ================= LEFT SIDEBAR (ALL MODULES UNIFIED) ================= */}

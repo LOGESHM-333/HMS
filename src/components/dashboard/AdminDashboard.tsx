@@ -85,20 +85,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           ? 'bg-[#0B1726] border-slate-800 text-white shadow-2xl' 
           : 'bg-white border-slate-200/80 text-[#142C43] shadow-xl'
       }`}>
-        {/* Background Image of MediCore Wellness Hospital - Bright, Transparent & Well Aligned */}
+        {/* Portal-Specific Background: Clean Scandinavian Wellness Atrium - Bright, Transparent & Well Aligned */}
         <div 
           className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
           style={{ 
-            backgroundImage: `url('/assets/medicore-wellness-bg.jpg')`,
-            backgroundPosition: 'center 25%',
-            opacity: isDark ? 0.65 : 0.78,
-            filter: 'brightness(1.22) contrast(1.08) saturate(1.12)',
+            backgroundImage: `url('/assets/backgrounds/bg-option-4-wellness.jpg')`,
+            backgroundPosition: 'center 30%',
+            opacity: isDark ? 0.78 : 0.90,
+            filter: 'brightness(1.35) contrast(1.08) saturate(1.18)',
           }}
         />
         <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
           isDark 
-            ? 'bg-gradient-to-b from-[#0A1829]/40 via-transparent to-[#0A1829]/50' 
-            : 'bg-gradient-to-b from-white/30 via-transparent to-white/35'
+            ? 'bg-gradient-to-b from-[#0A1829]/25 via-transparent to-[#0A1829]/35' 
+            : 'bg-gradient-to-b from-white/10 via-transparent to-white/15'
         }`} />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">

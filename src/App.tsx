@@ -225,21 +225,52 @@ export default function App() {
     );
   }
 
+  // Dynamic portal background tailored to each clinical domain
+  const getPortalBackground = (mode: string) => {
+    switch (mode) {
+      case 'doctor':
+        return {
+          img: '/assets/medical-bg.jpg',
+          pos: 'center 20%',
+        };
+      case 'nurse':
+        return {
+          img: '/assets/backgrounds/bg-option-5-smart-health.jpg',
+          pos: 'center 40%',
+        };
+      case 'patient':
+        return {
+          img: '/assets/backgrounds/bg-option-2-warm-caring.jpg',
+          pos: 'center 35%',
+        };
+      case 'management':
+      default:
+        return {
+          img: '/assets/backgrounds/bg-option-4-wellness.jpg',
+          pos: 'center 25%',
+        };
+    }
+  };
+
+  const currentBg = getPortalBackground(portalMode);
+
   return (
     <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 relative ${
       isDark ? 'text-white' : 'text-[#142C43]'
     }`}>
       {/* GLOBAL BACKGROUND IMAGE WITH AMBIENT BACKDROP */}
       <div 
-        className="fixed inset-0 pointer-events-none z-0 bg-cover bg-center bg-no-repeat"
+        className="fixed inset-0 pointer-events-none z-0 bg-cover bg-no-repeat transition-all duration-700"
         style={{
-          backgroundImage: `url('/assets/medical-bg.jpg')`,
+          backgroundImage: `url('${currentBg.img}')`,
+          backgroundPosition: currentBg.pos,
+          filter: 'brightness(1.30) contrast(1.05) saturate(1.15)',
         }}
       >
-        <div className={`absolute inset-0 transition-colors duration-300 ${
+        <div className={`absolute inset-0 transition-colors duration-500 ${
           isDark 
-            ? 'bg-[#07111E]/90 backdrop-blur-[1px]' 
-            : 'bg-[#EDF2F7]/88 backdrop-blur-[1px]'
+            ? 'bg-[#07111E]/75 backdrop-blur-[1px]' 
+            : 'bg-[#EDF2F7]/55 backdrop-blur-[1px]'
         }`} />
       </div>
 

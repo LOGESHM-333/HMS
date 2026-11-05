@@ -77,16 +77,16 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
           className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
           style={{ 
             backgroundImage: `url('/assets/medicore-wellness-bg.jpg')`,
-            backgroundPosition: 'center 25%',
-            opacity: isDark ? 0.65 : 0.78,
-            filter: 'brightness(1.22) contrast(1.08) saturate(1.12)',
+            backgroundPosition: 'right 20%',
+            opacity: isDark ? 0.76 : 0.90,
+            filter: 'brightness(1.36) contrast(1.06) saturate(1.20)',
           }}
         />
         {/* Subtle, crystal-clear gradient sheen that preserves image detail without blur */}
         <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
           isDark 
-            ? 'bg-gradient-to-b from-[#0A1829]/40 via-transparent to-[#0A1829]/50' 
-            : 'bg-gradient-to-b from-white/30 via-transparent to-white/35'
+            ? 'bg-gradient-to-b from-[#0A1829]/25 via-transparent to-[#0A1829]/35' 
+            : 'bg-gradient-to-b from-white/10 via-transparent to-white/15'
         }`} />
 
         <div className="relative z-10">

@@ -383,21 +383,21 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
             : 'bg-white border-slate-200/80 text-[#142C43] shadow-xl'
         }`}
       >
-        {/* Background Image of MediCore Wellness Hospital - Bright, Transparent & Well Aligned */}
+        {/* Portal-Specific Background: Smart Health Desk & ECG Vitals - Bright, Transparent & Well Aligned */}
         <div 
           className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
           style={{ 
-            backgroundImage: `url('/assets/medicore-wellness-bg.jpg')`,
-            backgroundPosition: 'center 25%',
-            opacity: isDark ? 0.65 : 0.78,
-            filter: 'brightness(1.22) contrast(1.08) saturate(1.12)',
+            backgroundImage: `url('/assets/backgrounds/bg-option-5-smart-health.jpg')`,
+            backgroundPosition: 'center 40%',
+            opacity: isDark ? 0.78 : 0.90,
+            filter: 'brightness(1.35) contrast(1.06) saturate(1.18)',
           }}
         />
         {/* Subtle, crystal-clear gradient sheen that preserves image detail without blur */}
         <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
           isDark 
-            ? 'bg-gradient-to-b from-[#0A1829]/40 via-transparent to-[#0A1829]/50' 
-            : 'bg-gradient-to-b from-white/30 via-transparent to-white/35'
+            ? 'bg-gradient-to-b from-[#0A1829]/25 via-transparent to-[#0A1829]/35' 
+            : 'bg-gradient-to-b from-white/10 via-transparent to-white/15'
         }`} />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
