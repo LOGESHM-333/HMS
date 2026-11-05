@@ -80,48 +80,66 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-500 pb-12">
       {/* WELCOME BANNER & QUICK STATS HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Hello! {db.getRoleName(currentRole).split(' ')[0]}
-            </h1>
-            <span className="p-1 rounded-full bg-teal-500/10 text-teal-600">
-              <Sparkles className="w-4 h-4 animate-spin-slow" />
-            </span>
+      <div className={`p-6 lg:p-8 rounded-[36px] border transition-all relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+        isDark 
+          ? 'bg-[#0B1726] border-slate-800 text-white shadow-2xl' 
+          : 'bg-white border-slate-200/80 text-[#142C43] shadow-xl'
+      }`}>
+        {/* Background Image of MediCore Wellness Hospital - Bright, Transparent & Well Aligned */}
+        <div 
+          className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
+          style={{ 
+            backgroundImage: `url('/assets/medicore-wellness-bg.jpg')`,
+            backgroundPosition: 'center 25%',
+            opacity: isDark ? 0.65 : 0.78,
+            filter: 'brightness(1.22) contrast(1.08) saturate(1.12)',
+          }}
+        />
+        <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
+          isDark 
+            ? 'bg-gradient-to-b from-[#0A1829]/40 via-transparent to-[#0A1829]/50' 
+            : 'bg-gradient-to-b from-white/30 via-transparent to-white/35'
+        }`} />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Hello! {db.getRoleName(currentRole).split(' ')[0]}
+              </h1>
+              <span className="p-1 rounded-full bg-teal-500/15 backdrop-blur-md text-teal-600 dark:text-teal-400">
+                <Sparkles className="w-4 h-4 animate-spin-slow" />
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              There is latest clinical and operational telemetry update for the last 7 days. Check now!
+            </p>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            There is latest clinical and operational telemetry update for the last 7 days. Check now!
-          </p>
-        </div>
 
-        {/* Quick action triggers */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              sound.playClick();
-              onNavigateTab('patients');
-            }}
-            className={`px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs ${
-              isDark 
-                ? 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700' 
-                : 'bg-white hover:bg-teal-50/50 text-[#142C43] border border-slate-200'
-            }`}
-          >
-            <UserPlus className="w-3.5 h-3.5 text-teal-500" />
-            <span>Admit Patient</span>
-          </button>
+          {/* Quick action triggers */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                sound.playClick();
+                onNavigateTab('patients');
+              }}
+              className="px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs bg-teal-500/15 hover:bg-teal-500/25 backdrop-blur-md text-[#0C4E44] dark:text-teal-300 border border-teal-500/30"
+            >
+              <UserPlus className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <span>Admit Patient</span>
+            </button>
 
-          <button
-            onClick={() => {
-              sound.playClick();
-              onNavigateTab('appointments');
-            }}
-            className="px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white shadow-md shadow-teal-500/20 active:scale-95 transition-all"
-          >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>Book Consultation</span>
-          </button>
+            <button
+              onClick={() => {
+                sound.playClick();
+                onNavigateTab('appointments');
+              }}
+              className="px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 bg-teal-600/90 hover:bg-teal-700 backdrop-blur-md text-white shadow-md shadow-teal-500/20 active:scale-95 transition-all"
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>Book Consultation</span>
+            </button>
+          </div>
         </div>
       </div>
 

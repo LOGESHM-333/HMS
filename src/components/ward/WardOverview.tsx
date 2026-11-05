@@ -121,19 +121,35 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
       )}
 
       {/* MAIN CONTAINER (UNIFIED CLINICAL CONSOLE) */}
-      <div className={`rounded-[32px] overflow-hidden border transition-all duration-200 flex flex-col lg:flex-row shadow-xl min-h-[820px] ${
+      <div className={`rounded-[32px] overflow-hidden border transition-all duration-200 flex flex-col lg:flex-row shadow-xl min-h-[820px] relative ${
         isDark 
-          ? 'bg-[#0B1522] border-slate-800 text-white' 
-          : 'bg-[#F8FAFC] border-slate-200/90 text-slate-900'
+          ? 'bg-[#0B1726] border-slate-800 text-white' 
+          : 'bg-white border-slate-200/90 text-slate-900'
       }`}>
+        {/* Background Image of MediCore Wellness Hospital - Bright, Transparent & Well Aligned */}
+        <div 
+          className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
+          style={{ 
+            backgroundImage: `url('/assets/medicore-wellness-bg.jpg')`,
+            backgroundPosition: 'center 25%',
+            opacity: isDark ? 0.50 : 0.70,
+            filter: 'brightness(1.22) contrast(1.08) saturate(1.12)',
+          }}
+        />
+        {/* Subtle, crystal-clear gradient sheen that preserves image detail without blur */}
+        <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
+          isDark 
+            ? 'bg-gradient-to-b from-[#0A1829]/50 via-transparent to-[#0A1829]/55' 
+            : 'bg-gradient-to-b from-white/40 via-transparent to-white/45'
+        }`} />
         
         {/* ================= LEFT SIDEBAR (ALL MODULES UNIFIED) ================= */}
-        <aside className={`transition-all duration-300 border-r shrink-0 flex flex-col justify-between ${
+        <aside className={`transition-all duration-300 border-r shrink-0 flex flex-col justify-between relative z-10 ${
           sidebarCollapsed ? 'lg:w-20' : 'lg:w-64'
         } ${
           isDark 
-            ? 'bg-[#0E1A2A] border-slate-800' 
-            : 'bg-white border-slate-200/80'
+            ? 'bg-[#0E1A2A]/80 backdrop-blur-md border-slate-800' 
+            : 'bg-white/80 backdrop-blur-md border-slate-200/80'
         } p-4`}>
           <div className="space-y-5">
             {/* BRAND HEADER */}
@@ -522,7 +538,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                   <div className="flex flex-wrap items-center gap-2.5 mt-3 text-xs">
                     <button
                       onClick={() => sound.playClick()}
-                      className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 shadow-xs hover:border-slate-300 transition-colors"
+                      className="px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 shadow-xs hover:border-slate-300 transition-colors"
                     >
                       <Calendar className="w-3.5 h-3.5 text-slate-400" />
                       <span>{dateFilter}</span>
@@ -531,7 +547,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
                     <button
                       onClick={() => sound.playClick()}
-                      className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 shadow-xs hover:border-slate-300 transition-colors"
+                      className="px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 shadow-xs hover:border-slate-300 transition-colors"
                     >
                       <span className="text-slate-400">vs</span>
                       <span>{periodFilter}</span>
@@ -540,7 +556,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
                     <button
                       onClick={() => sound.playClick()}
-                      className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 shadow-xs hover:border-slate-300 transition-colors"
+                      className="px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 shadow-xs hover:border-slate-300 transition-colors"
                     >
                       <Filter className="w-3.5 h-3.5 text-slate-400" />
                       <span>{wardsScope}</span>
@@ -575,7 +591,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {/* 1. HEART RATE */}
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A] border-slate-800' : 'bg-white border-slate-200/80'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     HEART RATE
@@ -594,7 +610,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
                 {/* 2. BLOOD PRESSURE */}
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A] border-slate-800' : 'bg-white border-slate-200/80'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     BLOOD PRESSURE
@@ -613,7 +629,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
                 {/* 3. SPO2 */}
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A] border-slate-800' : 'bg-white border-slate-200/80'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     SPO2
@@ -632,7 +648,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
                 {/* 4. TEMPERATURE */}
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A] border-slate-800' : 'bg-white border-slate-200/80'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     TEMPERATURE
@@ -651,7 +667,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
                 {/* 5. RESPIRATORY RATE */}
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A] border-slate-800' : 'bg-white border-slate-200/80'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     RESPIRATORY RATE
@@ -670,7 +686,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
                 {/* 6. NEWS2 SCORE */}
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A] border-slate-800' : 'bg-white border-slate-200/80'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     NEWS2 SCORE
@@ -690,7 +706,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
               {/* CLINIC / OPERATIONAL SUMMARY (4 CARDS) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A] border-slate-800' : 'bg-white border-slate-200/80'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
                     <span>PATIENTS IN CLINIC</span>
@@ -702,7 +718,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                 </div>
 
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A] border-slate-800' : 'bg-white border-slate-200/80'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
                     <span>IN THE WAITING ROOM</span>
@@ -714,7 +730,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                 </div>
 
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A] border-slate-800' : 'bg-white border-slate-200/80'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
                     <span>MEDIAN WAIT</span>
@@ -729,7 +745,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                 </div>
 
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A] border-slate-800' : 'bg-white border-slate-200/80'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
                     <span>OPEN ESCALATIONS</span>

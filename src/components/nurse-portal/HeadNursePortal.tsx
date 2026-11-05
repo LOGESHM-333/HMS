@@ -377,91 +377,110 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
 
       {/* ================= HEAD NURSE COMMAND BANNER ================= */}
       <div
-        className={`p-6 rounded-[32px] border flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all ${
+        className={`p-6 lg:p-8 rounded-[36px] border transition-all relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 ${
           isDark
-            ? 'bg-[#0E2035]/90 border-slate-800 text-white shadow-xl'
-            : 'bg-white border-teal-100/80 text-[#142C43] shadow-md'
+            ? 'bg-[#0B1726] border-slate-800 text-white shadow-2xl'
+            : 'bg-white border-slate-200/80 text-[#142C43] shadow-xl'
         }`}
       >
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <img
-              src="https://images.unsplash.com/photo-1594824813571-638f02614d3f?w=150&auto=format&fit=crop&q=80"
-              alt="Nurse Sarah Jenkins"
-              className="w-16 h-16 rounded-2xl object-cover ring-4 ring-teal-500/25 shadow-md shrink-0"
-            />
-            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center">
-              <div className="w-2 h-2 bg-white rounded-full animate-ping" />
+        {/* Background Image of MediCore Wellness Hospital - Bright, Transparent & Well Aligned */}
+        <div 
+          className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
+          style={{ 
+            backgroundImage: `url('/assets/medicore-wellness-bg.jpg')`,
+            backgroundPosition: 'center 25%',
+            opacity: isDark ? 0.65 : 0.78,
+            filter: 'brightness(1.22) contrast(1.08) saturate(1.12)',
+          }}
+        />
+        {/* Subtle, crystal-clear gradient sheen that preserves image detail without blur */}
+        <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
+          isDark 
+            ? 'bg-gradient-to-b from-[#0A1829]/40 via-transparent to-[#0A1829]/50' 
+            : 'bg-gradient-to-b from-white/30 via-transparent to-white/35'
+        }`} />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <img
+                src="https://images.unsplash.com/photo-1594824813571-638f02614d3f?w=150&auto=format&fit=crop&q=80"
+                alt="Nurse Sarah Jenkins"
+                className="w-16 h-16 rounded-2xl object-cover ring-4 ring-teal-500/25 shadow-md shrink-0"
+              />
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full animate-ping" />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight">Nurse Sarah Jenkins, RN, BSN</h2>
+                <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-teal-500/15 backdrop-blur-md text-teal-700 dark:text-teal-300 font-bold border border-teal-500/30">
+                  HEAD CHARGE NURSE
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 backdrop-blur-md text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1 shadow-xs">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  ICU & Surgical Wing
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span>Shift: <strong className="text-slate-700 dark:text-slate-200">Morning (07:00 - 15:00)</strong></span>
+                <span>•</span>
+                <span>Patients in Unit: <strong className="text-teal-600 dark:text-teal-400">{beds.filter(b => b.status === 'Occupied').length} Admitted</strong></span>
+                <span>•</span>
+                <span>Medications Due: <strong className="text-amber-500">{marList.filter(m => m.status === 'Due').length} Doses</strong></span>
+                <span>•</span>
+                <span>Doctor Orders: <strong className="text-rose-500">{doctorOrders.filter(o => o.status === 'Pending').length} Pending</strong></span>
+              </p>
             </div>
           </div>
 
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight">Nurse Sarah Jenkins, RN, BSN</h2>
-              <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-600 dark:text-teal-400 font-bold border border-teal-500/25">
-                HEAD CHARGE NURSE
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                ICU & Surgical Wing
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span>Shift: <strong className="text-slate-700 dark:text-slate-200">Morning (07:00 - 15:00)</strong></span>
-              <span>•</span>
-              <span>Patients in Unit: <strong className="text-teal-600 dark:text-teal-400">{beds.filter(b => b.status === 'Occupied').length} Admitted</strong></span>
-              <span>•</span>
-              <span>Medications Due: <strong className="text-amber-500">{marList.filter(m => m.status === 'Due').length} Doses</strong></span>
-              <span>•</span>
-              <span>Doctor Orders: <strong className="text-rose-500">{doctorOrders.filter(o => o.status === 'Pending').length} Pending</strong></span>
-            </p>
-          </div>
-        </div>
-
-        {/* Action Controls */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            onClick={() => {
-              sound.playClick();
-              setSbarModalOpen(true);
-            }}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 cursor-pointer"
-          >
-            <ClipboardList className="w-3.5 h-3.5 text-teal-500" />
-            <span>+ SBAR Handover</span>
-          </button>
-
-          <button
-            onClick={() => {
-              sound.playClick();
-              setVitalsModalOpen(true);
-            }}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-500 text-white transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
-          >
-            <Activity className="w-3.5 h-3.5" />
-            <span>Rapid Triage</span>
-          </button>
-
-          {onLogout && (
+          {/* Action Controls */}
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => {
                 sound.playClick();
-                onLogout();
+                setSbarModalOpen(true);
               }}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold text-rose-500 hover:text-white hover:bg-rose-600 bg-rose-500/10 border border-rose-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
-              title="Sign Out of Nurse Station"
+              className="px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-500/15 hover:bg-teal-500/25 backdrop-blur-md text-[#0C4E44] dark:text-teal-300 transition-all flex items-center gap-1.5 border border-teal-500/30 shadow-xs cursor-pointer"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Sign Out</span>
+              <ClipboardList className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <span>+ SBAR Handover</span>
             </button>
-          )}
+
+            <button
+              onClick={() => {
+                sound.playClick();
+                setVitalsModalOpen(true);
+              }}
+              className="px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-600/90 hover:bg-teal-700 backdrop-blur-md text-white transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+            >
+              <Activity className="w-3.5 h-3.5" />
+              <span>Rapid Triage</span>
+            </button>
+
+            {onLogout && (
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onLogout();
+                }}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-500/15 border border-rose-500/30 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+                title="Sign Out of Nurse Station"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Sign Out</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* ================= NURSE MODULE NAVIGATION TABS ================= */}
       <div
         className={`p-2 rounded-2xl border transition-all ${
-          isDark ? 'bg-[#0E2035]/60 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+          isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
         }`}
       >
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-1">
@@ -541,7 +560,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                 <div
                   key={bed.id}
                   className={`p-5 rounded-2xl border transition-all ${
-                    isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                    isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                   }`}
                 >
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
@@ -649,7 +668,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
 
           <div
             className={`rounded-2xl border overflow-hidden ${
-              isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+              isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
             }`}
           >
             <div className="overflow-x-auto">
@@ -752,7 +771,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                 <div
                   key={p.id}
                   className={`p-4 rounded-2xl border transition-all ${
-                    isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                    isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                   }`}
                 >
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
@@ -834,7 +853,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
               <div
                 key={note.id}
                 className={`p-5 rounded-2xl border space-y-3 ${
-                  isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}
               >
                 <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
@@ -909,7 +928,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
               <div
                 key={order.id}
                 className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                  isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -967,7 +986,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
               <div
                 key={nurse.id}
                 className={`p-5 rounded-2xl border flex items-center justify-between gap-4 ${
-                  isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}
               >
                 <div className="flex items-center gap-3.5">

@@ -673,73 +673,92 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
       )}
 
       {/* TOP HEADER CONSOLE */}
-      <div className={`p-6 rounded-[32px] border transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
-        isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-lg'
+      <div className={`p-6 lg:p-8 rounded-[36px] border transition-all relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
+        isDark ? 'bg-[#0B1726] border-slate-800 text-white shadow-2xl' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xl'
       }`}>
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-teal-600 to-cyan-500 flex items-center justify-center text-white font-black text-xl shadow-lg ring-4 ring-teal-500/20">
-              <Stethoscope className="w-7 h-7" />
+        {/* Background Image of MediCore Wellness Hospital - Bright, Transparent & Well Aligned */}
+        <div 
+          className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
+          style={{ 
+            backgroundImage: `url('/assets/medicore-wellness-bg.jpg')`,
+            backgroundPosition: 'center 25%',
+            opacity: isDark ? 0.65 : 0.78,
+            filter: 'brightness(1.22) contrast(1.08) saturate(1.12)',
+          }}
+        />
+        {/* Subtle, crystal-clear gradient sheen that preserves image detail without blur */}
+        <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
+          isDark 
+            ? 'bg-gradient-to-b from-[#0A1829]/40 via-transparent to-[#0A1829]/50' 
+            : 'bg-gradient-to-b from-white/30 via-transparent to-white/35'
+        }`} />
+
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-teal-600 to-cyan-500 flex items-center justify-center text-white font-black text-xl shadow-lg ring-4 ring-teal-500/20">
+                <Stethoscope className="w-7 h-7" />
+              </div>
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-[#0E2035] animate-pulse" />
             </div>
-            <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-[#0E2035] animate-pulse" />
+
+            <div>
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-xl font-black tracking-tight">Physician Clinical Station</h2>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/15 backdrop-blur-md text-teal-700 dark:text-teal-300 border border-teal-500/30">
+                  Dr. Roger S., MD • Pulmonology & Critical Care
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2 flex-wrap">
+                <span>Active Ward: <strong>Ward 4 Inpatient Wing</strong></span>
+                <span>•</span>
+                <span>Real-Time EMR: <strong className="text-emerald-500 font-semibold">Live Connected (Port 5000)</strong></span>
+                <span>•</span>
+                <span>Selected Patient: <strong className="text-teal-600 dark:text-teal-300 font-bold">{selectedPatient?.name} ({selectedPatient?.patientCode})</strong></span>
+              </p>
+            </div>
           </div>
 
-          <div>
-            <div className="flex items-center gap-2.5">
-              <h2 className="text-xl font-black tracking-tight">Physician Clinical Station</h2>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
-                Dr. Roger S., MD • Pulmonology & Critical Care
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2 flex-wrap">
-              <span>Active Ward: <strong>Ward 4 Inpatient Wing</strong></span>
-              <span>•</span>
-              <span>Real-Time EMR: <strong className="text-emerald-500 font-semibold">Live Connected (Port 5000)</strong></span>
-              <span>•</span>
-              <span>Selected Patient: <strong className="text-teal-600 dark:text-teal-300 font-bold">{selectedPatient?.name} ({selectedPatient?.patientCode})</strong></span>
-            </p>
+          {/* Quick Actions */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => setRxModalOpen(true)}
+              className="px-3.5 py-2 rounded-xl border border-teal-500/30 bg-teal-500/15 hover:bg-teal-500/25 backdrop-blur-md text-[#0C4E44] dark:text-teal-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs"
+            >
+              <Plus className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <span>Write Rx</span>
+            </button>
+
+            <button
+              onClick={() => setLabModalOpen(true)}
+              className="px-3.5 py-2 rounded-xl border border-cyan-500/30 bg-cyan-500/15 hover:bg-cyan-500/25 backdrop-blur-md text-cyan-700 dark:text-cyan-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs"
+            >
+              <Activity className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+              <span>Order Lab</span>
+            </button>
+
+            <button
+              onClick={() => setSoapModalOpen(true)}
+              className="px-3.5 py-2 rounded-xl border border-amber-500/30 bg-amber-500/15 hover:bg-amber-500/25 backdrop-blur-md text-amber-700 dark:text-amber-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs"
+            >
+              <ClipboardList className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span>SOAP Note</span>
+            </button>
+
+            <button
+              onClick={() => setBroadcastModalOpen(true)}
+              className="px-3.5 py-2 rounded-xl bg-rose-600/90 text-white hover:bg-rose-700 backdrop-blur-md transition-all text-xs font-bold flex items-center gap-1.5 shadow-md"
+            >
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>Code Blue</span>
+            </button>
           </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => setRxModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs"
-          >
-            <Plus className="w-3.5 h-3.5 text-teal-500" />
-            <span>Write Rx</span>
-          </button>
-
-          <button
-            onClick={() => setLabModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs"
-          >
-            <Activity className="w-3.5 h-3.5 text-cyan-500" />
-            <span>Order Lab</span>
-          </button>
-
-          <button
-            onClick={() => setSoapModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs"
-          >
-            <ClipboardList className="w-3.5 h-3.5 text-amber-500" />
-            <span>SOAP Note</span>
-          </button>
-
-          <button
-            onClick={() => setBroadcastModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-rose-600 text-white hover:bg-rose-700 transition-all text-xs font-bold flex items-center gap-1.5 shadow-md"
-          >
-            <AlertTriangle className="w-3.5 h-3.5" />
-            <span>Code Blue</span>
-          </button>
         </div>
       </div>
 
       {/* MODULE TABS BAR */}
       <div className={`p-2 rounded-2xl border transition-all ${
-        isDark ? 'bg-[#0E2035]/60 border-slate-800' : 'bg-white border-slate-200/80 shadow-xs'
+        isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
       }`}>
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-1">
           {doctorModules.map(mod => {
@@ -1023,7 +1042,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
               <div
                 key={p.id}
                 className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
-                  isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200 shadow-xs'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}
               >
                 <div>
@@ -1141,7 +1160,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 className={`p-5 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all ${
                   rxItem.rxStatus?.includes('Discontinued')
                     ? 'opacity-60 bg-slate-100 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800'
-                    : isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                    : isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}
               >
                 <div className="flex items-start gap-3.5">
@@ -1216,7 +1235,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
               <div
                 key={order.id}
                 className={`p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
-                  isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}
               >
                 <div>
@@ -1280,7 +1299,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 className={`p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
                   apt.status === 'Completed'
                     ? 'opacity-70 bg-slate-100 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800'
-                    : isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                    : isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                 }`}
               >
                 <div>
@@ -1340,7 +1359,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 <div
                   key={idx}
                   className={`p-5 rounded-2xl border ${
-                    isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                    isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
                   }`}
                 >
                   <div className="flex justify-between items-center mb-2">

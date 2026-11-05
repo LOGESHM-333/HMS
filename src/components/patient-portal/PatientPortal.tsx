@@ -625,91 +625,110 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       )}
 
       {/* ================= PERSONALIZED PATIENT BANNER ================= */}
-      <div className={`p-6 rounded-[32px] border flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all ${
+      <div className={`p-6 lg:p-8 rounded-[36px] border transition-all relative overflow-hidden ${
         isDark 
-          ? 'bg-[#0E2035]/90 border-slate-800 text-white shadow-xl' 
-          : 'bg-white border-teal-100/80 text-[#142C43] shadow-md'
+          ? 'bg-[#0B1726] border-slate-800 text-white shadow-2xl' 
+          : 'bg-white border-slate-200/80 text-[#142C43] shadow-xl'
       }`}>
-        <div className="flex items-center gap-4">
-          <img
-            src={patient.avatar}
-            alt={patient.name}
-            className="w-16 h-16 rounded-2xl object-cover ring-4 ring-teal-500/20 shadow-md shrink-0"
-          />
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight">{patient.name}</h2>
-              <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold border border-teal-500/20">
-                {patient.patientCode}
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Verified Patient
-              </span>
+        {/* Background Image of MediCore Wellness Hospital - Bright, Transparent & Well Aligned */}
+        <div 
+          className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
+          style={{ 
+            backgroundImage: `url('/assets/medicore-wellness-bg.jpg')`,
+            backgroundPosition: 'center 25%',
+            opacity: isDark ? 0.65 : 0.78,
+            filter: 'brightness(1.22) contrast(1.08) saturate(1.12)',
+          }}
+        />
+        {/* Subtle, crystal-clear gradient sheen that preserves image detail without blur */}
+        <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
+          isDark 
+            ? 'bg-gradient-to-b from-[#0A1829]/40 via-transparent to-[#0A1829]/50' 
+            : 'bg-gradient-to-b from-white/30 via-transparent to-white/35'
+        }`} />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
+          <div className="flex items-center gap-4">
+            <img
+              src={patient.avatar}
+              alt={patient.name}
+              className="w-16 h-16 rounded-2xl object-cover ring-4 ring-teal-500/20 shadow-md shrink-0"
+            />
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight">{patient.name}</h2>
+                <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-teal-500/15 backdrop-blur-md text-teal-700 dark:text-teal-300 font-bold border border-teal-500/30">
+                  {patient.patientCode}
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 backdrop-blur-md text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1 shadow-xs">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Verified Patient
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span>Primary Care: <strong className="text-slate-700 dark:text-slate-200">{patient.primaryDoctorName}</strong></span>
+                <span>•</span>
+                <span>Blood Group: <strong className="text-rose-500">{patient.bloodGroup}</strong></span>
+                <span>•</span>
+                <span>Age: <strong>{patient.age} yrs</strong></span>
+                <span>•</span>
+                <span>Status: <strong className="text-teal-600 dark:text-teal-400">{patient.admissionStatus}</strong></span>
+              </p>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span>Primary Care: <strong className="text-slate-700 dark:text-slate-200">{patient.primaryDoctorName}</strong></span>
-              <span>•</span>
-              <span>Blood Group: <strong className="text-rose-500">{patient.bloodGroup}</strong></span>
-              <span>•</span>
-              <span>Age: <strong>{patient.age} yrs</strong></span>
-              <span>•</span>
-              <span>Status: <strong className="text-teal-600 dark:text-teal-400">{patient.admissionStatus}</strong></span>
-            </p>
           </div>
-        </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => {
-              sound.playClick();
-              setVitalsModalOpen(true);
-            }}
-            className="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center gap-1.5 border border-slate-300 dark:border-slate-700"
-          >
-            <Activity className="w-3.5 h-3.5 text-teal-500" />
-            <span>Log Vitals</span>
-          </button>
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              onClick={() => {
+                sound.playClick();
+                setVitalsModalOpen(true);
+              }}
+              className="px-4 py-2 rounded-full text-xs font-bold bg-teal-500/15 hover:bg-teal-500/25 backdrop-blur-md text-[#0C4E44] dark:text-teal-300 transition-all flex items-center gap-1.5 border border-teal-500/30 shadow-xs"
+            >
+              <Activity className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <span>Log Vitals</span>
+            </button>
 
-          <button
-            onClick={() => {
-              sound.playClick();
-              setBookingModalOpen(true);
-            }}
-            className="px-4 py-2 rounded-full text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 transition-all flex items-center gap-1.5 shadow-sm"
-          >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>Book Visit</span>
-          </button>
+            <button
+              onClick={() => {
+                sound.playClick();
+                setBookingModalOpen(true);
+              }}
+              className="px-4 py-2 rounded-full text-xs font-bold bg-teal-600/90 hover:bg-teal-700 backdrop-blur-md text-white transition-all flex items-center gap-1.5 shadow-sm"
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>Book Visit</span>
+            </button>
 
-          <button
-            onClick={() => handleSectionChange('patient-emergency')}
-            className="px-4 py-2 rounded-full text-xs font-bold bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-900 hover:bg-rose-100 transition-all flex items-center gap-1.5"
-          >
-            <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
-            <span>Emergency SOS</span>
-          </button>
+            <button
+              onClick={() => handleSectionChange('patient-emergency')}
+              className="px-4 py-2 rounded-full text-xs font-bold bg-rose-500/15 hover:bg-rose-500/25 backdrop-blur-md text-rose-700 dark:text-rose-300 border border-rose-500/30 transition-all flex items-center gap-1.5 shadow-xs"
+            >
+              <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
+              <span>Emergency SOS</span>
+            </button>
 
-          <button
-            onClick={() => {
-              sound.playClick();
-              setIsAuthenticated(false);
-              try {
-                localStorage.removeItem('medicore_patient_auth');
-              } catch (e) {}
-            }}
-            className="px-3.5 py-2 rounded-full text-xs font-bold text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-300 dark:border-slate-700 hover:border-rose-300 transition-all flex items-center gap-1.5"
-            title="Sign out of patient portal"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Sign Out</span>
-          </button>
+            <button
+              onClick={() => {
+                sound.playClick();
+                setIsAuthenticated(false);
+                try {
+                  localStorage.removeItem('medicore_patient_auth');
+                } catch (e) {}
+              }}
+              className="px-3.5 py-2 rounded-full text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 bg-slate-500/10 hover:bg-rose-500/15 backdrop-blur-md border border-slate-300/60 dark:border-slate-700/60 hover:border-rose-300/60 transition-all flex items-center gap-1.5 shadow-xs"
+              title="Sign out of patient portal"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* ================= COMPREHENSIVE PATIENT PORTAL MODULE TABS ================= */}
       <div className={`p-2 rounded-2xl border transition-all ${
-        isDark ? 'bg-[#0E2035]/60 border-slate-800' : 'bg-white border-slate-200/80 shadow-xs'
+        isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
       }`}>
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-1">
           {portalModules.map(mod => {
@@ -751,7 +770,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
         <div className="space-y-6">
           {/* Main 3D Holographic Exploration Card */}
           <div className={`p-6 rounded-[32px] border transition-all ${
-            isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-lg'
+            isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 text-white shadow-lg' : 'bg-white/65 backdrop-blur-md border-white/80 text-[#142C43] shadow-lg'
           }`}>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-slate-800 gap-3">
               <div>
@@ -776,8 +795,8 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                     }}
                     className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
                       activeSystem === s.id
-                        ? 'bg-teal-600 text-white shadow-xs'
-                        : isDark ? 'bg-slate-800 text-slate-400 hover:text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-teal-600/90 backdrop-blur-md text-white shadow-xs'
+                        : 'bg-slate-500/10 backdrop-blur-md text-slate-700 dark:text-slate-300 hover:bg-slate-500/20 border border-slate-300/40 dark:border-slate-700/40'
                     }`}
                   >
                     {s.label}
