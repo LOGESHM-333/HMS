@@ -126,21 +126,21 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
           ? 'bg-[#0B1726] border-slate-800 text-white' 
           : 'bg-white border-slate-200/90 text-slate-900'
       }`}>
-        {/* Portal-Specific Background: Futuristic Medical Atrium & Ward Care - Bright, Transparent & Well Aligned */}
+        {/* Portal-Specific Background: Futuristic Medical Atrium & Ward Care - Balanced & High Contrast */}
         <div 
           className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
           style={{ 
             backgroundImage: `url('/assets/backgrounds/bg-option-1-futuristic.jpg')`,
-            backgroundPosition: 'center 30%',
-            opacity: isDark ? 0.65 : 0.85,
-            filter: 'brightness(1.32) contrast(1.08) saturate(1.15)',
+            backgroundPosition: 'center 20%',
+            opacity: isDark ? 0.35 : 0.45,
+            filter: 'brightness(1.10) contrast(1.05) saturate(1.10)',
           }}
         />
-        {/* Subtle, crystal-clear gradient sheen that preserves image detail without blur */}
+        {/* Subtle translucent gradient overlay to keep ward clinical metrics high-contrast and fully visible */}
         <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
           isDark 
-            ? 'bg-gradient-to-b from-[#0A1829]/30 via-transparent to-[#0A1829]/40' 
-            : 'bg-gradient-to-b from-white/15 via-transparent to-white/20'
+            ? 'bg-gradient-to-b from-[#0A1829]/65 via-[#0A1829]/50 to-[#0A1829]/70' 
+            : 'bg-gradient-to-b from-white/60 via-white/45 to-white/65'
         }`} />
         
         {/* ================= LEFT SIDEBAR (ALL MODULES UNIFIED) ================= */}
@@ -266,7 +266,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
               {/* Admissions */}
               <button
-                onClick={() => handleSidebarClick('beds')}
+                onClick={() => handleSidebarClick('admissions')}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
                   activeSidebarItem === 'admissions'
                     ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
@@ -281,7 +281,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
               {/* Discharges */}
               <button
-                onClick={() => handleSidebarClick('beds')}
+                onClick={() => handleSidebarClick('discharges')}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
                   activeSidebarItem === 'discharges'
                     ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
@@ -436,7 +436,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
         </aside>
 
         {/* ================= MAIN CONTENT VIEWPORT ================= */}
-        <main className="flex-1 p-5 lg:p-8 space-y-6 overflow-x-hidden">
+        <main className="flex-1 p-5 lg:p-8 space-y-6 overflow-x-hidden relative z-10">
           
           {/* HEADER STRIP WITH ACTIVE MODULE BREADCRUMB */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
@@ -591,7 +591,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {/* 1. HEART RATE */}
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
+                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     HEART RATE
@@ -610,7 +610,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
                 {/* 2. BLOOD PRESSURE */}
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
+                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     BLOOD PRESSURE
@@ -629,7 +629,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
                 {/* 3. SPO2 */}
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
+                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     SPO2
@@ -648,7 +648,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
                 {/* 4. TEMPERATURE */}
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
+                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     TEMPERATURE
@@ -667,7 +667,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
                 {/* 5. RESPIRATORY RATE */}
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
+                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     RESPIRATORY RATE
@@ -686,7 +686,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
                 {/* 6. NEWS2 SCORE */}
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
+                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
                     NEWS2 SCORE
@@ -706,7 +706,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
               {/* CLINIC / OPERATIONAL SUMMARY (4 CARDS) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
+                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
                     <span>PATIENTS IN CLINIC</span>
@@ -718,7 +718,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                 </div>
 
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
+                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
                     <span>IN THE WAITING ROOM</span>
@@ -730,7 +730,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                 </div>
 
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
+                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
                     <span>MEDIAN WAIT</span>
@@ -745,7 +745,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                 </div>
 
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
+                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
                     <span>OPEN ESCALATIONS</span>
