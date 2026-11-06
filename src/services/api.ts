@@ -169,4 +169,32 @@ export const api = {
 
   // Audit Logs
   getAuditLogs: () => request<AuditLog[]>('/audit-logs'),
+
+  // Nurse Portal Dedicated Endpoints (MySQL)
+  getMarRecords: () => 
+    request<Array<{ id: string; patientId: string; patientName: string; bedNumber: string; medication: string; dosage: string; route: any; scheduledTime: string; status: 'Due' | 'Given' | 'Held'; adminTime?: string; administeredBy?: string; holdReason?: string }>>('/nurse/mar'),
+  
+  createMarRecord: (mar: { patientId: string; patientName: string; bedNumber: string; medication: string; dosage: string; route: string; scheduledTime: string; status?: string }) => 
+    request<any>('/nurse/mar', { method: 'POST', body: JSON.stringify(mar) }),
+
+  administerMarRecord: (id: string, adminTime?: string, administeredBy?: string) => 
+    request<any>(`/nurse/mar/${id}/administer`, { method: 'POST', body: JSON.stringify({ adminTime, administeredBy }) }),
+
+  holdMarRecord: (id: string, holdReason: string) => 
+    request<any>(`/nurse/mar/${id}/hold`, { method: 'POST', body: JSON.stringify({ holdReason }) }),
+
+  getSbarNotes: () => 
+    request<Array<{ id: string; patientId: string; patientName: string; bedNumber: string; time: string; date: string; situation: string; background: string; assessment: string; recommendation: string; nurseName: string }>>('/nurse/sbar'),
+
+  createSbarNote: (sbar: { patientId: string; patientName: string; bedNumber: string; situation: string; background: string; assessment: string; recommendation: string; nurseName: string }) => 
+    request<any>('/nurse/sbar', { method: 'POST', body: JSON.stringify(sbar) }),
+
+  getDoctorOrders: () => 
+    request<Array<{ id: string; patientName: string; bed: string; orderType: string; orderText: string; orderedBy: string; priority: 'STAT' | 'Urgent' | 'Routine'; status?: string; createdAt?: string }>>('/doctor-orders'),
+
+  createDoctorOrder: (order: { patientName: string; bed: string; orderType: string; orderText: string; orderedBy: string; priority: string; status?: string }) => 
+    request<any>('/doctor-orders', { method: 'POST', body: JSON.stringify(order) }),
+
+  updateDoctorOrderStatus: (id: string, status: string) => 
+    request<any>(`/doctor-orders/${id}`, { method: 'PUT', body: JSON.stringify({ status }) }),
 };

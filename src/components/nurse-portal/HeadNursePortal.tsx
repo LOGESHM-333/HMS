@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ThemeMode, Patient, Bed } from '../../types';
 import { db } from '../../services/mockDatabase';
+import { api } from '../../services/api';
 import { sound } from '../../services/audioService';
 import {
   Activity,
@@ -328,6 +329,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
     };
 
     setMarList([item, ...marList]);
+    api.createMarRecord(item).catch(() => {});
     setNewMarModalOpen(false);
     setNewMarMed('');
     setNewMarDose('');
@@ -336,18 +338,21 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
 
   const handleAdministerMed = (id: string) => {
     sound.playSuccess();
+    const adminTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const administeredBy = 'Nurse Sarah Jenkins, RN, BSN';
     setMarList(prev =>
       prev.map(item =>
         item.id === id
           ? {
               ...item,
               status: 'Given',
-              adminTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              administeredBy: 'Nurse Sarah Jenkins, RN, BSN'
+              adminTime,
+              administeredBy
             }
           : item
       )
     );
+    api.administerMarRecord(id, adminTime, administeredBy).catch(() => {});
     showToast('Medication Dose verified & administered.');
   };
 
@@ -408,6 +413,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
     };
 
     setSbarList([newNote, ...sbarList]);
+    api.createSbarNote(newNote).catch(() => {});
     setSbarModalOpen(false);
     setSbarSituation('');
     setSbarBackground('');
@@ -466,9 +472,31 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
           : o
       )
     );
+    api.updateDoctorOrderStatus(selectedOrderToExecute.id, 'Completed').catch(() => {});
     setOrderModalOpen(false);
     showToast(`Order marked Executed: ${selectedOrderToExecute.orderText}`);
   };
+
+  // Sync Nurse Portal with real MySQL backend on load
+  useEffect(() => {
+    api.getMarRecords().then(records => {
+      if (records && records.length > 0) {
+        setMarList(records as MarItem[]);
+      }
+    }).catch(() => {});
+
+    api.getSbarNotes().then(notes => {
+      if (notes && notes.length > 0) {
+        setSbarList(notes as SbarNote[]);
+      }
+    }).catch(() => {});
+
+    api.getDoctorOrders().then(orders => {
+      if (orders && orders.length > 0) {
+        setDoctorOrders(orders as DoctorOrder[]);
+      }
+    }).catch(() => {});
+  }, []);
 
   // 4. Nursing Staff Roster
   const [nursingStaff, setNursingStaff] = useState<NurseStaffMember[]>([
