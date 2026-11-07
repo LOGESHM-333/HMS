@@ -1192,7 +1192,7 @@ class MockDatabase {
     if (inv) {
       inv.status = 'Paid';
       inv.paymentMethod = paymentMethod;
-      this.logAudit('Invoice Paid', 'Billing', `Processed payment of $${inv.grandTotal.toFixed(2)} for ${inv.patientName}`);
+      this.logAudit('Invoice Paid', 'Billing', `Processed payment of ₹${inv.grandTotal.toFixed(2)} for ${inv.patientName}`);
       this.saveToStorage();
       api.payInvoice(invoiceId, paymentMethod).catch(() => {});
     }

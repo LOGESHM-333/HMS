@@ -336,7 +336,7 @@ export const AppointmentManager: React.FC<AppointmentManagerProps> = ({ theme })
                   }`}
                 >
                   {doctors.map(d => (
-                    <option key={d.id} value={d.id}>{d.name} — {d.department} (${d.consultationFee})</option>
+                    <option key={d.id} value={d.id}>{d.name} — {d.department} (₹${d.consultationFee})</option>
                   ))}
                 </select>
               </div>

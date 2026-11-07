@@ -54,6 +54,8 @@ import {
 } from 'lucide-react';
 
 interface DoctorPortalProps {
+  activeSection?: string;
+  onSelectSection?: (section: string) => void;
   theme: ThemeMode;
   onSwitchToPatientPortal?: () => void;
   onSwitchToNursePortal?: () => void;
@@ -74,8 +76,10 @@ interface MessageItem {
   timestamp: string;
 }
 
-export const DoctorPortal: React.FC<DoctorPortalProps> = ({ 
+export const DoctorPortal: React.FC<DoctorPortalProps> = ({
   theme,
+  activeSection,
+  onSelectSection,
   onSwitchToPatientPortal,
   onSwitchToNursePortal,
   onSwitchToAdminPortal,
@@ -84,6 +88,22 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
 }) => {
   const isDark = theme === 'dark';
   const [activeTab, setActiveTab] = useState<'doctor-chat' | 'doctor-patients' | 'doctor-rx' | 'doctor-labs' | 'doctor-schedule' | 'doctor-soap' | 'doctor-3d' | 'doctor-alerts'>('doctor-chat');
+
+  useEffect(() => {
+    if (activeSection) {
+      if (activeSection === 'doctor-consult') setActiveTab('doctor-chat');
+      else if (activeSection === 'patients') setActiveTab('doctor-patients');
+      else if (activeSection === 'appointments') setActiveTab('doctor-schedule');
+      else if (activeSection === 'emr') setActiveTab('doctor-soap');
+      else setActiveTab(activeSection as any);
+    }
+  }, [activeSection]);
+
+  const handleTabChange = (tabId: any) => {
+    sound.playClick();
+    setActiveTab(tabId);
+    if (onSelectSection) onSelectSection(tabId);
+  };
 
   // Core Clinical State
   const [patients, setPatients] = useState<Patient[]>(() => db.getPatients());
@@ -682,131 +702,36 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
         </div>
       )}
 
-      {/* TOP HEADER CONSOLE */}
-      <div className={`p-6 lg:p-8 rounded-[36px] border transition-all relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${
-        isDark ? 'bg-[#0B1726] border-slate-800 text-white shadow-2xl' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xl'
+      {/* TOP HEADER CONSOLE - Clean DocR Professional Header */}
+      <div className={`p-5 rounded-2xl border transition-all ${
+        isDark ? 'bg-[#0E2035] border-slate-800 text-white' : 'bg-white border-slate-200 text-[#1E293B] shadow-xs'
       }`}>
-        {/* Portal-Specific Background: Physician & Clinical Holographic Telemetry - Balanced Brightness & Well Aligned */}
-        <div 
-          className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
-          style={{ 
-            backgroundImage: `url('/assets/medical-bg.jpg')`,
-            backgroundPosition: 'left 25%',
-            opacity: isDark ? 0.65 : 0.78,
-            filter: 'brightness(1.04) contrast(1.05) saturate(1.10)',
-          }}
-        />
-        {/* Soft, balanced contrast overlay that preserves clinical hologram clarity without glare */}
-        <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
-          isDark 
-            ? 'bg-gradient-to-r from-[#0A1829]/75 via-[#0A1829]/40 to-[#0A1829]/65' 
-            : 'bg-gradient-to-r from-white/60 via-white/35 to-white/55'
-        }`} />
-
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-teal-600 to-cyan-500 flex items-center justify-center text-white font-black text-xl shadow-lg ring-4 ring-teal-500/20">
-                <Stethoscope className="w-7 h-7" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+          <div className="flex items-center gap-3.5">
+            <div className="relative shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 flex items-center justify-center font-bold text-lg shadow-xs">
+                <Stethoscope className="w-6 h-6" />
               </div>
-              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-[#0E2035] animate-pulse" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white dark:border-[#0E2035]" />
             </div>
 
             <div>
-              <div className="flex items-center gap-2.5">
-                <h2 className="text-xl font-black tracking-tight">Physician Clinical Station</h2>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/15 backdrop-blur-md text-teal-700 dark:text-teal-300 border border-teal-500/30">
-                  Dr. Roger S., MD â€¢ Pulmonology & Critical Care
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-lg font-bold tracking-tight">Physician Clinical Station</h2>
+                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+                  Dr. Roger S., MD • Pulmonology & Critical Care
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Live EMR Connected
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2 flex-wrap">
-                <span>Active Ward: <strong>Ward 4 Inpatient Wing</strong></span>
-                <span>â€¢</span>
-                <span>Real-Time EMR: <strong className="text-emerald-500 font-semibold">Live Connected (Port 5000)</strong></span>
-                <span>â€¢</span>
-                <span>Selected Patient: <strong className="text-teal-600 dark:text-teal-300 font-bold">{selectedPatient?.name} ({selectedPatient?.patientCode})</strong></span>
+                <span>Active Ward: <strong className="text-slate-700 dark:text-slate-200">Ward 4 Inpatient Wing</strong></span>
+                <span>•</span>
+                <span>Selected Patient: <strong className="text-teal-600 dark:text-teal-300 font-semibold">{selectedPatient?.name} ({selectedPatient?.patientCode})</strong></span>
               </p>
             </div>
-          </div>
-
-          {/* Quick Actions & Section Navigation Controls */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={() => setRxModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl border border-teal-500/40 bg-teal-500/20 hover:bg-teal-500/30 text-teal-800 dark:text-teal-200 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-              <span>Write Rx</span>
-            </button>
-
-            <button
-              onClick={() => setLabModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl border border-sky-500/40 bg-sky-500/20 hover:bg-sky-500/30 text-sky-800 dark:text-sky-200 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
-            >
-              <Activity className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-              <span>Order Lab</span>
-            </button>
-
-            <button
-              onClick={() => setSoapModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl border border-amber-500/40 bg-amber-500/20 hover:bg-amber-500/30 text-amber-800 dark:text-amber-200 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
-            >
-              <ClipboardList className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span>SOAP Note</span>
-            </button>
-
-            <button
-              onClick={() => setBroadcastModalOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition-all text-xs flex items-center gap-1.5 shadow-md shadow-rose-600/30 cursor-pointer"
-            >
-              <AlertTriangle className="w-3.5 h-3.5" />
-              <span>Code Blue</span>
-            </button>
-
-            {/* Quick Portal Switch Buttons (Instant Signout + Route to Login) */}
-            {onSwitchToAdminPortal && (
-              <button
-                onClick={onSwitchToAdminPortal}
-                className="px-3 py-2 rounded-xl border border-teal-500/30 bg-teal-500/15 hover:bg-teal-500/25 text-teal-700 dark:text-teal-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
-                title="Switch to Hospital Admin"
-              >
-                <Building2 className="w-3.5 h-3.5 text-teal-500" />
-                <span>Hospital Admin</span>
-              </button>
-            )}
-
-            {onSwitchToSuperAdminPortal && (
-              <button
-                onClick={onSwitchToSuperAdminPortal}
-                className="px-3 py-2 rounded-xl border border-purple-500/30 bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
-                title="Switch to Super Admin Command"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                <span>Super Admin</span>
-              </button>
-            )}
-
-            {onSwitchToNursePortal && (
-              <button
-                onClick={onSwitchToNursePortal}
-                className="px-3 py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
-                title="Switch to Head Nurse Station"
-              >
-                <Activity className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Head Nurse</span>
-              </button>
-            )}
-
-            {onLogout && (
-              <button
-                onClick={onLogout}
-                className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/80 hover:bg-rose-600 hover:text-white hover:border-rose-600 text-slate-700 dark:text-slate-300 transition-all text-xs font-bold flex items-center gap-1.5 shadow-xs backdrop-blur-md cursor-pointer"
-                title="Sign Out of Doctor Station"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Sign Out</span>
-              </button>
-            )}
           </div>
         </div>
       </div>

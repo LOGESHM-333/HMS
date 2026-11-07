@@ -414,7 +414,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 <DollarSign className="w-4 h-4 text-emerald-500" />
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400">$14.8M</span>
+                <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400">₹14.8 Cr</span>
                 <span className="text-xs font-bold text-emerald-500">+12.4% vs LY</span>
               </div>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-4 block">
@@ -827,7 +827,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 <div>
                   <div className="flex justify-between mb-1 font-semibold">
                     <span>Commercial Insurance (Aetna, BlueCross)</span>
-                    <strong className="text-teal-500">46% ($6.8M)</strong>
+                    <strong className="text-teal-500">46% (₹6.8 Cr)</strong>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                     <div className="h-full bg-teal-500 rounded-full w-[46%]" />
@@ -837,7 +837,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 <div>
                   <div className="flex justify-between mb-1 font-semibold">
                     <span>Medicare / Medicaid CMS</span>
-                    <strong className="text-amber-500">42% ($6.2M)</strong>
+                    <strong className="text-amber-500">42% (₹6.2 Cr)</strong>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                     <div className="h-full bg-amber-500 rounded-full w-[42%]" />
@@ -847,7 +847,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 <div>
                   <div className="flex justify-between mb-1 font-semibold">
                     <span>Private & Self-Pay</span>
-                    <strong className="text-cyan-500">12% ($1.8M)</strong>
+                    <strong className="text-cyan-500">12% (₹1.8 Cr)</strong>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                     <div className="h-full bg-cyan-500 rounded-full w-[12%]" />
@@ -865,7 +865,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 <span className="text-xs text-slate-400 font-bold">Health System Margin</span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Operating expenses tracked at $11.1M with clinical pharmaceutical procurement optimized via central hospital formulary.
+                Operating expenses tracked at ₹11.1 Cr with clinical pharmaceutical procurement optimized via central hospital formulary.
               </p>
             </div>
 

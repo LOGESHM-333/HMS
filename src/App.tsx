@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -105,7 +105,15 @@ const PAGE_TITLES: Record<string, string> = {
   'patient-messages': 'Direct Doctor Communication',
   'patient-nutrition': 'Nutrition & Wellness Tracker',
   'patient-emergency': 'Emergency SOS Dispatch',
-  'doctor-consult': 'Consultation Desk',
+  'doctor-consult': 'Physician Clinical Station',
+  'doctor-chat': 'Patient Inquiries & Tele-Chat',
+  'doctor-patients': 'Inpatient Rounds & Rosters',
+  'doctor-rx': 'E-Prescriptions & Refills',
+  'doctor-labs': 'Lab & Imaging Orders',
+  'doctor-schedule': 'Clinic Schedule & Telehealth',
+  'doctor-soap': 'SOAP Notes & EMR',
+  'doctor-3d': '3D Organ Telemetry',
+  'doctor-alerts': 'Critical Code Alerts',
   'nurse-rounds': 'Nursing Station',
 };
 
@@ -457,17 +465,16 @@ export default function App() {
           {/* =========== DOCTOR PORTAL ROUTES =========== */}
           {portalMode === 'doctor' && (
             <>
-              {currentTab === 'doctor-consult' && (
+              {currentTab !== 'settings' && (
                 <DoctorPortal
                   theme={theme}
+                  activeSection={currentTab}
+                  onSelectSection={handleTabChange}
                   onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
                   onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
                   onLogout={handleLogout}
                 />
               )}
-              {currentTab === 'patients' && <PatientDirectory theme={theme} onSelectPatientFor3D={(p: Patient) => { db.setSelectedPatient(p.id); setSelectedPatient(p); }} />}
-              {currentTab === 'appointments' && <AppointmentManager theme={theme} />}
-              {currentTab === 'emr' && <MedicalRecords theme={theme} onOpen3DAnatomy={(p: Patient) => { db.setSelectedPatient(p.id); setSelectedPatient(p); }} />}
               {currentTab === 'settings' && <SettingsView theme={theme} />}
             </>
           )}

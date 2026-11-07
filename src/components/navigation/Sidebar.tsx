@@ -42,7 +42,9 @@ export type NavTab =
   | 'patient-health' | 'doctor-consult' | 'nurse-rounds'
   | 'patient-appointments' | 'patient-prescriptions' | 'patient-labs'
   | 'patient-records' | 'patient-vaccines' | 'patient-billing'
-  | 'patient-messages' | 'patient-nutrition' | 'patient-emergency';
+  | 'patient-messages' | 'patient-nutrition' | 'patient-emergency'
+  | 'doctor-chat' | 'doctor-patients' | 'doctor-rx' | 'doctor-labs'
+  | 'doctor-schedule' | 'doctor-soap' | 'doctor-3d' | 'doctor-alerts';
 
 interface NavItem {
   id: NavTab;
@@ -95,7 +97,14 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Portal',
     roles: ['doctor', 'nurse', 'patient'],
     items: [
-      { id: 'doctor-consult', label: 'Consultation Desk', icon: ClipboardList, roles: ['doctor'] },
+      { id: 'doctor-chat', label: 'Patient Inquiries & Tele-Chat', icon: Stethoscope, roles: ['doctor'] },
+      { id: 'doctor-patients', label: 'Inpatient Rounds & Rosters', icon: Bed, roles: ['doctor'], badge: '5' },
+      { id: 'doctor-rx', label: 'E-Prescriptions & Refills', icon: Pill, roles: ['doctor'], badge: '2' },
+      { id: 'doctor-labs', label: 'Lab & Imaging Orders', icon: FlaskConical, roles: ['doctor'], badge: '3' },
+      { id: 'doctor-schedule', label: 'Clinic Schedule & Telehealth', icon: Calendar, roles: ['doctor'], badge: '6' },
+      { id: 'doctor-soap', label: 'SOAP Notes & EMR', icon: ClipboardList, roles: ['doctor'] },
+      { id: 'doctor-3d', label: '3D Organ Telemetry', icon: Heart, roles: ['doctor'] },
+      { id: 'doctor-alerts', label: 'Critical Code Alerts', icon: ShieldCheck, roles: ['doctor'], badge: 'Alert', badgeVariant: 'danger' },
       { id: 'nurse-rounds', label: 'Nursing Station', icon: Syringe, roles: ['nurse'] },
       { id: 'patient-health', label: 'Health Summary & 3D', icon: Heart, roles: ['patient'] },
       { id: 'patient-appointments', label: 'Appointments', icon: Calendar, roles: ['patient'] },

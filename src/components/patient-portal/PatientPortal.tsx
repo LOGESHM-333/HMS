@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -504,7 +504,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
     refreshCollections();
     const paidInv = payModalInvoice;
     setPayModalInvoice(null);
-    showToast(`Payment of $${paidInv.grandTotal.toFixed(2)} completed successfully via ${selectedPaymentMethod}!`);
+    showToast(`Payment of ₹${paidInv.grandTotal.toFixed(2)} completed successfully via ${selectedPaymentMethod}!`);
   };
 
   // Insurance claim submit
@@ -519,7 +519,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       diagnosisCode: claimDiagnosis
     });
     setClaimModalOpen(false);
-    showToast(`Insurance claim for $${claimAmount} successfully submitted to ${claimProvider}!`);
+    showToast(`Insurance claim for ₹${claimAmount} successfully submitted to ${claimProvider}!`);
   };
 
   // Doctor Chat Send
@@ -1379,11 +1379,11 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
               </div>
               <div>
                 <span className="text-teal-200/80 block text-[10px] uppercase">Specialist Copay</span>
-                <span className="font-bold">$25.00 / Visit</span>
+                <span className="font-bold">₹500 / Visit</span>
               </div>
               <div>
                 <span className="text-teal-200/80 block text-[10px] uppercase">Deductible Met</span>
-                <span className="font-bold">$1,800 / $2,000</span>
+                <span className="font-bold">₹15,000 / ₹20,000</span>
               </div>
             </div>
           </div>
@@ -1412,7 +1412,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <span className="text-[10px] text-slate-400 block uppercase">Total Amount</span>
-                      <span className="text-xl font-black text-slate-900 dark:text-white">${inv.grandTotal.toFixed(2)}</span>
+                      <span className="text-xl font-black text-slate-900 dark:text-white">₹${inv.grandTotal.toFixed(2)}</span>
                     </div>
                     {inv.status !== 'Paid' ? (
                       <button
@@ -1446,7 +1446,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                     {inv.items.map((it, i) => (
                       <div key={i} className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
                         <span>{it.description} (x{it.quantity})</span>
-                        <span className="font-mono">${it.total.toFixed(2)}</span>
+                        <span className="font-mono">₹${it.total.toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
@@ -2698,7 +2698,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                   <span className="text-slate-400">Patient: {payModalInvoice.patientName}</span>
                 </div>
                 <span className="text-xl font-black text-teal-600 dark:text-teal-400">
-                  ${payModalInvoice.grandTotal.toFixed(2)}
+                  ₹{payModalInvoice.grandTotal.toFixed(2)}
                 </span>
               </div>
 
@@ -2768,7 +2768,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                   onClick={handleProcessPayment}
                   className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold"
                 >
-                  Pay ${payModalInvoice.grandTotal.toFixed(2)}
+                  Pay ₹${payModalInvoice.grandTotal.toFixed(2)}
                 </button>
               </div>
             </div>
@@ -2813,7 +2813,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="font-bold block mb-1">Claim Amount ($)</label>
+                  <label className="font-bold block mb-1">Claim Amount (₹)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -2887,7 +2887,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
               </div>
               <div className="flex justify-between py-2 text-base font-black border-t-2 border-slate-900 mt-2">
                 <span>Total Settled:</span>
-                <span className="text-teal-700">${activeReceipt.grandTotal.toFixed(2)}</span>
+                <span className="text-teal-700">₹${activeReceipt.grandTotal.toFixed(2)}</span>
               </div>
             </div>
 

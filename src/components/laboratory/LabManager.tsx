@@ -241,7 +241,7 @@ export const LabManager: React.FC<LabManagerProps> = ({ theme }) => {
                   }`}
                 >
                   {labTests.map(t => (
-                    <option key={t.id} value={t.id}>{t.testName} - ${t.price}</option>
+                    <option key={t.id} value={t.id}>{t.testName} - ₹${t.price}</option>
                   ))}
                 </select>
               </div>

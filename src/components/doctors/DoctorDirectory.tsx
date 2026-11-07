@@ -157,7 +157,7 @@ export const DoctorDirectory: React.FC<DoctorDirectoryProps> = ({ theme }) => {
               <div>
                 <span className="text-[10px] text-slate-400 block">Consultation Fee</span>
                 <span className="text-sm font-extrabold text-teal-600 dark:text-teal-400">
-                  ${doc.consultationFee} <span className="text-[10px] font-normal text-slate-400">/ session</span>
+                  ₹{doc.consultationFee} <span className="text-[10px] font-normal text-slate-400">/ session</span>
                 </span>
               </div>
 

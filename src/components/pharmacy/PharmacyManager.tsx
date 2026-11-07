@@ -185,7 +185,7 @@ export const PharmacyManager: React.FC<PharmacyManagerProps> = ({ theme }) => {
                       </div>
                     </td>
                     <td className="py-3.5 pr-3 font-mono text-slate-400">{m.expiryDate}</td>
-                    <td className="py-3.5 pr-3 font-bold text-emerald-600 dark:text-emerald-400">${m.unitPrice.toFixed(2)}</td>
+                    <td className="py-3.5 pr-3 font-bold text-emerald-600 dark:text-emerald-400">₹${m.unitPrice.toFixed(2)}</td>
                     <td className="py-3.5 text-right">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
                         m.status === 'In Stock' 
@@ -324,7 +324,7 @@ export const PharmacyManager: React.FC<PharmacyManagerProps> = ({ theme }) => {
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Unit Price ($)</label>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Unit Price (₹)</label>
                   <input
                     type="number"
                     step="0.01"
