@@ -126,23 +126,6 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
           ? 'bg-[#0B1726] border-slate-800 text-white' 
           : 'bg-white border-slate-200/90 text-slate-900'
       }`}>
-        {/* Portal-Specific Background: Futuristic Medical Atrium & Ward Care - Balanced & High Contrast */}
-        <div 
-          className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
-          style={{ 
-            backgroundImage: `url('/assets/backgrounds/bg-option-1-futuristic.jpg')`,
-            backgroundPosition: 'center 20%',
-            opacity: isDark ? 0.35 : 0.45,
-            filter: 'brightness(1.10) contrast(1.05) saturate(1.10)',
-          }}
-        />
-        {/* Subtle translucent gradient overlay to keep ward clinical metrics high-contrast and fully visible */}
-        <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
-          isDark 
-            ? 'bg-gradient-to-b from-[#0A1829]/65 via-[#0A1829]/50 to-[#0A1829]/70' 
-            : 'bg-gradient-to-b from-white/60 via-white/45 to-white/65'
-        }`} />
-        
         {/* ================= LEFT SIDEBAR (ALL MODULES UNIFIED) ================= */}
         <aside className={`transition-all duration-300 border-r shrink-0 flex flex-col justify-between relative z-10 ${
           sidebarCollapsed ? 'lg:w-20' : 'lg:w-64'
@@ -463,7 +446,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                 <Search className="w-3.5 h-3.5" />
                 <span>Search</span>
                 <kbd className="ml-2 px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-[10px] font-mono text-slate-500">
-                  ⌘K
+                  âŒ˜K
                 </kbd>
               </div>
 
@@ -530,7 +513,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                       Ward overview
                     </h1>
                     <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                      Ward 4 · {occupiedBeds} of {totalBeds} beds
+                      Ward 4 Â· {occupiedBeds} of {totalBeds} beds
                     </span>
                   </div>
 
@@ -657,7 +640,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                     <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                       37.8
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">°C</span>
+                    <span className="text-xs text-slate-400 font-medium">Â°C</span>
                   </div>
                   <div className="text-xs text-slate-400 mb-3">ref 36.1 to 37.2</div>
                   <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800/40">
@@ -756,7 +739,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                       {alertsCount || 3}
                     </span>
                     <span className="text-xs font-bold text-rose-500 flex items-center">
-                      ▲ +1
+                      â–² +1
                     </span>
                   </div>
                 </div>

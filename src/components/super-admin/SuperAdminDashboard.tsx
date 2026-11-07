@@ -163,7 +163,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
     setSecurityConfig(db.getSecurityConfig());
     setAuditLogs(db.getAuditLogs());
     setLockdownModalOpen(false);
-    showToast(securityConfig.lockdownActive ? 'Facility lockdown cleared.' : '🚨 Multi-Facility Lockdown Protocol Engaged');
+    showToast(securityConfig.lockdownActive ? 'Facility lockdown cleared.' : 'ðŸš¨ Multi-Facility Lockdown Protocol Engaged');
   };
 
   const handleSendBroadcast = (e: React.FormEvent) => {
@@ -237,7 +237,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 <span className="font-mono font-bold text-xs">ROOT SECURITY ENGAGED</span>
               </div>
               <h3 className="text-base sm:text-lg font-black mt-0.5">
-                All external facility perimeters locked • Access restricted to Super Admin & Trauma Critical Response
+                All external facility perimeters locked â€¢ Access restricted to Super Admin & Trauma Critical Response
               </h3>
             </div>
           </div>
@@ -245,77 +245,51 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             onClick={handleToggleLockdown}
             className="px-5 py-2.5 rounded-2xl bg-white text-rose-700 hover:bg-rose-50 font-black text-xs shadow-md transition-all cursor-pointer"
           >
-            Disengage Lockdown Protocol ✓
+            Disengage Lockdown Protocol âœ“
           </button>
         </div>
       )}
 
-      {/* ================= SUPER ADMIN COMMAND BANNER ================= */}
-      <div className={`p-6 lg:p-8 rounded-[36px] border transition-all relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 ${
-        isDark 
-          ? 'bg-[#0B1726] border-slate-800 text-white shadow-2xl' 
-          : 'bg-white border-slate-200/80 text-[#142C43] shadow-xl'
+      {/* DOCR SUPER ADMIN COMMAND HEADER */}
+      <div className={`p-5 rounded-2xl border transition-all ${
+        isDark ? 'bg-[#0E2035] border-slate-800 text-white' : 'bg-white border-slate-200 text-[#1E293B] shadow-xs'
       }`}>
-        {/* Background Image: Futuristic Medical Atrium - High-Tech Cyber Clinical */}
-        <div 
-          className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
-          style={{ 
-            backgroundImage: `url('/assets/backgrounds/bg-option-1-futuristic.jpg')`,
-            backgroundPosition: 'center 25%',
-            opacity: isDark ? 0.45 : 0.65,
-            filter: 'brightness(1.10) contrast(1.05) saturate(1.12)',
-          }}
-        />
-        <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
-          isDark 
-            ? 'bg-gradient-to-r from-[#0A1829]/80 via-[#0A1829]/50 to-[#0A1829]/75' 
-            : 'bg-gradient-to-r from-white/70 via-white/45 to-white/65'
-        }`} />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-700 flex items-center justify-center text-white font-black text-2xl shadow-lg ring-4 ring-amber-500/30">
-                <ShieldCheck className="w-8 h-8" />
-              </div>
-              <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-white dark:border-[#0B1726] rounded-full flex items-center justify-center">
-                <span className="w-2 h-2 bg-white rounded-full animate-ping" />
-              </span>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-600 to-[#0F52BA] flex items-center justify-center text-white font-bold shadow-xs shrink-0">
+              <ShieldCheck className="w-6 h-6" />
             </div>
 
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight">Dr. Eleanor Vance, MD, CISSP</h1>
-                <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-amber-500/20 backdrop-blur-md text-amber-600 dark:text-amber-400 font-extrabold border border-amber-500/40 flex items-center gap-1 shadow-xs">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <h1 className="text-lg font-bold tracking-tight">Dr. Eleanor Vance, MD, CISSP</h1>
+                <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold border border-purple-500/20 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
                   SUPER ADMIN • ROOT TIER 0
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 backdrop-blur-md text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
                   HIPAA Security Enforced
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5">
                 <span>Enterprise: <strong className="text-slate-700 dark:text-slate-200">MediCore Global Health System</strong></span>
                 <span>•</span>
                 <span>Facilities: <strong className="text-teal-600 dark:text-teal-400">{facilities.length} Hospital Nodes</strong></span>
                 <span>•</span>
-                <span>Total Network Census: <strong className="text-slate-700 dark:text-slate-200">{totalOccupiedBeds} / {totalNetworkBeds} Beds ({networkOccupancyRate}%)</strong></span>
-                <span>•</span>
-                <span>API Health: <strong className="text-emerald-500 font-semibold">Port 5000 REST Online (18ms)</strong></span>
+                <span>Census: <strong className="text-slate-700 dark:text-slate-200">{totalOccupiedBeds} / {totalNetworkBeds} Beds ({networkOccupancyRate}%)</strong></span>
               </p>
             </div>
           </div>
 
-          {/* Quick Action Controls */}
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => {
                 sound.playClick();
                 setNewUserModalOpen(true);
               }}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold border border-teal-500/40 bg-teal-500/20 hover:bg-teal-500/30 text-teal-800 dark:text-teal-200 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#0F52BA] hover:bg-[#0D47A8] text-white transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
-              <UserPlus className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <UserPlus className="w-3.5 h-3.5" />
               <span>+ Provision Admin</span>
             </button>
 
@@ -324,7 +298,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 sound.playClick();
                 setBroadcastModalOpen(true);
               }}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold border border-rose-500/40 bg-rose-500/15 hover:bg-rose-500/25 text-rose-700 dark:text-rose-300 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-rose-500/30 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-300 hover:bg-rose-100 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Radio className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
               <span>STAT Broadcast</span>
@@ -332,54 +306,11 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
 
             <button
               onClick={handleTriggerBackup}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold border border-sky-500/40 bg-sky-500/15 hover:bg-sky-500/25 text-sky-800 dark:text-sky-200 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-sky-500/30 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 hover:bg-sky-100 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Database className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
               <span>Backup Snapshot</span>
             </button>
-
-            {/* Portal Switchers */}
-            {onSwitchToAdminPortal && (
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  onSwitchToAdminPortal();
-                }}
-                className="px-3 py-2 rounded-xl text-xs font-bold border border-cyan-500/30 bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-700 dark:text-cyan-300 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-                title="Switch to Hospital Admin Operations"
-              >
-                <Building2 className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-                <span>Hospital Admin</span>
-              </button>
-            )}
-
-            {onSwitchToDoctorPortal && (
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  onSwitchToDoctorPortal();
-                }}
-                className="px-3 py-2 rounded-xl text-xs font-bold border border-teal-500/30 bg-teal-500/15 hover:bg-teal-500/25 text-teal-700 dark:text-teal-300 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-                title="Switch to Doctor Station"
-              >
-                <Stethoscope className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                <span>Doctor Portal</span>
-              </button>
-            )}
-
-            {onLogout && (
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  onLogout();
-                }}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-white bg-slate-100/80 dark:bg-slate-800/80 hover:bg-rose-600 border border-slate-300/80 dark:border-slate-700/80 hover:border-rose-600 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-                title="Sign out of Enterprise Command"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Sign Out</span>
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -528,7 +459,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                             {fac.status}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-0.5">{fac.city} • {fac.type}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{fac.city} â€¢ {fac.type}</p>
                       </div>
 
                       <div className="text-right shrink-0">
@@ -565,7 +496,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                         onClick={() => showToast(`Synchronized with ${fac.name} telemetry node.`)}
                         className="px-2.5 py-1 rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 font-bold transition-all"
                       >
-                        Node Telemetry →
+                        Node Telemetry â†’
                       </button>
                     </div>
                   </div>
@@ -680,7 +611,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                               : 'bg-rose-500/15 text-rose-500 border-rose-500/30'
                           }`}
                         >
-                          {u.mfaEnabled ? '✓ 2FA Enforced' : '✗ 2FA Disabled'}
+                          {u.mfaEnabled ? 'âœ“ 2FA Enforced' : 'âœ— 2FA Disabled'}
                         </button>
                       </td>
                       <td className="p-4">
@@ -727,7 +658,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             <div>
               <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                 <FileText className="w-5 h-5 text-amber-500" />
-                <span>Immutable HIPAA Security Rule (§ 164.312) Audit Trail</span>
+                <span>Immutable HIPAA Security Rule (Â§ 164.312) Audit Trail</span>
               </h3>
               <p className="text-xs text-slate-400">
                 Cryptographically tracked clinical access, role switches, and emergency overrides
@@ -1045,7 +976,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
               </div>
 
               <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-[11px]">
-                ℹ️ <strong>HIPAA Security Notice:</strong> Account will be provisioned with mandatory 2FA enforcement and logged to the master audit dossier.
+                â„¹ï¸ <strong>HIPAA Security Notice:</strong> Account will be provisioned with mandatory 2FA enforcement and logged to the master audit dossier.
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
@@ -1060,7 +991,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold shadow-md cursor-pointer"
                 >
-                  Provision User ✓
+                  Provision User âœ“
                 </button>
               </div>
             </form>
@@ -1152,7 +1083,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs shadow-md cursor-pointer"
                 >
-                  Broadcast to All Terminals 📡
+                  Broadcast to All Terminals ðŸ“¡
                 </button>
               </div>
             </form>

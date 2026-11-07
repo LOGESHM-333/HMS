@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -279,70 +279,49 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
       className="min-h-screen flex"
       style={{ background: 'var(--color-bg)' }}
     >
-      {/* ===== LEFT PANEL: Branding ===== */}
-      <div
-        className="hidden lg:flex flex-col justify-between p-12 w-[480px] flex-shrink-0 relative overflow-hidden"
-        style={{ background: config.gradient }}
-      >
-        {/* Background pattern */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%)',
+      {/* ===== LEFT PANEL: Professional Hospital Visual ===== */}
+      <div className="hidden lg:flex flex-col justify-between p-10 w-[460px] xl:w-[480px] flex-shrink-0 relative overflow-hidden text-white shadow-2xl">
+        {/* Real Hospital Image with Rich Gradient Overlay */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center pointer-events-none select-none transition-all duration-700 scale-105"
+          style={{ 
+            backgroundImage: `url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&auto=format&fit=crop&q=80')`,
           }}
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#07111E] via-[#0F52BA]/65 to-[#07111E]/80 backdrop-blur-[1px]" />
 
-        {/* Logo */}
+        {/* Top Logo */}
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-12">
-            <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center">
-              <Activity size={22} color="white" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-md">
+              <Activity size={22} className="text-white" />
             </div>
             <div>
-              <div className="text-white font-800 text-lg" style={{ fontWeight: 800 }}>MediCore OS</div>
-              <div className="text-white/70 text-xs">Enterprise HMS Platform</div>
+              <div className="text-white font-extrabold text-lg tracking-tight">MediCore Health</div>
+              <div className="text-white/70 text-xs">Clinical Hospital Operating Network</div>
             </div>
-          </div>
-
-          {/* Active portal info */}
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{ background: 'rgba(255,255,255,0.15)' }}>
-              <span className="text-white/80 text-xs font-600">{config.badge}</span>
-            </div>
-            <h1 className="text-4xl font-800 text-white mb-4 leading-tight" style={{ fontWeight: 800 }}>
-              {config.label}
-            </h1>
-            <p className="text-white/75 text-base leading-relaxed">
-              {config.desc}
-            </p>
           </div>
         </div>
 
-        {/* Feature highlights */}
-        <div className="relative z-10 space-y-3">
-          {[
-            'Real-time patient vitals & monitoring',
-            'Secure role-based access control',
-            'MySQL-backed data persistence',
-            'Multi-facility enterprise governance',
-          ].map((feat, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="white">
-                  <path d="M10 3L5 8.5L2 5.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                </svg>
-              </div>
-              <span className="text-white/80 text-sm">{feat}</span>
-            </div>
-          ))}
-          <div className="pt-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
-            <div className="text-white/50 text-xs">
-              MediCore OS v3.0 · HIPAA Compliant · MySQL + Express Backend
-            </div>
+        {/* Bottom Hero Card */}
+        <div className="relative z-10 space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs font-semibold text-white/90">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Smart Clinical Operations</span>
+          </div>
+          <h2 className="text-3xl font-extrabold text-white leading-snug tracking-tight">
+            Advanced Clinical Care & Diagnostic Management
+          </h2>
+          <p className="text-sm text-white/80 leading-relaxed">
+            Secure hospital intelligence serving doctors, nursing stations, hospital administrators, and patient care in real time.
+          </p>
+
+          <div className="pt-4 border-t border-white/15 flex items-center justify-between text-xs text-white/70">
+            <span>HIPAA Compliant System</span>
+            <span>24/7 Clinical Network</span>
           </div>
         </div>
       </div>
-
       {/* ===== RIGHT PANEL: Auth Form ===== */}
       <div className="flex-1 flex flex-col">
         {/* Mobile logo */}
@@ -353,7 +332,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
           <span className="font-800 text-sm" style={{ fontWeight: 800, color: 'var(--color-text-primary)' }}>MediCore OS</span>
         </div>
 
-        <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+        <div className="flex-1 flex items-center justify-center p-6 lg:p-12 overflow-y-auto">
           <div className="w-full max-w-md">
 
             {/* Portal Selector Tabs */}
@@ -607,10 +586,10 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
             {/* Footer note */}
             <div className="mt-8 pt-6 border-t text-center" style={{ borderColor: 'var(--color-border)' }}>
               <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                Protected by HIPAA compliance · End-to-end encrypted
+                Protected by HIPAA compliance Â· End-to-end encrypted
               </p>
               <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                MediCore OS Enterprise · MySQL-backed · v3.0
+                MediCore OS Enterprise Â· MySQL-backed Â· v3.0
               </p>
             </div>
           </div>

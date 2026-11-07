@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -79,51 +79,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-500 pb-12">
-      {/* WELCOME BANNER & QUICK STATS HEADER */}
-      <div className={`p-6 lg:p-8 rounded-[36px] border transition-all relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4 ${
-        isDark 
-          ? 'bg-[#0B1726] border-slate-800 text-white shadow-2xl' 
-          : 'bg-white border-slate-200/80 text-[#142C43] shadow-xl'
+      {/* DOCR DASHBOARD HEADER */}
+      <div className={`p-5 rounded-2xl border transition-all ${
+        isDark ? 'bg-[#0E2035] border-slate-800 text-white' : 'bg-white border-slate-200 text-[#1E293B] shadow-xs'
       }`}>
-        {/* Portal-Specific Background: Clean Scandinavian Wellness Atrium - Bright, Transparent & Well Aligned */}
-        <div 
-          className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
-          style={{ 
-            backgroundImage: `url('/assets/backgrounds/bg-option-4-wellness.jpg')`,
-            backgroundPosition: 'center 30%',
-            opacity: isDark ? 0.78 : 0.90,
-            filter: 'brightness(1.35) contrast(1.08) saturate(1.18)',
-          }}
-        />
-        <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
-          isDark 
-            ? 'bg-gradient-to-b from-[#0A1829]/25 via-transparent to-[#0A1829]/35' 
-            : 'bg-gradient-to-b from-white/10 via-transparent to-white/15'
-        }`} />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                Hello! {db.getRoleName(currentRole).split(' ')[0]}
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+                Hello, {db.getRoleName(currentRole).split(' ')[0]}
               </h1>
-              <span className="p-1 rounded-full bg-teal-500/15 backdrop-blur-md text-teal-600 dark:text-teal-400">
-                <Sparkles className="w-4 h-4 animate-spin-slow" />
+              <span className="p-1 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                <Sparkles className="w-3.5 h-3.5" />
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-              There is latest clinical and operational telemetry update for the last 7 days. Check now!
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Real-time clinical telemetry & hospital operations overview.
             </p>
           </div>
 
           {/* Quick action triggers */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={() => {
                 sound.playClick();
                 onNavigateTab('patients');
               }}
-              className="px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs bg-teal-500/15 hover:bg-teal-500/25 backdrop-blur-md text-[#0C4E44] dark:text-teal-300 border border-teal-500/30"
+              className="px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border border-teal-500/30 hover:bg-teal-100 cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
               <span>Admit Patient</span>
@@ -134,7 +116,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 sound.playClick();
                 onNavigateTab('appointments');
               }}
-              className="px-4 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 bg-teal-600/90 hover:bg-teal-700 backdrop-blur-md text-white shadow-md shadow-teal-500/20 active:scale-95 transition-all"
+              className="px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-[#0F52BA] hover:bg-[#0D47A8] text-white shadow-xs transition-all cursor-pointer"
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Book Consultation</span>
@@ -142,7 +124,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         </div>
       </div>
-
       {/* TOP SECTION: 3D ANATOMY ENGINE & PRIMARY KPI GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column (7 cols): Interactive 3D Anatomy Visualizer */}
@@ -223,7 +204,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-extrabold tracking-tight">1,223</span>
                 <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/10 text-emerald-600 flex items-center gap-0.5">
-                  ▲ 4.3%
+                  â–² 4.3%
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 mt-2">Active clinic & in-patient census</p>
@@ -256,7 +237,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-extrabold tracking-tight">74</span>
-                <span className="text-[10px] text-emerald-500 font-semibold">● 100% Shift Coverage</span>
+                <span className="text-[10px] text-emerald-500 font-semibold">â— 100% Shift Coverage</span>
               </div>
               <p className="text-[10px] text-slate-400 mt-2">12 surgical suites active</p>
             </div>
@@ -390,7 +371,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="bg-rose-500 w-[30%]" />
             </div>
             <span className="text-xs font-bold text-rose-500 flex items-center gap-1">
-              ▲ High 35.4%
+              â–² High 35.4%
             </span>
           </div>
         </div>
@@ -505,7 +486,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
                     }`}
                   >
-                    {sym} {active && '×'}
+                    {sym} {active && 'Ã—'}
                   </button>
                 );
               })}
@@ -544,8 +525,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <span className="text-[11px] font-bold text-lime-400 block">Neurology</span>
                 <div className="text-2xl font-black text-lime-400 mt-2">97%</div>
                 <div className="mt-2 text-[10px] text-slate-300 space-y-0.5">
-                  <div>👥 72 patient</div>
-                  <div>⏱️ 14 min wait</div>
+                  <div>ðŸ‘¥ 72 patient</div>
+                  <div>â±ï¸ 14 min wait</div>
                 </div>
               </div>
 
@@ -554,8 +535,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <span className="text-[11px] font-bold text-orange-400 block">Pediatric</span>
                 <div className="text-2xl font-black text-orange-400 mt-2">91%</div>
                 <div className="mt-2 text-[10px] text-slate-300 space-y-0.5">
-                  <div>👥 58 patient</div>
-                  <div>⏱️ 13 min wait</div>
+                  <div>ðŸ‘¥ 58 patient</div>
+                  <div>â±ï¸ 13 min wait</div>
                 </div>
               </div>
 
@@ -564,8 +545,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <span className="text-[11px] font-bold text-cyan-400 block">Cardiology</span>
                 <div className="text-2xl font-black text-cyan-400 mt-2">95%</div>
                 <div className="mt-2 text-[10px] text-slate-300 space-y-0.5">
-                  <div>👥 87 patient</div>
-                  <div>⏱️ 12 min wait</div>
+                  <div>ðŸ‘¥ 87 patient</div>
+                  <div>â±ï¸ 12 min wait</div>
                 </div>
               </div>
             </div>

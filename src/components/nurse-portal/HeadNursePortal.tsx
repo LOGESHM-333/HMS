@@ -198,7 +198,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
       { id: 'b-icu-1', bedNumber: 'ICU-01', wardId: 'w-icu', wardName: 'Intensive Care Unit', type: 'ICU', status: 'Occupied', patientName: 'Kavitha Ramaswamy' },
       { id: 'b-icu-2', bedNumber: 'ICU-02', wardId: 'w-icu', wardName: 'Intensive Care Unit', type: 'ICU', status: 'Occupied', patientName: 'Magnus Stephenson' },
       { id: 'b-gw-104', bedNumber: 'GW-104', wardId: 'w-gen', wardName: 'General Ward A', type: 'General', status: 'Occupied', patientName: 'Elena Rostova' },
-      { id: 'b-sr-108', bedNumber: 'SR-108', wardId: 'w-surg', wardName: 'Surgical Recovery', type: 'Surgical', status: 'Occupied', patientName: 'David K. O’Connor' },
+      { id: 'b-sr-108', bedNumber: 'SR-108', wardId: 'w-surg', wardName: 'Surgical Recovery', type: 'Surgical', status: 'Occupied', patientName: 'David K. Oâ€™Connor' },
       { id: 'b-cw-304', bedNumber: 'CW-304', wardId: 'w-card', wardName: 'Cardiac Care Pavilion', type: 'Cardiac', status: 'Available' },
       { id: 'b-er-102', bedNumber: 'ER-102', wardId: 'w-er', wardName: 'Emergency Trauma', type: 'Emergency', status: 'Cleaning' },
     ];
@@ -280,7 +280,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
     {
       id: 'mar-4',
       patientId: 'pat-4',
-      patientName: 'David K. O’Connor',
+      patientName: 'David K. Oâ€™Connor',
       bedNumber: 'SR-108',
       medication: 'Hydromorphone (Dilaudid)',
       dosage: '1 mg',
@@ -446,7 +446,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
     },
     {
       id: 'ord-3',
-      patientName: 'David K. O’Connor',
+      patientName: 'David K. Oâ€™Connor',
       bed: 'SR-108',
       orderType: 'Dressing',
       orderText: 'Post-op lumbar spine incision inspection & sterile Betadine dressing change',
@@ -607,7 +607,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
       sound.playAlert();
       setCodeBlueActive(true);
       setCodeTimerSeconds(0);
-      showToast('🚨 CODE BLUE ACTIVATED: Crash cart and ICU team alerted for ICU Bed 02!');
+      showToast('ðŸš¨ CODE BLUE ACTIVATED: Crash cart and ICU team alerted for ICU Bed 02!');
     } else {
       sound.playSuccess();
       setCodeBlueActive(false);
@@ -676,7 +676,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                 <span className="font-mono font-bold text-xs">CRITICAL RESUSCITATION</span>
               </div>
               <h3 className="text-lg sm:text-xl font-black mt-0.5">
-                Bed: ICU-02 • Resuscitation Running Time: {Math.floor(codeTimerSeconds / 60).toString().padStart(2, '0')}:{(codeTimerSeconds % 60).toString().padStart(2, '0')}
+                Bed: ICU-02 â€¢ Resuscitation Running Time: {Math.floor(codeTimerSeconds / 60).toString().padStart(2, '0')}:{(codeTimerSeconds % 60).toString().padStart(2, '0')}
               </h3>
             </div>
           </div>
@@ -685,199 +685,80 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
             onClick={toggleCodeBlue}
             className="px-5 py-2.5 rounded-2xl bg-white text-rose-700 hover:bg-rose-50 font-black text-xs shadow-md transition-all cursor-pointer"
           >
-            Terminate Code / ROSC Achieved ✓
+            Terminate Code / ROSC Achieved âœ“
           </button>
         </div>
       )}
 
-      {/* ================= HEAD NURSE COMMAND BANNER ================= */}
-      <div
-        className={`p-6 lg:p-8 rounded-[36px] border transition-all relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 ${
-          isDark
-            ? 'bg-[#0B1726] border-slate-800 text-white shadow-2xl'
-            : 'bg-white border-slate-200/80 text-[#142C43] shadow-xl'
-        }`}
-      >
-        {/* Portal-Specific Background: Smart Health Desk & ECG Vitals - Bright, Transparent & Well Aligned */}
-        <div 
-          className="absolute inset-0 bg-cover bg-no-repeat pointer-events-none select-none z-0 transition-all duration-300"
-          style={{ 
-            backgroundImage: `url('/assets/backgrounds/bg-option-5-smart-health.jpg')`,
-            backgroundPosition: 'center 40%',
-            opacity: isDark ? 0.78 : 0.90,
-            filter: 'brightness(1.35) contrast(1.06) saturate(1.18)',
-          }}
-        />
-        {/* Subtle, crystal-clear gradient sheen that preserves image detail without blur */}
-        <div className={`absolute inset-0 pointer-events-none z-0 transition-colors duration-300 ${
-          isDark 
-            ? 'bg-gradient-to-b from-[#0A1829]/25 via-transparent to-[#0A1829]/35' 
-            : 'bg-gradient-to-b from-white/10 via-transparent to-white/15'
-        }`} />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
-          <div className="flex items-center gap-4">
+      {/* DOCR HEAD NURSE HEADER */}
+      <div className={`p-5 rounded-2xl border transition-all ${
+        isDark ? 'bg-[#0E2035] border-slate-800 text-white' : 'bg-white border-slate-200 text-[#1E293B] shadow-xs'
+      }`}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
+          <div className="flex items-center gap-3.5">
             <div className="relative">
               <img
                 src="https://images.unsplash.com/photo-1594824813571-638f02614d3f?w=150&auto=format&fit=crop&q=80"
                 alt="Nurse Sarah Jenkins"
-                className="w-16 h-16 rounded-2xl object-cover ring-4 ring-teal-500/25 shadow-md shrink-0"
+                className="w-12 h-12 rounded-xl object-cover ring-2 ring-teal-500/25 shrink-0"
               />
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center">
-                <div className="w-2 h-2 bg-white rounded-full animate-ping" />
-              </div>
+              <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900" />
             </div>
 
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-black tracking-tight">Nurse Sarah Jenkins, RN, BSN</h2>
-                <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-teal-500/15 backdrop-blur-md text-teal-700 dark:text-teal-300 font-bold border border-teal-500/30">
+                <h2 className="text-lg font-bold tracking-tight">Nurse Sarah Jenkins, RN</h2>
+                <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 font-semibold border border-teal-500/20">
                   HEAD CHARGE NURSE
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 backdrop-blur-md text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1 shadow-xs">
-                  <ShieldCheck className="w-3.5 h-3.5" />
+                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" />
                   ICU & Surgical Wing
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5">
                 <span>Shift: <strong className="text-slate-700 dark:text-slate-200">Morning (07:00 - 15:00)</strong></span>
                 <span>•</span>
-                <span>Patients in Unit: <strong className="text-teal-600 dark:text-teal-400">{beds.filter(b => b.status === 'Occupied').length} Admitted</strong></span>
+                <span>Census: <strong className="text-teal-600 dark:text-teal-400">{beds.filter(b => b.status === 'Occupied').length} Admitted</strong></span>
                 <span>•</span>
-                <span>Medications Due: <strong className="text-amber-500">{marList.filter(m => m.status === 'Due').length} Doses</strong></span>
+                <span>Meds Due: <strong className="text-amber-500">{marList.filter(m => m.status === 'Due').length} Doses</strong></span>
                 <span>•</span>
-                <span>Doctor Orders: <strong className="text-rose-500">{doctorOrders.filter(o => o.status === 'Pending').length} Pending</strong></span>
+                <span>Orders: <strong className="text-rose-500">{doctorOrders.filter(o => o.status === 'Pending').length} Pending</strong></span>
               </p>
             </div>
           </div>
 
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight">Nurse Sarah Jenkins, RN, BSN</h2>
-              <span className="font-mono text-xs px-2.5 py-0.5 rounded-full bg-teal-500/15 backdrop-blur-md text-teal-700 dark:text-teal-300 font-bold border border-teal-500/30">
-                HEAD CHARGE NURSE
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 backdrop-blur-md text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1 shadow-xs">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                ICU & Surgical Wing
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span>Shift: <strong className="text-slate-700 dark:text-slate-200">Morning (07:00 - 15:00)</strong></span>
-              <span>•</span>
-              <span>Occupied Beds: <strong className="text-teal-600 dark:text-teal-400">{beds.filter(b => b.status === 'Occupied').length} / {beds.length}</strong></span>
-              <span>•</span>
-              <span>Medications Due: <strong className="text-amber-500">{marList.filter(m => m.status === 'Due').length} Doses</strong></span>
-              <span>•</span>
-              <span>Doctor Orders: <strong className="text-rose-500">{doctorOrders.filter(o => o.status === 'Pending').length} Pending</strong></span>
-              <span>•</span>
-              <span>Call Bells: <strong className="text-rose-500">{Object.values(activeCallBells).filter(Boolean).length} Ringing</strong></span>
-            </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => {
+                sound.playClick();
+                setNewMarModalOpen(true);
+              }}
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-teal-500/30 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 hover:bg-teal-100 transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <Pill className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <span>+ MAR Dose</span>
+            </button>
+
+            <button
+              onClick={() => {
+                sound.playClick();
+                setSbarModalOpen(true);
+              }}
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-sky-500/30 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 hover:bg-sky-100 transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <ClipboardList className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+              <span>+ SBAR Handover</span>
+            </button>
+
+            <button
+              onClick={() => openVitalsForPatient(patients[0] || DEFAULT_PATIENT)}
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#0F52BA] hover:bg-[#0D47A8] text-white transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            >
+              <Activity className="w-3.5 h-3.5" />
+              <span>Rapid Triage</span>
+            </button>
           </div>
-        </div>
-
-        {/* Action Controls & Navigation */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            onClick={() => {
-              sound.playClick();
-              setNewMarModalOpen(true);
-            }}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold border border-teal-500/30 bg-teal-500/15 hover:bg-teal-500/25 text-[#0C4E44] dark:text-teal-300 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-          >
-            <Pill className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-            <span>+ MAR Dose</span>
-          </button>
-
-          <button
-            onClick={() => {
-              sound.playClick();
-              setSbarModalOpen(true);
-            }}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold border border-sky-500/30 bg-sky-500/15 hover:bg-sky-500/25 text-sky-800 dark:text-sky-200 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-          >
-            <ClipboardList className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-            <span>+ SBAR Handover</span>
-          </button>
-
-          <button
-            onClick={() => openVitalsForPatient(patients[0] || DEFAULT_PATIENT)}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-500 text-white transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
-          >
-            <Activity className="w-3.5 h-3.5" />
-            <span>Rapid Triage</span>
-          </button>
-
-          {/* Quick Portal Switch Buttons (Instant Signout + Route to Login) */}
-          {onSwitchToAdminPortal && (
-            <button
-              onClick={() => {
-                sound.playClick();
-                onSwitchToAdminPortal();
-              }}
-              className="px-3 py-2 rounded-xl text-xs font-bold border border-teal-500/30 bg-teal-500/15 hover:bg-teal-500/25 text-teal-700 dark:text-teal-300 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-              title="Switch to Hospital Admin Portal"
-            >
-              <Building2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-              <span>Admin</span>
-            </button>
-          )}
-
-          {onSwitchToSuperAdminPortal && (
-            <button
-              onClick={() => {
-                sound.playClick();
-                onSwitchToSuperAdminPortal();
-              }}
-              className="px-3 py-2 rounded-xl text-xs font-bold border border-purple-500/30 bg-purple-500/15 hover:bg-purple-500/25 text-purple-700 dark:text-purple-300 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-              title="Switch to Enterprise Super Admin"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-              <span>Super Admin</span>
-            </button>
-          )}
-
-          {onSwitchToDoctorPortal && (
-            <button
-              onClick={() => {
-                sound.playClick();
-                onSwitchToDoctorPortal();
-              }}
-              className="px-3 py-2 rounded-xl text-xs font-bold border border-cyan-500/30 bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-700 dark:text-cyan-300 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-              title="Switch to Doctor Portal"
-            >
-              <Stethoscope className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-              <span>Doctor Portal</span>
-            </button>
-          )}
-
-          {onSwitchToPatientPortal && (
-            <button
-              onClick={() => {
-                sound.playClick();
-                onSwitchToPatientPortal();
-              }}
-              className="px-3 py-2 rounded-xl text-xs font-bold border border-pink-500/30 bg-pink-500/15 hover:bg-pink-500/25 text-pink-700 dark:text-pink-300 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-              title="Switch to Patient Portal"
-            >
-              <Heart className="w-3.5 h-3.5 text-pink-500" />
-              <span>Patient Portal</span>
-            </button>
-          )}
-
-          {onLogout && (
-            <button
-              onClick={() => {
-                sound.playClick();
-                onLogout();
-              }}
-              className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-white bg-slate-100/80 dark:bg-slate-800/80 hover:bg-rose-600 border border-slate-300/80 dark:border-slate-700/80 hover:border-rose-600 backdrop-blur-md transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-              title="Sign Out of Nurse Station"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Sign Out</span>
-            </button>
-          )}
         </div>
       </div>
 
@@ -1000,7 +881,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] text-slate-400">{bed.wardName} • {bed.type} Unit</span>
+                        <span className="text-[10px] text-slate-400">{bed.wardName} â€¢ {bed.type} Unit</span>
                       </div>
                     </div>
 
@@ -1078,7 +959,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                           onClick={() => openVitalsForPatient(pat)}
                           className="text-teal-600 dark:text-teal-400 font-bold hover:underline cursor-pointer"
                         >
-                          Log Vitals →
+                          Log Vitals â†’
                         </button>
                       </div>
                     </div>
@@ -1093,7 +974,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                         }}
                         className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-xs cursor-pointer"
                       >
-                        ✓ Mark Cleaned & Ready
+                        âœ“ Mark Cleaned & Ready
                       </button>
                     </div>
                   ) : (
@@ -1189,7 +1070,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                             onClick={() => handleAdministerMed(item.id)}
                             className="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-xs cursor-pointer active:scale-95 transition-all"
                           >
-                            ✓ Administer Dose
+                            âœ“ Administer Dose
                           </button>
                         ) : (
                           <span className="text-[11px] text-slate-400 font-medium">
@@ -1278,7 +1159,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Body Temperature:</span>
-                      <strong className="text-slate-800 dark:text-slate-200">{temp} °C</strong>
+                      <strong className="text-slate-800 dark:text-slate-200">{temp} Â°C</strong>
                     </div>
                   </div>
 
@@ -1380,7 +1261,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
 
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
                   <span>Logged by: <strong className="text-slate-700 dark:text-slate-300">{note.nurseName}</strong></span>
-                  <span className="text-emerald-500 font-bold">✓ Signed Off</span>
+                  <span className="text-emerald-500 font-bold">âœ“ Signed Off</span>
                 </div>
               </div>
             ))}
@@ -1425,7 +1306,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      Patient: <strong className="text-slate-700 dark:text-slate-200">{order.patientName} ({order.bed})</strong> • Ordered by: {order.orderedBy}
+                      Patient: <strong className="text-slate-700 dark:text-slate-200">{order.patientName} ({order.bed})</strong> â€¢ Ordered by: {order.orderedBy}
                     </p>
                     {order.executionNotes && (
                       <p className="text-[11px] text-teal-600 dark:text-teal-400 mt-1 italic">
@@ -1445,7 +1326,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                       }}
                       className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-xs cursor-pointer active:scale-95 transition-all"
                     >
-                      Mark Executed ✓
+                      Mark Executed âœ“
                     </button>
                   ) : (
                     <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-500">
@@ -1486,7 +1367,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                   </div>
                   <div>
                     <h4 className="font-bold text-sm text-slate-900 dark:text-white">{nurse.name}</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{nurse.role} • {nurse.unit}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{nurse.role} â€¢ {nurse.unit}</p>
                     <div className="flex flex-wrap items-center gap-1.5 mt-2">
                       <span className="text-[10px] text-slate-400">Assigned Beds:</span>
                       {nurse.assignedBeds.map(b => (
@@ -1540,7 +1421,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                   codeBlueActive ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/30'
                 }`}
               >
-                {codeBlueActive ? '✓ Terminate Code Blue / ROSC' : '🚨 Trigger Code Blue Drill (Crash Cart)'}
+                {codeBlueActive ? 'âœ“ Terminate Code Blue / ROSC' : 'ðŸš¨ Trigger Code Blue Drill (Crash Cart)'}
               </button>
 
               <button
@@ -1550,7 +1431,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                 }}
                 className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm cursor-pointer active:scale-95 transition-all"
               >
-                ⚠️ Call Rapid Response Team (RRT)
+                âš ï¸ Call Rapid Response Team (RRT)
               </button>
             </div>
           </div>
@@ -1811,7 +1692,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold block mb-1">Temperature (°C)</label>
+                  <label className="font-bold block mb-1">Temperature (Â°C)</label>
                   <input
                     type="text"
                     value={vTemp}
@@ -1886,7 +1767,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold shadow-md"
                 >
-                  Sign & Complete Order ✓
+                  Sign & Complete Order âœ“
                 </button>
               </div>
             </form>
