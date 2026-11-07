@@ -680,47 +680,74 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
           </div>
         </div>
       </div>
-      {/* ================= COMPREHENSIVE PATIENT PORTAL MODULE TABS ================= */}
-      <div className={`p-2 rounded-2xl border transition-all ${
-        isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
-      }`}>
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-1">
-          {portalModules.map(mod => {
-            const Icon = mod.icon;
-            const isActive = currentSection === mod.id;
-            return (
-              <button
-                key={mod.id}
-                onClick={() => handleSectionChange(mod.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                  isActive
-                    ? mod.alert
-                      ? 'bg-rose-600 text-white shadow-sm'
-                      : 'bg-teal-600 text-white shadow-sm'
-                    : isDark
-                      ? 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : mod.alert ? 'text-rose-500' : 'text-teal-500'}`} />
-                <span>{mod.label}</span>
-                {mod.badge !== undefined && (
-                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                    isActive 
-                      ? 'bg-white/20 text-white' 
-                      : isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-200/80 text-slate-700'
-                  }`}>
-                    {mod.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* ================= PATIENT PORTAL 2-COLUMN LAYOUT ================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* LEFT COLUMN: Vertical Navigation Panel */}
+        <div className="lg:col-span-3">
+          <div className={`p-3 rounded-2xl border transition-all sticky top-20 ${
+            isDark ? 'bg-[#0E2035] border-slate-800 shadow-sm' : 'bg-white border-slate-200 shadow-sm'
+          }`}>
+            <div className="px-3 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 mb-2 flex items-center justify-between">
+              <span>My Health Menu</span>
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 font-mono">10 Modules</span>
+            </div>
 
+            <nav className="space-y-1">
+              {portalModules.map(mod => {
+                const Icon = mod.icon;
+                const isActive = currentSection === mod.id ||
+                  (mod.id === 'patient-health' && (currentSection === 'patient-portal' || currentSection === 'health')) ||
+                  (mod.id === 'patient-appointments' && currentSection === 'appointments') ||
+                  (mod.id === 'patient-prescriptions' && (currentSection === 'prescriptions' || currentSection === 'pharmacy')) ||
+                  (mod.id === 'patient-labs' && (currentSection === 'lab' || currentSection === 'labs')) ||
+                  (mod.id === 'patient-records' && (currentSection === 'emr' || currentSection === 'records')) ||
+                  (mod.id === 'patient-vaccines' && currentSection === 'vaccines') ||
+                  (mod.id === 'patient-billing' && (currentSection === 'billing' || currentSection === 'finance')) ||
+                  (mod.id === 'patient-messages' && (currentSection === 'messages' || currentSection === 'chat')) ||
+                  (mod.id === 'patient-nutrition' && (currentSection === 'nutrition' || currentSection === 'diet')) ||
+                  (mod.id === 'patient-emergency' && (currentSection === 'emergency' || currentSection === 'sos'));
+
+                return (
+                  <button
+                    key={mod.id}
+                    onClick={() => handleSectionChange(mod.id)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all text-left cursor-pointer ${
+                      isActive
+                        ? mod.alert
+                          ? 'bg-rose-600 text-white shadow-sm font-bold'
+                          : 'bg-teal-600 text-white shadow-sm font-bold'
+                        : isDark
+                          ? 'text-slate-300 hover:text-white hover:bg-slate-800/70'
+                          : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : mod.alert ? 'text-rose-500' : 'text-teal-500'}`} />
+                      <span className="truncate">{mod.label}</span>
+                    </div>
+
+                    {mod.badge !== undefined && (
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ml-1.5 ${
+                        isActive 
+                          ? 'bg-white/20 text-white' 
+                          : mod.alert
+                            ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400'
+                            : isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-700'
+                      }`}>
+                        {mod.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN: Active Section Content */}
+        <div className="lg:col-span-9 space-y-6 min-w-0">
       {/* ================= MODULE 1: HEALTH SUMMARY & 3D ANATOMY ================= */}
-      {(currentSection === 'patient-health' || currentSection === 'patient-portal') && (
+      {(currentSection === 'patient-health' || currentSection === 'patient-portal' || currentSection === 'health' || !currentSection) && (
         <div className="space-y-6">
           {/* Main 3D Holographic Exploration Card */}
           <div className={`p-6 rounded-[32px] border transition-all ${
@@ -984,7 +1011,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       )}
 
       {/* ================= MODULE 2: APPOINTMENTS & TELEHEALTH ================= */}
-      {currentSection === 'patient-appointments' && (
+      {(currentSection === 'patient-appointments' || currentSection === 'appointments') && (
         <div className={`p-6 rounded-[32px] border ${
           isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-lg'
         }`}>
@@ -1065,7 +1092,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       )}
 
       {/* ================= MODULE 3: PRESCRIPTIONS & MEDICATION TRACKER ================= */}
-      {currentSection === 'patient-prescriptions' && (
+      {(currentSection === 'patient-prescriptions' || currentSection === 'prescriptions' || currentSection === 'pharmacy') && (
         <div className={`p-6 rounded-[32px] border ${
           isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-lg'
         }`}>
@@ -1163,7 +1190,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       )}
 
       {/* ================= MODULE 4: LAB REPORTS & DIAGNOSTIC SCANS ================= */}
-      {currentSection === 'patient-labs' && (
+      {(currentSection === 'patient-labs' || currentSection === 'lab' || currentSection === 'labs') && (
         <div className={`p-6 rounded-[32px] border ${
           isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-lg'
         }`}>
@@ -1244,7 +1271,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       )}
 
       {/* ================= MODULE 5: MEDICAL HISTORY & EMR TIMELINE ================= */}
-      {currentSection === 'patient-records' && (
+      {(currentSection === 'patient-records' || currentSection === 'emr' || currentSection === 'records') && (
         <div className={`p-6 rounded-[32px] border ${
           isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-lg'
         }`}>
@@ -1299,7 +1326,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       )}
 
       {/* ================= MODULE 6: VACCINE & IMMUNIZATION PASSPORT ================= */}
-      {currentSection === 'patient-vaccines' && (
+      {(currentSection === 'patient-vaccines' || currentSection === 'vaccines') && (
         <div className={`p-6 rounded-[32px] border ${
           isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-lg'
         }`}>
@@ -1376,7 +1403,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       )}
 
       {/* ================= MODULE 7: BILLING & INSURANCE ================= */}
-      {currentSection === 'patient-billing' && (
+      {(currentSection === 'patient-billing' || currentSection === 'billing' || currentSection === 'finance') && (
         <div className={`p-6 rounded-[32px] border ${
           isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-lg'
         }`}>
@@ -1496,7 +1523,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       )}
 
       {/* ================= MODULE 8: DOCTOR MESSAGING ================= */}
-      {currentSection === 'patient-messages' && (
+      {(currentSection === 'patient-messages' || currentSection === 'messages' || currentSection === 'chat') && (
         <div className={`p-6 rounded-[32px] border ${
           isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-lg'
         }`}>
@@ -1653,7 +1680,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       )}
 
       {/* ================= MODULE 9: NUTRITION & DIET ================= */}
-      {currentSection === 'patient-nutrition' && (
+      {(currentSection === 'patient-nutrition' || currentSection === 'nutrition' || currentSection === 'diet') && (
         <div className={`p-6 rounded-[32px] border ${
           isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-lg'
         }`}>
@@ -1762,7 +1789,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       )}
 
       {/* ================= MODULE 10: EMERGENCY SOS DISPATCH ================= */}
-      {currentSection === 'patient-emergency' && (
+      {(currentSection === 'patient-emergency' || currentSection === 'emergency' || currentSection === 'sos') && (
         <div className="p-6 rounded-[32px] border border-rose-500/40 bg-rose-500/5 space-y-6">
           <div className="flex items-center gap-3 pb-4 border-b border-rose-500/20">
             <div className="p-3 rounded-2xl bg-rose-600 text-white">
@@ -1895,6 +1922,9 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
           )}
         </div>
       )}
+
+              </div>
+      </div>
 
       {/* ================= MODAL: LOG NEW VITALS ================= */}
       {vitalsModalOpen && (

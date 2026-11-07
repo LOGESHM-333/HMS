@@ -1,8 +1,8 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  *
- * MediCore HMS — DocR-inspired Layout Shell
+ * MediCore HMS â€” DocR-inspired Layout Shell
  * Complete rewrite preserving all original business logic and modules.
  */
 
@@ -95,7 +95,16 @@ const PAGE_TITLES: Record<string, string> = {
   emr: 'Medical Records',
   staff: 'Staff Management',
   settings: 'Settings',
-  'patient-health': 'My Health',
+  'patient-health': 'Health Summary & 3D Anatomy',
+  'patient-appointments': 'My Appointments & Telehealth',
+  'patient-prescriptions': 'Active Prescriptions & Regimen',
+  'patient-labs': 'Lab Reports & Diagnostic Scans',
+  'patient-records': 'Clinical Journey & Medical Records',
+  'patient-vaccines': 'Digital Immunization Passport',
+  'patient-billing': 'Billing & Health Insurance',
+  'patient-messages': 'Direct Doctor Communication',
+  'patient-nutrition': 'Nutrition & Wellness Tracker',
+  'patient-emergency': 'Emergency SOS Dispatch',
   'doctor-consult': 'Consultation Desk',
   'nurse-rounds': 'Nursing Station',
 };
@@ -484,7 +493,7 @@ export default function App() {
           {/* =========== PATIENT PORTAL ROUTES =========== */}
           {portalMode === 'patient' && (
             <>
-              {currentTab === 'patient-health' && (
+              {currentTab !== 'settings' && (
                 <PatientPortal
                   theme={theme}
                   activeSection={currentTab}
@@ -509,12 +518,12 @@ export default function App() {
         >
           <div className="flex items-center gap-2">
             <span style={{ color: 'var(--color-brand-accent)', fontWeight: 700 }}>MediCore OS</span>
-            <span>·</span>
+            <span>Â·</span>
             <span>Enterprise Hospital Operating & Clinical Intelligence System</span>
           </div>
           <div className="hidden sm:flex items-center gap-2 text-[11px]">
             <span>Press</span>
-            <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>⌘</kbd>
+            <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>âŒ˜</kbd>
             <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>K</kbd>
             <span>for Global Search</span>
           </div>
@@ -615,11 +624,11 @@ export default function App() {
             >
               <div className="flex items-center gap-3 text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>↑↓</kbd>
+                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>â†‘â†“</kbd>
                   Navigate
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>↵</kbd>
+                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>â†µ</kbd>
                   Select
                 </span>
                 <span className="flex items-center gap-1">

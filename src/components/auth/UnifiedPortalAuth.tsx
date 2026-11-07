@@ -415,14 +415,15 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                   <label className="docr-label">
                     {portalCategory === 'patient' ? 'Email or Patient Code' : 'Email or Staff ID'}
                   </label>
-                  <div className="relative">
-                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }} />
+                  <div className="relative flex items-center">
+                    <Mail size={16} className="absolute left-3.5 pointer-events-none z-10" style={{ color: 'var(--color-text-muted)' }} />
                     <input
                       type="text"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       placeholder={config.demoEmail}
-                      className="docr-input pl-10"
+                      className="docr-input"
+                      style={{ paddingLeft: '44px' }}
                       autoComplete="email"
                     />
                   </div>
@@ -435,26 +436,27 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                     <button
                       type="button"
                       onClick={() => { sound.playClick(); setAuthView('forgot'); setErrorMessage(null); }}
-                      className="text-xs font-600 transition-colors"
+                      className="text-xs font-600 transition-colors cursor-pointer"
                       style={{ color: 'var(--color-brand-primary)', fontWeight: 600 }}
                     >
                       Forgot password?
                     </button>
                   </div>
-                  <div className="relative">
-                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }} />
+                  <div className="relative flex items-center">
+                    <Lock size={16} className="absolute left-3.5 pointer-events-none z-10" style={{ color: 'var(--color-text-muted)' }} />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                       placeholder="Enter password"
-                      className="docr-input pl-10 pr-10"
+                      className="docr-input"
+                      style={{ paddingLeft: '44px', paddingRight: '44px' }}
                       autoComplete="current-password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2"
+                      className="absolute right-3.5 p-1 rounded-md text-slate-400 hover:text-slate-600 cursor-pointer z-10 transition-colors"
                       style={{ color: 'var(--color-text-muted)' }}
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -519,40 +521,40 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div>
                   <label className="docr-label">Full Name</label>
-                  <div className="relative">
-                    <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }} />
-                    <input type="text" value={signUpName} onChange={e => setSignUpName(e.target.value)} placeholder="Your full name" className="docr-input pl-10" />
+                  <div className="relative flex items-center">
+                    <User size={16} className="absolute left-3.5 pointer-events-none z-10" style={{ color: 'var(--color-text-muted)' }} />
+                    <input type="text" value={signUpName} onChange={e => setSignUpName(e.target.value)} placeholder="Your full name" className="docr-input" style={{ paddingLeft: '44px' }} />
                   </div>
                 </div>
                 <div>
                   <label className="docr-label">Email Address</label>
-                  <div className="relative">
-                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }} />
-                    <input type="email" value={signUpEmail} onChange={e => setSignUpEmail(e.target.value)} placeholder="you@example.com" className="docr-input pl-10" />
+                  <div className="relative flex items-center">
+                    <Mail size={16} className="absolute left-3.5 pointer-events-none z-10" style={{ color: 'var(--color-text-muted)' }} />
+                    <input type="email" value={signUpEmail} onChange={e => setSignUpEmail(e.target.value)} placeholder="you@example.com" className="docr-input" style={{ paddingLeft: '44px' }} />
                   </div>
                 </div>
                 <div>
                   <label className="docr-label">Phone Number</label>
-                  <div className="relative">
-                    <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }} />
-                    <input type="tel" value={signUpPhone} onChange={e => setSignUpPhone(e.target.value)} placeholder="+91 98765 43210" className="docr-input pl-10" />
+                  <div className="relative flex items-center">
+                    <Phone size={16} className="absolute left-3.5 pointer-events-none z-10" style={{ color: 'var(--color-text-muted)' }} />
+                    <input type="tel" value={signUpPhone} onChange={e => setSignUpPhone(e.target.value)} placeholder="+91 98765 43210" className="docr-input" style={{ paddingLeft: '44px' }} />
                   </div>
                 </div>
                 <div>
                   <label className="docr-label">Password</label>
-                  <div className="relative">
-                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }} />
-                    <input type={showPassword ? 'text' : 'password'} value={signUpPassword} onChange={e => setSignUpPassword(e.target.value)} placeholder="Min. 6 characters" className="docr-input pl-10 pr-10" />
-                    <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }}>
+                  <div className="relative flex items-center">
+                    <Lock size={16} className="absolute left-3.5 pointer-events-none z-10" style={{ color: 'var(--color-text-muted)' }} />
+                    <input type={showPassword ? 'text' : 'password'} value={signUpPassword} onChange={e => setSignUpPassword(e.target.value)} placeholder="Min. 6 characters" className="docr-input" style={{ paddingLeft: '44px', paddingRight: '44px' }} />
+                    <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute right-3.5 p-1 rounded-md text-slate-400 hover:text-slate-600 cursor-pointer z-10" style={{ color: 'var(--color-text-muted)' }}>
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
-                <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-700 text-white text-sm" style={{ background: config.gradient, fontWeight: 700, opacity: loading ? 0.75 : 1 }}>
+                <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-700 text-white text-sm cursor-pointer" style={{ background: config.gradient, fontWeight: 700, opacity: loading ? 0.75 : 1 }}>
                   {loading ? <><Loader2 size={16} className="animate-spin" /> Creating account...</> : <>Create Patient Account <ArrowRight size={16} /></>}
                 </button>
                 <div className="text-center">
-                  <button type="button" onClick={() => { sound.playClick(); setAuthView('login'); setErrorMessage(null); }} className="text-sm font-600" style={{ color: 'var(--color-brand-primary)', fontWeight: 600 }}>
+                  <button type="button" onClick={() => { sound.playClick(); setAuthView('login'); setErrorMessage(null); }} className="text-sm font-600 cursor-pointer" style={{ color: 'var(--color-brand-primary)', fontWeight: 600 }}>
                     Already have an account? Sign in
                   </button>
                 </div>
@@ -567,16 +569,16 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                 </p>
                 <div>
                   <label className="docr-label">Registered Email</label>
-                  <div className="relative">
-                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: 'var(--color-text-muted)' }} />
-                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@hospital.com" className="docr-input pl-10" />
+                  <div className="relative flex items-center">
+                    <Mail size={16} className="absolute left-3.5 pointer-events-none z-10" style={{ color: 'var(--color-text-muted)' }} />
+                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@hospital.com" className="docr-input" style={{ paddingLeft: '44px' }} />
                   </div>
                 </div>
-                <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-700 text-white text-sm" style={{ background: config.gradient, fontWeight: 700, opacity: loading ? 0.75 : 1 }}>
+                <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-700 text-white text-sm cursor-pointer" style={{ background: config.gradient, fontWeight: 700, opacity: loading ? 0.75 : 1 }}>
                   {loading ? <><Loader2 size={16} className="animate-spin" /> Sending...</> : 'Send Reset Link'}
                 </button>
                 <div className="text-center">
-                  <button type="button" onClick={() => { sound.playClick(); setAuthView('login'); setErrorMessage(null); }} className="text-sm font-600" style={{ color: 'var(--color-brand-primary)', fontWeight: 600 }}>
+                  <button type="button" onClick={() => { sound.playClick(); setAuthView('login'); setErrorMessage(null); }} className="text-sm font-600 cursor-pointer" style={{ color: 'var(--color-brand-primary)', fontWeight: 600 }}>
                     Back to sign in
                   </button>
                 </div>

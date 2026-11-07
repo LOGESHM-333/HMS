@@ -1,9 +1,9 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ============================================================
    DOCR-INSPIRED MEDICORE DESIGN SYSTEM
-   Professional Healthcare SaaS — CSS Custom Properties
+   Professional Healthcare SaaS â€” CSS Custom Properties
    ============================================================ */
 
 @layer base {
@@ -383,7 +383,7 @@
    ============================================================ */
 .docr-input {
   width: 100%;
-  padding: 9px 12px;
+  padding: 11px 14px;
   background: var(--color-bg);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -392,6 +392,7 @@
   outline: none;
   transition: all 0.15s ease;
   font-family: inherit;
+  box-sizing: border-box;
 }
 .docr-input::placeholder { color: var(--color-text-muted); }
 .docr-input:focus {
@@ -408,6 +409,18 @@
   box-shadow: 0 0 0 3px rgba(96,165,250,0.12);
 }
 
+/* Input icon padding utilities with !important so they are never overridden */
+.docr-input-with-icon-left {
+  padding-left: 42px !important;
+}
+.docr-input-with-icon-right {
+  padding-right: 42px !important;
+}
+.docr-input-with-both-icons {
+  padding-left: 42px !important;
+  padding-right: 42px !important;
+}
+
 .docr-select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
@@ -418,14 +431,13 @@
 
 .docr-label {
   display: block;
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   color: var(--color-text-secondary);
   margin-bottom: 6px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
-
 /* ============================================================
    DOCR TABLES
    ============================================================ */

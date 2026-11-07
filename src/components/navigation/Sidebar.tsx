@@ -1,4 +1,4 @@
-/**
+﻿/**
  * DocR-inspired Sidebar Navigation
  * Fixed sidebar with collapsible support, role-based nav groups,
  * and smooth animations for the MediCore HMS.
@@ -39,7 +39,10 @@ export type NavTab =
   | 'patients' | 'doctors' | 'appointments' | 'beds'
   | 'pharmacy' | 'lab' | 'billing' | 'emr'
   | 'staff' | 'settings'
-  | 'patient-health' | 'doctor-consult' | 'nurse-rounds';
+  | 'patient-health' | 'doctor-consult' | 'nurse-rounds'
+  | 'patient-appointments' | 'patient-prescriptions' | 'patient-labs'
+  | 'patient-records' | 'patient-vaccines' | 'patient-billing'
+  | 'patient-messages' | 'patient-nutrition' | 'patient-emergency';
 
 interface NavItem {
   id: NavTab;
@@ -94,7 +97,16 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'doctor-consult', label: 'Consultation Desk', icon: ClipboardList, roles: ['doctor'] },
       { id: 'nurse-rounds', label: 'Nursing Station', icon: Syringe, roles: ['nurse'] },
-      { id: 'patient-health', label: 'My Health', icon: Heart, roles: ['patient'] },
+      { id: 'patient-health', label: 'Health Summary & 3D', icon: Heart, roles: ['patient'] },
+      { id: 'patient-appointments', label: 'Appointments', icon: Calendar, roles: ['patient'] },
+      { id: 'patient-prescriptions', label: 'Prescriptions', icon: Pill, roles: ['patient'] },
+      { id: 'patient-labs', label: 'Lab Reports', icon: Activity, roles: ['patient'] },
+      { id: 'patient-records', label: 'Medical History', icon: FileText, roles: ['patient'] },
+      { id: 'patient-vaccines', label: 'Vaccine Passport', icon: ShieldCheck, roles: ['patient'] },
+      { id: 'patient-billing', label: 'Billing & Insurance', icon: CreditCard, roles: ['patient'] },
+      { id: 'patient-messages', label: 'Doctor Chat', icon: Users, roles: ['patient'] },
+      { id: 'patient-nutrition', label: 'Nutrition & Diet', icon: Layers, roles: ['patient'] },
+      { id: 'patient-emergency', label: 'Emergency SOS', icon: Activity, roles: ['patient'] },
     ],
   },
   {
