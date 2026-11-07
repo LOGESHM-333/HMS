@@ -1,15 +1,20 @@
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * MediCore HMS — DocR-inspired Layout Shell
+ * Complete rewrite preserving all original business logic and modules.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { UserRole, ThemeMode, Patient, Doctor } from './types';
 import { db } from './services/mockDatabase';
 import { sound } from './services/audioService';
-import { Header, HeaderPortalMode } from './components/navigation/Header';
+import { Sidebar, NavTab } from './components/navigation/Sidebar';
+import { TopBar } from './components/navigation/TopBar';
 import { UnifiedPortalAuth, AuthPortalCategory } from './components/auth/UnifiedPortalAuth';
 import { CityCareDashboard } from './components/dashboard/CityCareDashboard';
+import { AdminDashboard } from './components/dashboard/AdminDashboard';
 import { SuperAdminDashboard } from './components/super-admin/SuperAdminDashboard';
 import { WardOverview } from './components/ward/WardOverview';
 import { MediFlexView } from './components/dashboard/MediFlexView';
@@ -27,24 +32,81 @@ import { PatientPortal } from './components/patient-portal/PatientPortal';
 import { DoctorPortal } from './components/doctor-portal/DoctorPortal';
 import { HeadNursePortal } from './components/nurse-portal/HeadNursePortal';
 import { SettingsView } from './components/settings/SettingsView';
-import { 
-  Search, 
-  X, 
-  Sparkles, 
-  Activity, 
-  Command, 
-  ShieldCheck, 
-  Heart, 
-  Calendar, 
-  FileText, 
-  Pill, 
-  Bed as BedIcon 
+import {
+  Search,
+  X,
+  Sparkles,
+  Activity,
+  ShieldCheck,
+  Heart,
+  Calendar,
+  FileText,
+  Pill,
+  Bed as BedIcon,
+  Users,
+  Stethoscope,
+  FlaskConical,
+  BarChart3,
+  CreditCard,
+  UserCog,
+  Layers,
+  LayoutDashboard,
 } from 'lucide-react';
 
+export type HeaderPortalMode = 'super-admin' | 'admin' | 'management' | 'doctor' | 'nurse' | 'patient';
+
+// ============================================================
+// GLOBAL SEARCH ACTIONS
+// ============================================================
+const SEARCH_ACTIONS = [
+  { label: 'Dashboard', tab: 'dashboard', icon: LayoutDashboard, mode: 'admin', keywords: ['home', 'overview', 'dashboard'] },
+  { label: 'Ward Overview', tab: 'ward', icon: Layers, mode: 'admin', keywords: ['ward', 'beds', 'floor'] },
+  { label: 'Patient Directory', tab: 'patients', icon: Users, mode: 'admin', keywords: ['patients', 'directory'] },
+  { label: 'Doctors', tab: 'doctors', icon: Stethoscope, mode: 'admin', keywords: ['doctors', 'physicians', 'staff'] },
+  { label: 'Appointments', tab: 'appointments', icon: Calendar, mode: 'admin', keywords: ['appointments', 'schedule', 'booking'] },
+  { label: 'Bed Management', tab: 'beds', icon: BedIcon, mode: 'admin', keywords: ['beds', 'icu', 'ward'] },
+  { label: 'Pharmacy', tab: 'pharmacy', icon: Pill, mode: 'admin', keywords: ['pharmacy', 'medicines', 'drugs'] },
+  { label: 'Laboratory', tab: 'lab', icon: FlaskConical, mode: 'admin', keywords: ['lab', 'tests', 'reports'] },
+  { label: 'Billing & Finance', tab: 'billing', icon: CreditCard, mode: 'admin', keywords: ['billing', 'invoice', 'payment'] },
+  { label: 'Medical Records (EMR)', tab: 'emr', icon: FileText, mode: 'admin', keywords: ['emr', 'records', 'notes'] },
+  { label: 'Staff Management', tab: 'staff', icon: UserCog, mode: 'admin', keywords: ['staff', 'employees', 'hr'] },
+  { label: 'Analytics & Reports', tab: 'analytics', icon: BarChart3, mode: 'admin', keywords: ['analytics', 'reports', 'charts'] },
+  { label: 'Patient Health Dashboard', tab: 'patient-health', icon: Heart, mode: 'patient', keywords: ['health', 'vitals', 'patient'] },
+  { label: 'Doctor Consultation', tab: 'doctor-consult', icon: Stethoscope, mode: 'doctor', keywords: ['consult', 'doctor', 'physician'] },
+  { label: 'Nursing Station', tab: 'nurse-rounds', icon: Activity, mode: 'nurse', keywords: ['nurse', 'rounds', 'ward'] },
+  { label: 'Enterprise Overview', tab: 'overview', icon: ShieldCheck, mode: 'super-admin', keywords: ['enterprise', 'governance', 'admin'] },
+];
+
+// ============================================================
+// PAGE TITLE MAP
+// ============================================================
+const PAGE_TITLES: Record<string, string> = {
+  dashboard: 'Dashboard',
+  overview: 'Enterprise Overview',
+  ward: 'Ward Overview',
+  analytics: 'Analytics & Reports',
+  patients: 'Patient Directory',
+  doctors: 'Doctor Directory',
+  appointments: 'Appointments',
+  beds: 'Bed Management',
+  pharmacy: 'Pharmacy',
+  lab: 'Laboratory',
+  billing: 'Billing & Finance',
+  emr: 'Medical Records',
+  staff: 'Staff Management',
+  settings: 'Settings',
+  'patient-health': 'My Health',
+  'doctor-consult': 'Consultation Desk',
+  'nurse-rounds': 'Nursing Station',
+};
+
+// ============================================================
+// MAIN APP
+// ============================================================
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return Boolean(localStorage.getItem('medicore_authenticated'));
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() =>
+    Boolean(localStorage.getItem('medicore_authenticated'))
+  );
 
   const [portalMode, setPortalMode] = useState<HeaderPortalMode>(() => {
     const saved = localStorage.getItem('medicore_portal_mode') as HeaderPortalMode;
@@ -73,19 +135,33 @@ export default function App() {
   const [theme, setTheme] = useState<ThemeMode>(db.getTheme());
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(db.getSelectedPatient());
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Synchronize theme with html body
+  // Auth init portal category
+  const [initAuthCategory, setInitAuthCategory] = useState<AuthPortalCategory>(() => {
+    const saved = localStorage.getItem('medicore_portal_mode');
+    if (saved === 'super-admin') return 'super-admin';
+    if (saved === 'admin' || saved === 'management') return 'admin';
+    if (saved === 'patient') return 'patient';
+    if (saved === 'doctor') return 'doctor';
+    if (saved === 'nurse') return 'nurse';
+    return 'admin';
+  });
+
+  // Sync theme with document
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
       document.body.style.backgroundColor = '#07111E';
     } else {
       document.documentElement.classList.remove('dark');
-      document.body.style.backgroundColor = '#F0F4F8';
+      document.body.style.backgroundColor = '#F4F7F8';
     }
+    db.setTheme(theme);
   }, [theme]);
 
-  // Keyboard shortcut listener for Cmd+K / Ctrl+K
+  // Cmd+K global search
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -101,6 +177,9 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // ============================================================
+  // HANDLERS
+  // ============================================================
   const handleRoleChange = (role: UserRole) => {
     db.setRole(role);
     setCurrentRole(role);
@@ -124,461 +203,434 @@ export default function App() {
       setPortalMode('nurse');
       localStorage.setItem('medicore_portal_mode', 'nurse');
       setCurrentTab('nurse-rounds');
-    } else {
-      setPortalMode('admin');
-      localStorage.setItem('medicore_portal_mode', 'admin');
-      setCurrentTab('dashboard');
     }
-  };
-
-  const handlePortalModeChange = (mode: HeaderPortalMode) => {
-    setPortalMode(mode);
-    localStorage.setItem('medicore_portal_mode', mode);
-    if (mode === 'super-admin') {
-      setCurrentRole('SUPER_ADMIN');
-      db.setRole('SUPER_ADMIN');
-      setCurrentTab('overview');
-    } else if (mode === 'admin' || mode === 'management') {
-      setCurrentRole('HOSPITAL_ADMIN');
-      db.setRole('HOSPITAL_ADMIN');
-      setCurrentTab('dashboard');
-    } else if (mode === 'patient') {
-      setCurrentRole('PATIENT');
-      db.setRole('PATIENT');
-      setCurrentTab('patient-health');
-    } else if (mode === 'doctor') {
-      setCurrentRole('DOCTOR');
-      db.setRole('DOCTOR');
-      setCurrentTab('doctor-consult');
-    } else if (mode === 'nurse') {
-      setCurrentRole('NURSE');
-      db.setRole('NURSE');
-      setCurrentTab('nurse-rounds');
-    }
-  };
-
-  const handleToggleTheme = () => {
-    const newTheme: ThemeMode = theme === 'mint' ? 'dark' : 'mint';
-    db.setTheme(newTheme);
-    setTheme(newTheme);
-  };
-
-  const handleSelectPatientFor3D = (patient: Patient) => {
-    db.setSelectedPatient(patient.id);
   };
 
   const handleLogout = () => {
     sound.playClick();
+    setIsAuthenticated(false);
     localStorage.removeItem('medicore_authenticated');
     localStorage.removeItem('medicore_portal_mode');
-    localStorage.removeItem('medicore_patient_auth');
-    localStorage.removeItem('medicore_patient_id');
-    localStorage.removeItem('medicore_doctor_id');
-    setIsAuthenticated(false);
+    setPortalMode('admin');
+    setCurrentTab('dashboard');
   };
 
-  const [authInitialCategory, setAuthInitialCategory] = useState<AuthPortalCategory>(() => {
-    const saved = localStorage.getItem('medicore_portal_mode') as AuthPortalCategory;
-    return (saved === 'super-admin' || saved === 'admin' || saved === 'doctor' || saved === 'nurse' || saved === 'patient') ? saved : 'patient';
-  });
-
-  // Switch Portal: Immediately sign out and route to unified login page on that portal tab!
-  const handleSwitchPortal = (targetMode: HeaderPortalMode) => {
+  const handleSwitchPortal = (mode: HeaderPortalMode) => {
     sound.playClick();
-    localStorage.removeItem('medicore_authenticated');
-    localStorage.removeItem('medicore_patient_auth');
-    localStorage.removeItem('medicore_patient_id');
-    localStorage.removeItem('medicore_doctor_id');
-
-    const cat: AuthPortalCategory = targetMode === 'management' ? 'admin' : targetMode;
-    setAuthInitialCategory(cat);
-    localStorage.setItem('medicore_portal_mode', cat);
-    setPortalMode(targetMode);
     setIsAuthenticated(false);
+    setInitAuthCategory(mode as AuthPortalCategory);
+    localStorage.removeItem('medicore_authenticated');
   };
 
-  // Quick command search items
-  const quickSearchActions = [
-    { label: 'Super Admin Multi-Hospital Network Telemetry', tab: 'overview', mode: 'super-admin' as const, icon: Sparkles },
-    { label: 'Enterprise RBAC User Administration & Audit', tab: 'rbac', mode: 'super-admin' as const, icon: ShieldCheck },
-    { label: 'Executive Hospital Command Dashboard', tab: 'dashboard', mode: 'admin' as const, icon: Sparkles },
-    { label: 'Head Nurse Station - Ward Census & MAR', tab: 'nurse-rounds', mode: 'nurse' as const, icon: Activity },
-    { label: 'MediFlex 3D Organ & Clinical Intelligence', tab: 'mediflex', mode: 'admin' as const, icon: Heart },
-    { label: 'Patient Directory & Health Records', tab: 'patients', mode: 'admin' as const, icon: FileText },
-    { label: 'Schedule Doctor Consultation', tab: 'appointments', mode: 'admin' as const, icon: Calendar },
-    { label: 'Hospital Ward Beds & ICU Status', tab: 'beds', mode: 'admin' as const, icon: BedIcon },
-    { label: 'Pharmacy Inventory & Prescriptions', tab: 'pharmacy', mode: 'admin' as const, icon: Pill },
-    { label: 'Laboratory Diagnostics & CT Scans', tab: 'laboratory', mode: 'admin' as const, icon: Activity },
-    { label: 'Billing & Patient Invoices', tab: 'billing', mode: 'admin' as const, icon: ShieldCheck },
-    { label: 'Patient Portal - Essential Health & 3D', tab: 'patient-health', mode: 'patient' as const, icon: Activity },
-    { label: 'Patient Portal - My Consultations', tab: 'patient-appointments', mode: 'patient' as const, icon: Calendar },
-    { label: 'Patient Portal - Active Prescriptions', tab: 'patient-prescriptions', mode: 'patient' as const, icon: Pill },
-    { label: 'Patient Portal - Lab Test Reports', tab: 'patient-labs', mode: 'patient' as const, icon: FileText },
-  ];
+  const handleTabChange = (tab: NavTab | string) => {
+    sound.playClick();
+    setCurrentTab(tab);
+    setMobileMenuOpen(false);
+  };
 
-  const filteredSearch = quickSearchActions.filter(a =>
-    a.label.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleToggleTheme = () => {
+    sound.playClick();
+    setTheme(prev => (prev === 'dark' ? 'mint' : 'dark'));
+  };
+
+  // User info from db
+  const patients = db.getPatients();
+  const doctors = db.getDoctors();
+  const currentDoctor = doctors[0];
+
+  const getUserName = () => {
+    if (portalMode === 'doctor') return currentDoctor?.name || 'Dr. Physician';
+    if (portalMode === 'patient') return selectedPatient?.name || patients[0]?.name || 'Patient';
+    if (portalMode === 'super-admin') return 'Dr. Chief Admin';
+    if (portalMode === 'nurse') return 'Head Nurse Sarah';
+    return 'Admin User';
+  };
+
+  // Filtered search results
+  const filteredSearch = useMemo(() => {
+    if (!searchQuery.trim()) return SEARCH_ACTIONS.slice(0, 8);
+    const q = searchQuery.toLowerCase();
+    return SEARCH_ACTIONS.filter(a =>
+      a.label.toLowerCase().includes(q) ||
+      a.keywords.some(k => k.includes(q))
+    );
+  }, [searchQuery]);
 
   const isDark = theme === 'dark';
 
-  // DIRECT ROOT ENTRY: If unauthenticated, show Unified Login/Signup page directly!
+  // ============================================================
+  // AUTH GATE
+  // ============================================================
   if (!isAuthenticated) {
     return (
-      <UnifiedPortalAuth
-        theme={theme}
-        initialCategory={authInitialCategory}
-        onLoginPatient={(patient) => {
-          localStorage.setItem('medicore_authenticated', 'true');
-          localStorage.setItem('medicore_portal_mode', 'patient');
-          localStorage.setItem('medicore_patient_auth', 'true');
-          localStorage.setItem('medicore_patient_id', patient.id);
-          setIsAuthenticated(true);
-          setPortalMode('patient');
-          setCurrentRole('PATIENT');
-          db.setRole('PATIENT');
-          setCurrentTab('patient-health');
-        }}
-        onLoginDoctor={(doctor) => {
-          localStorage.setItem('medicore_authenticated', 'true');
-          localStorage.setItem('medicore_portal_mode', 'doctor');
-          if (doctor) {
-            localStorage.setItem('medicore_doctor_id', doctor.id);
-          }
-          setIsAuthenticated(true);
-          setPortalMode('doctor');
-          setCurrentRole('DOCTOR');
-          db.setRole('DOCTOR');
-          setCurrentTab('doctor-consult');
-        }}
-        onLoginNurse={() => {
-          localStorage.setItem('medicore_authenticated', 'true');
-          localStorage.setItem('medicore_portal_mode', 'nurse');
-          setIsAuthenticated(true);
-          setPortalMode('nurse');
-          setCurrentRole('NURSE');
-          db.setRole('NURSE');
-          setCurrentTab('nurse-rounds');
-        }}
-        onLoginAdmin={(adminName) => {
-          localStorage.setItem('medicore_authenticated', 'true');
-          localStorage.setItem('medicore_portal_mode', 'admin');
-          setIsAuthenticated(true);
-          setPortalMode('admin');
-          setCurrentRole('HOSPITAL_ADMIN');
-          db.setRole('HOSPITAL_ADMIN');
-          setCurrentTab('dashboard');
-        }}
-        onLoginSuperAdmin={(superAdminName) => {
-          localStorage.setItem('medicore_authenticated', 'true');
-          localStorage.setItem('medicore_portal_mode', 'super-admin');
-          setIsAuthenticated(true);
-          setPortalMode('super-admin');
-          setCurrentRole('SUPER_ADMIN');
-          db.setRole('SUPER_ADMIN');
-          setCurrentTab('overview');
-        }}
-      />
+      <div className="min-h-screen bg-medical-grid" style={{ background: 'var(--color-bg)' }}>
+        <UnifiedPortalAuth
+          theme={theme}
+          initialCategory={initAuthCategory}
+          onLoginPatient={(patient: Patient) => {
+            db.setSelectedPatient(patient.id);
+            setSelectedPatient(patient);
+            setPortalMode('patient');
+            setCurrentRole('PATIENT');
+            setCurrentTab('patient-health');
+            localStorage.setItem('medicore_portal_mode', 'patient');
+            localStorage.setItem('medicore_authenticated', 'true');
+            setIsAuthenticated(true);
+            sound.playClick();
+          }}
+          onLoginDoctor={(doctor?: Doctor) => {
+            setPortalMode('doctor');
+            setCurrentRole('DOCTOR');
+            setCurrentTab('doctor-consult');
+            localStorage.setItem('medicore_portal_mode', 'doctor');
+            localStorage.setItem('medicore_authenticated', 'true');
+            setIsAuthenticated(true);
+            sound.playClick();
+          }}
+          onLoginNurse={() => {
+            setPortalMode('nurse');
+            setCurrentRole('NURSE');
+            setCurrentTab('nurse-rounds');
+            localStorage.setItem('medicore_portal_mode', 'nurse');
+            localStorage.setItem('medicore_authenticated', 'true');
+            setIsAuthenticated(true);
+            sound.playClick();
+          }}
+          onLoginAdmin={() => {
+            setPortalMode('admin');
+            setCurrentRole('HOSPITAL_ADMIN');
+            setCurrentTab('dashboard');
+            localStorage.setItem('medicore_portal_mode', 'admin');
+            localStorage.setItem('medicore_authenticated', 'true');
+            setIsAuthenticated(true);
+            sound.playClick();
+          }}
+          onLoginSuperAdmin={() => {
+            setPortalMode('super-admin');
+            setCurrentRole('SUPER_ADMIN');
+            setCurrentTab('overview');
+            localStorage.setItem('medicore_portal_mode', 'super-admin');
+            localStorage.setItem('medicore_authenticated', 'true');
+            setIsAuthenticated(true);
+            sound.playClick();
+          }}
+        />
+      </div>
     );
   }
 
-  // Dynamic portal background tailored to each clinical domain
-  const getPortalBackground = (mode: string) => {
-    switch (mode) {
-      case 'super-admin':
-        return {
-          img: '/assets/backgrounds/bg-option-1-futuristic.jpg',
-          pos: 'center center',
-        };
-      case 'doctor':
-        return {
-          img: '/assets/medical-bg.jpg',
-          pos: 'center 20%',
-        };
-      case 'nurse':
-        return {
-          img: '/assets/backgrounds/bg-option-5-smart-health.jpg',
-          pos: 'center 40%',
-        };
-      case 'patient':
-        return {
-          img: '/assets/backgrounds/bg-option-2-warm-caring.jpg',
-          pos: 'center 35%',
-        };
-      case 'admin':
-      case 'management':
-      default:
-        return {
-          img: '/assets/backgrounds/bg-option-4-wellness.jpg',
-          pos: 'center 25%',
-        };
-    }
-  };
-
-  const currentBg = getPortalBackground(portalMode);
-
+  // ============================================================
+  // AUTHENTICATED LAYOUT
+  // ============================================================
   return (
-    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 relative ${
-      isDark ? 'text-white' : 'text-[#142C43]'
-    }`}>
-      {/* GLOBAL BACKGROUND IMAGE WITH AMBIENT BACKDROP */}
-      <div 
-        className="fixed inset-0 pointer-events-none z-0 bg-cover bg-no-repeat transition-all duration-700"
-        style={{
-          backgroundImage: `url('${currentBg.img}')`,
-          backgroundPosition: currentBg.pos,
-          filter: 'brightness(1.30) contrast(1.05) saturate(1.15)',
-        }}
-      >
-        <div className={`absolute inset-0 transition-colors duration-500 ${
-          isDark 
-            ? 'bg-[#07111E]/75 backdrop-blur-[1px]' 
-            : 'bg-[#EDF2F7]/55 backdrop-blur-[1px]'
-        }`} />
-      </div>
+    <div className={`docr-layout ${isDark ? 'dark' : ''}`}>
 
-      <div className="relative z-10 flex flex-col min-h-screen">
-        {/* GLOBAL ENTERPRISE HEADER WITH BRANDING & PORTAL TOGGLE */}
-        <Header
-          currentTab={currentTab}
-          setCurrentTab={setCurrentTab}
-          portalMode={portalMode}
-          onPortalModeChange={handlePortalModeChange}
-          onSwitchPortal={handleSwitchPortal}
+      {/* ===== SIDEBAR ===== */}
+      <Sidebar
+        currentTab={currentTab as NavTab}
+        onTabChange={handleTabChange}
+        portalMode={portalMode}
+        currentRole={currentRole}
+        theme={theme}
+        onLogout={handleLogout}
+        userName={getUserName()}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
+
+      {/* ===== MAIN CONTENT AREA ===== */}
+      <div className="docr-main">
+
+        {/* ===== TOP BAR ===== */}
+        <TopBar
           currentRole={currentRole}
-          onRoleChange={handleRoleChange}
+          portalMode={portalMode}
           theme={theme}
           onToggleTheme={handleToggleTheme}
           onOpenSearch={() => setIsSearchOpen(true)}
-          onLogout={handleLogout}
+          onMobileMenuOpen={() => setMobileMenuOpen(true)}
+          pageTitle={PAGE_TITLES[currentTab] || 'MediCore'}
+          userName={getUserName()}
         />
 
-        {/* MAIN VIEWPORT CONTAINER */}
-        <main className="flex-1 max-w-[1720px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-6">
-          {/* ================= SUPER ADMIN ENTERPRISE GOVERNANCE ================= */}
-          {portalMode === 'super-admin' && (
-            <SuperAdminDashboard
-              theme={theme}
-              onLogout={handleLogout}
-              onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
-              onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}
-              onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
-              onSwitchToPatientPortal={() => handleSwitchPortal('patient')}
-            />
-          )}
+        {/* ===== PAGE CONTENT ===== */}
+        <main className="docr-content animate-fade-in" key={currentTab}>
 
-          {/* ================= HOSPITAL ADMIN / MANAGEMENT PORTAL ROUTES ================= */}
+          {/* =========== ADMIN / MANAGEMENT ROUTES =========== */}
           {(portalMode === 'admin' || portalMode === 'management') && (
             <>
               {currentTab === 'dashboard' && (
-                <CityCareDashboard
+                <AdminDashboard
                   theme={theme}
                   currentRole={currentRole}
-                  onNavigateTab={setCurrentTab}
-                  onSelectPatient={handleSelectPatientFor3D}
-                  onSwitchToMediFlex={() => setCurrentTab('mediflex')}
+                  onNavigateTab={handleTabChange}
+                  onSelectPatient={(p: Patient) => {
+                    db.setSelectedPatient(p.id);
+                    setSelectedPatient(p);
+                    setCurrentTab('patients');
+                  }}
                 />
               )}
-
               {currentTab === 'ward' && (
-                <WardOverview
-                  theme={theme}
-                  currentRole={currentRole}
-                  onNavigateTab={setCurrentTab}
-                  onOpenSearch={() => setIsSearchOpen(true)}
-                  onToggleTheme={handleToggleTheme}
-                  onSelectPatientFor3D={(p) => {
-                    handleSelectPatientFor3D(p);
-                    setCurrentTab('mediflex');
-                  }}
-                />
+                <WardOverview theme={theme} currentRole={currentRole} onNavigateTab={handleTabChange} />
               )}
-
-              {currentTab === 'mediflex' && (
-                <MediFlexView
-                  theme={theme}
-                  onOpenDetails={() => setCurrentTab('patients')}
-                />
-              )}
-
-              {currentTab === 'patients' && (
-                <PatientDirectory
-                  theme={theme}
-                  onSelectPatientFor3D={(p) => {
-                    handleSelectPatientFor3D(p);
-                    setCurrentTab('mediflex');
-                  }}
-                />
-              )}
-
-              {currentTab === 'appointments' && (
-                <AppointmentManager theme={theme} />
-              )}
-
-              {currentTab === 'doctors' && (
-                <DoctorDirectory theme={theme} />
-              )}
-
               {currentTab === 'analytics' && (
                 <AnalyticsReports theme={theme} />
               )}
-
+              {currentTab === 'patients' && (
+                <PatientDirectory theme={theme} onSelectPatientFor3D={(p: Patient) => {
+                  db.setSelectedPatient(p.id);
+                  setSelectedPatient(p);
+                }} />
+              )}
+              {currentTab === 'doctors' && (
+                <DoctorDirectory theme={theme} />
+              )}
+              {currentTab === 'appointments' && (
+                <AppointmentManager theme={theme} />
+              )}
               {currentTab === 'beds' && (
                 <BedManagement theme={theme} />
               )}
-
-              {currentTab === 'emr' && (
-                <MedicalRecords
-                  theme={theme}
-                  onOpen3DAnatomy={(pat) => {
-                    handleSelectPatientFor3D(pat);
-                    setCurrentTab('mediflex');
-                  }}
-                />
-              )}
-
               {currentTab === 'pharmacy' && (
                 <PharmacyManager theme={theme} />
               )}
-
-              {currentTab === 'laboratory' && (
+              {currentTab === 'lab' && (
                 <LabManager theme={theme} />
               )}
-
               {currentTab === 'billing' && (
                 <BillingManager theme={theme} />
               )}
-
+              {currentTab === 'emr' && (
+                <MedicalRecords
+                  theme={theme}
+                  onOpen3DAnatomy={(p: Patient) => {
+                    db.setSelectedPatient(p.id);
+                    setSelectedPatient(p);
+                  }}
+                />
+              )}
               {currentTab === 'staff' && (
                 <StaffManagement theme={theme} />
               )}
-
               {currentTab === 'settings' && (
                 <SettingsView theme={theme} />
               )}
             </>
           )}
 
-          {/* ================= DOCTOR PORTAL ROUTES ================= */}
+          {/* =========== SUPER ADMIN ROUTES =========== */}
+          {portalMode === 'super-admin' && (
+            <>
+              {currentTab === 'overview' && (
+                <SuperAdminDashboard
+                  theme={theme}
+                  onLogout={handleLogout}
+                  onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
+                  onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}
+                  onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
+                />
+              )}
+              {currentTab === 'patients' && <PatientDirectory theme={theme} onSelectPatientFor3D={(p: Patient) => { db.setSelectedPatient(p.id); setSelectedPatient(p); }} />}
+              {currentTab === 'doctors' && <DoctorDirectory theme={theme} />}
+              {currentTab === 'appointments' && <AppointmentManager theme={theme} />}
+              {currentTab === 'beds' && <BedManagement theme={theme} />}
+              {currentTab === 'pharmacy' && <PharmacyManager theme={theme} />}
+              {currentTab === 'lab' && <LabManager theme={theme} />}
+              {currentTab === 'billing' && <BillingManager theme={theme} />}
+              {currentTab === 'emr' && <MedicalRecords theme={theme} onOpen3DAnatomy={(p: Patient) => { db.setSelectedPatient(p.id); setSelectedPatient(p); }} />}
+              {currentTab === 'staff' && <StaffManagement theme={theme} />}
+              {currentTab === 'analytics' && <AnalyticsReports theme={theme} />}
+              {currentTab === 'settings' && <SettingsView theme={theme} />}
+            </>
+          )}
+
+          {/* =========== DOCTOR PORTAL ROUTES =========== */}
           {portalMode === 'doctor' && (
-            <DoctorPortal 
-              theme={theme}
-              onSwitchToPatientPortal={() => handleSwitchPortal('patient')}
-              onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
-              onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
-              onSwitchToSuperAdminPortal={() => handleSwitchPortal('super-admin')}
-              onLogout={handleLogout}
-            />
+            <>
+              {currentTab === 'doctor-consult' && (
+                <DoctorPortal
+                  theme={theme}
+                  onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
+                  onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
+                  onLogout={handleLogout}
+                />
+              )}
+              {currentTab === 'patients' && <PatientDirectory theme={theme} onSelectPatientFor3D={(p: Patient) => { db.setSelectedPatient(p.id); setSelectedPatient(p); }} />}
+              {currentTab === 'appointments' && <AppointmentManager theme={theme} />}
+              {currentTab === 'emr' && <MedicalRecords theme={theme} onOpen3DAnatomy={(p: Patient) => { db.setSelectedPatient(p.id); setSelectedPatient(p); }} />}
+              {currentTab === 'settings' && <SettingsView theme={theme} />}
+            </>
           )}
 
-          {/* ================= HEAD NURSE PORTAL ROUTES ================= */}
+          {/* =========== NURSE PORTAL ROUTES =========== */}
           {portalMode === 'nurse' && (
-            <HeadNursePortal 
-              theme={theme}
-              onLogout={handleLogout}
-              onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}
-              onSwitchToPatientPortal={() => handleSwitchPortal('patient')}
-              onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
-              onSwitchToSuperAdminPortal={() => handleSwitchPortal('super-admin')}
-            />
+            <>
+              {currentTab === 'nurse-rounds' && (
+                <HeadNursePortal
+                  theme={theme}
+                  onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}
+                  onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
+                  onLogout={handleLogout}
+                />
+              )}
+              {currentTab === 'patients' && <PatientDirectory theme={theme} onSelectPatientFor3D={(p: Patient) => { db.setSelectedPatient(p.id); setSelectedPatient(p); }} />}
+              {currentTab === 'beds' && <BedManagement theme={theme} />}
+              {currentTab === 'ward' && <WardOverview theme={theme} currentRole={currentRole} onNavigateTab={handleTabChange} />}
+              {currentTab === 'settings' && <SettingsView theme={theme} />}
+            </>
           )}
 
-          {/* ================= PATIENT PORTAL ROUTES ================= */}
+          {/* =========== PATIENT PORTAL ROUTES =========== */}
           {portalMode === 'patient' && (
-            <PatientPortal 
-              theme={theme} 
-              activeSection={currentTab}
-              onSelectSection={setCurrentTab}
-              onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}
-              onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
-              onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
-              onSwitchToSuperAdminPortal={() => handleSwitchPortal('super-admin')}
-              onLogout={handleLogout}
-            />
+            <>
+              {currentTab === 'patient-health' && (
+                <PatientPortal
+                  theme={theme}
+                  activeSection={currentTab}
+                  onSelectSection={handleTabChange}
+                  onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}
+                  onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
+                  onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
+                  onSwitchToSuperAdminPortal={() => handleSwitchPortal('super-admin')}
+                  onLogout={handleLogout}
+                />
+              )}
+              {currentTab === 'settings' && <SettingsView theme={theme} />}
+            </>
           )}
+
         </main>
 
-        {/* FOOTER */}
-        <footer className={`py-6 border-t text-xs transition-colors duration-300 ${
-          isDark ? 'border-slate-800 text-slate-500' : 'border-slate-200 text-slate-400'
-        }`}>
-          <div className="max-w-[1720px] mx-auto px-4 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-teal-600 dark:text-teal-400">MediCore OS</span>
-              <span>•</span>
-              <span>Enterprise 3D Hospital Operating & Clinical Intelligence System</span>
-            </div>
-            <div className="flex items-center gap-4 text-[11px]">
-              <span>Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 font-mono text-[10px]">Cmd</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 font-mono text-[10px]">K</kbd> for Global Search</span>
-              <span>•</span>
-              <span>Protected Health System Station</span>
-            </div>
+        {/* Footer */}
+        <footer
+          className="py-4 border-t text-xs flex items-center justify-between px-6 flex-shrink-0"
+          style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)', background: 'var(--color-surface)' }}
+        >
+          <div className="flex items-center gap-2">
+            <span style={{ color: 'var(--color-brand-accent)', fontWeight: 700 }}>MediCore OS</span>
+            <span>·</span>
+            <span>Enterprise Hospital Operating & Clinical Intelligence System</span>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 text-[11px]">
+            <span>Press</span>
+            <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>⌘</kbd>
+            <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>K</kbd>
+            <span>for Global Search</span>
           </div>
         </footer>
       </div>
 
-      {/* GLOBAL SEARCH DIALOG (CMD+K) */}
+      {/* ===== GLOBAL SEARCH DIALOG (CMD+K) ===== */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-150">
-          <div className={`w-full max-w-xl rounded-3xl p-4 shadow-2xl border ${
-            isDark ? 'bg-[#0E2035] border-slate-700 text-white' : 'bg-white border-slate-200 text-[#142C43]'
-          }`}>
-            <div className="flex items-center gap-3 px-3 pb-3 border-b border-slate-200 dark:border-slate-800">
-              <Search className="w-5 h-5 text-teal-500" />
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center pt-24 p-4"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+          onClick={e => { if (e.target === e.currentTarget) setIsSearchOpen(false); }}
+        >
+          <div
+            className="w-full max-w-lg rounded-3xl shadow-2xl border overflow-hidden animate-fade-up"
+            style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)', boxShadow: 'var(--shadow-xl)' }}
+          >
+            {/* Search Input */}
+            <div className="flex items-center gap-3 px-5 py-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+              <Search size={18} style={{ color: 'var(--color-brand-accent)', flexShrink: 0 }} />
               <input
                 type="text"
                 autoFocus
-                placeholder="Search modules, patient records, clinical tools..."
+                placeholder="Search modules, patients, clinical tools..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full text-sm bg-transparent outline-none font-medium"
+                onChange={e => setSearchQuery(e.target.value)}
+                className="flex-1 bg-transparent outline-none text-sm font-medium"
+                style={{ color: 'var(--color-text-primary)' }}
               />
               <button
                 onClick={() => setIsSearchOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white"
+                className="p-1.5 rounded-lg transition-colors"
+                style={{ background: 'var(--color-surface-2)', color: 'var(--color-text-muted)' }}
               >
-                <X className="w-4 h-4" />
+                <X size={15} />
               </button>
             </div>
 
-            <div className="py-2 space-y-1">
-              {filteredSearch.map((action, i) => {
-                const IconComponent = action.icon;
-                return (
-                  <button
-                    key={i}
-                    onClick={() => {
-                      sound.playClick();
-                      if (action.mode === 'patient') {
-                        setPortalMode('patient');
-                        setCurrentRole('PATIENT');
-                        db.setRole('PATIENT');
-                      } else if (action.mode === 'nurse') {
-                        setPortalMode('nurse');
-                        setCurrentRole('NURSE');
-                        db.setRole('NURSE');
-                      } else {
-                        setPortalMode('management');
-                      }
-                      setCurrentTab(action.tab);
-                      setIsSearchOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-semibold text-left transition-all ${
-                      isDark ? 'hover:bg-slate-800 text-slate-300 hover:text-white' : 'hover:bg-teal-50 text-slate-700 hover:text-teal-900'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-xl bg-teal-500/10 text-teal-500">
-                        <IconComponent className="w-4 h-4" />
+            {/* Results */}
+            <div className="py-2 max-h-80 overflow-y-auto">
+              {filteredSearch.length === 0 ? (
+                <div className="py-8 text-center text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                  No results for "{searchQuery}"
+                </div>
+              ) : (
+                filteredSearch.map((action, i) => {
+                  const IconComponent = action.icon;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        sound.playClick();
+                        // Switch portal mode if needed
+                        if (action.mode === 'patient' && portalMode !== 'patient') {
+                          handleSwitchPortal('patient');
+                        } else if (action.mode === 'nurse' && portalMode !== 'nurse') {
+                          handleSwitchPortal('nurse');
+                        } else if (action.mode === 'doctor' && portalMode !== 'doctor') {
+                          handleSwitchPortal('doctor');
+                        } else if (action.mode === 'super-admin' && portalMode !== 'super-admin') {
+                          handleSwitchPortal('super-admin');
+                        } else {
+                          setCurrentTab(action.tab);
+                        }
+                        setIsSearchOpen(false);
+                        setSearchQuery('');
+                      }}
+                      className="w-full flex items-center justify-between px-5 py-3 text-sm text-left transition-all"
+                      style={{ color: 'var(--color-text-primary)' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-2)'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="p-2 rounded-xl"
+                          style={{ background: 'var(--color-surface-2)', color: 'var(--color-brand-accent)' }}
+                        >
+                          <IconComponent size={15} />
+                        </div>
+                        <span className="font-500">{action.label}</span>
                       </div>
-                      <span>{action.label}</span>
-                    </div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400 px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800">
-                      {action.mode}
-                    </span>
-                  </button>
-                );
-              })}
+                      <span
+                        className="badge badge-neutral text-[10px]"
+                        style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                      >
+                        {action.mode}
+                      </span>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Footer hint */}
+            <div
+              className="px-5 py-3 border-t flex items-center justify-between"
+              style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface-2)' }}
+            >
+              <div className="flex items-center gap-3 text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>↑↓</kbd>
+                  Navigate
+                </span>
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>↵</kbd>
+                  Select
+                </span>
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>Esc</kbd>
+                  Close
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-[11px]" style={{ color: 'var(--color-brand-accent)' }}>
+                <Sparkles size={12} />
+                <span>MediCore Search</span>
+              </div>
             </div>
           </div>
         </div>
