@@ -328,7 +328,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
         bedNumber: 'Discharged - Home Care',
         roomNumber: 'Discharged - Home Care'
       });
-      showToast(`Physician discharge completed for ${patient.name}. Bed released.`);
+      showToast(`Doctor discharge completed for ${patient.name}. Bed released.`);
       refreshFullData();
     } catch {
       showToast(`Discharged ${patient.name}.`);
@@ -432,7 +432,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
   const [selectedLabToSign, setSelectedLabToSign] = useState<LabOrder | null>(null);
   const [signOffValue, setSignOffValue] = useState('Clear lung fields, normal thoracic volume');
   const [signOffInterpretation, setSignOffInterpretation] = useState<'Normal' | 'Borderline' | 'Abnormal' | 'Critical'>('Normal');
-  const [signOffNotes, setSignOffNotes] = useState('Physician verified. No acute consolidation or pleural effusion observed.');
+  const [signOffNotes, setSignOffNotes] = useState('Doctor verified. No acute consolidation or pleural effusion observed.');
 
   const handleOrderLabTest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -482,7 +482,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
         resultValue: signOffValue,
         interpretation: signOffInterpretation
       });
-      showToast(`Physician digital signature applied to ${selectedLabToSign.testName}. Result published to patient EMR.`);
+      showToast(`Doctor digital signature applied to ${selectedLabToSign.testName}. Result published to patient EMR.`);
       refreshFullData();
     } catch {
       showToast(`Signed off result for ${selectedLabToSign.testName}.`);
@@ -578,24 +578,24 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
     try {
       await api.addPatientHistory(selectedPatient.id, {
         date: new Date().toISOString().split('T')[0],
-        event: `Physician SOAP Note: ${soapAssessment.slice(0, 40)}...`,
+        event: `Doctor SOAP Note: ${soapAssessment.slice(0, 40)}...`,
         doctor: 'Dr. Roger S., MD',
         facility: 'MediCore Specialist Pavilion 402',
         notes: formattedNotes
       });
       db.addPatientHistory(selectedPatient.id, {
         date: new Date().toISOString().split('T')[0],
-        event: `Physician SOAP Note: ${soapAssessment.slice(0, 40)}...`,
+        event: `Doctor SOAP Note: ${soapAssessment.slice(0, 40)}...`,
         doctor: 'Dr. Roger S., MD',
         facility: 'MediCore Specialist Pavilion 402',
         notes: formattedNotes
       });
-      showToast(`Physician SOAP note signed and permanently locked to ${selectedPatient.name}'s EMR!`);
+      showToast(`Doctor SOAP note signed and permanently locked to ${selectedPatient.name}'s EMR!`);
       refreshFullData();
     } catch {
       db.addPatientHistory(selectedPatient.id, {
         date: new Date().toISOString().split('T')[0],
-        event: `Physician SOAP Note: ${soapAssessment.slice(0, 40)}...`,
+        event: `Doctor SOAP Note: ${soapAssessment.slice(0, 40)}...`,
         doctor: 'Dr. Roger S., MD',
         facility: 'MediCore Specialist Pavilion 402',
         notes: formattedNotes
@@ -640,7 +640,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
   const [broadcastCodeType, setBroadcastCodeType] = useState('CODE BLUE - Cardiac Arrest / Resuscitation Team STAT');
   const [broadcastDept, setBroadcastDept] = useState('Clinical Ward 4 - Inpatient Unit');
   const [broadcastLocation, setBroadcastLocation] = useState('Bed 402 / Central Corridor');
-  const [broadcastNotes, setBroadcastNotes] = useState('Crash cart and Defibrillator Alpha required immediately. Attending physician Dr. Roger S. on site.');
+  const [broadcastNotes, setBroadcastNotes] = useState('Crash cart and Defibrillator Alpha required immediately. Attending doctor Dr. Roger S. on site.');
 
   const handleBroadcastAlert = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -717,7 +717,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
 
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-lg font-bold tracking-tight">Physician Clinical Station</h2>
+                <h2 className="text-lg font-bold tracking-tight">Doctor Clinical Station</h2>
                 <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
                   Dr. Roger S., MD • Pulmonology & Critical Care
                 </span>
@@ -733,48 +733,6 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
               </p>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* MODULE TABS BAR */}
-      <div className={`p-2 rounded-2xl border transition-all ${
-        isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
-      }`}>
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-1">
-          {doctorModules.map(mod => {
-            const Icon = mod.icon;
-            const isActive = activeTab === mod.id;
-            return (
-              <button
-                key={mod.id}
-                onClick={() => {
-                  sound.playClick();
-                  setActiveTab(mod.id as any);
-                }}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                  isActive
-                    ? mod.alert
-                      ? 'bg-rose-600 text-white shadow-sm'
-                      : 'bg-teal-600 text-white shadow-sm'
-                    : isDark
-                      ? 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : mod.alert ? 'text-rose-500' : 'text-teal-500'}`} />
-                <span>{mod.label}</span>
-                {mod.badge !== undefined && (
-                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                    isActive 
-                      ? 'bg-white/20 text-white' 
-                      : isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-200/80 text-slate-700'
-                  }`}>
-                    {mod.badge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
         </div>
       </div>
 
@@ -976,7 +934,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                   type="text"
                   value={replyText}
                   onChange={e => setReplyText(e.target.value)}
-                  placeholder={`Type physician instruction or reply to ${selectedPatient?.name}...`}
+                  placeholder={`Type doctor instruction or reply to ${selectedPatient?.name}...`}
                   className="flex-1 px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
                 <button
@@ -1121,7 +1079,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
         }`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6 gap-3">
             <div>
-              <h3 className="text-lg font-black tracking-tight">Physician E-Prescriptions & Refill Authorization Station</h3>
+              <h3 className="text-lg font-black tracking-tight">Doctor E-Prescriptions & Refill Authorization Station</h3>
               <p className="text-xs text-slate-400">Electronic formulary prescriptions, digital refill sign-off, and medication discontinuation</p>
             </div>
             <button
@@ -1199,7 +1157,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6 gap-3">
             <div>
               <h3 className="text-lg font-black tracking-tight">Diagnostic Assays & Radiology Investigation Queue</h3>
-              <p className="text-xs text-slate-400">Order high-resolution CT scans, biochemical blood panels, and apply physician digital sign-offs</p>
+              <p className="text-xs text-slate-400">Order high-resolution CT scans, biochemical blood panels, and apply doctor digital sign-offs</p>
             </div>
             <button
               onClick={() => setLabModalOpen(true)}
@@ -1248,7 +1206,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                     className="px-4 py-2 rounded-xl bg-teal-600 text-white font-bold text-xs hover:bg-teal-700 flex items-center gap-1.5 shadow-xs"
                   >
                     <FileCheck2 className="w-3.5 h-3.5" />
-                    <span>Physician Sign-Off & Results</span>
+                    <span>Doctor Sign-Off & Results</span>
                   </button>
                 </div>
               </div>
@@ -1264,7 +1222,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
         }`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6 gap-3">
             <div>
-              <h3 className="text-lg font-black tracking-tight">Physician Consultation Agenda & Telehealth Suites</h3>
+              <h3 className="text-lg font-black tracking-tight">Doctor Consultation Agenda & Telehealth Suites</h3>
               <p className="text-xs text-slate-400">Scheduled outpatient sessions, follow-ups, and live virtual consultation rooms</p>
             </div>
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-teal-500/10 text-teal-600">
@@ -1380,7 +1338,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
         }`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6 gap-3">
             <div>
-              <h3 className="text-lg font-black tracking-tight">Physician 3D Anatomical Volumetry & Pathological Review</h3>
+              <h3 className="text-lg font-black tracking-tight">Doctor 3D Anatomical Volumetry & Pathological Review</h3>
               <p className="text-xs text-slate-400">Holographic CT reconstruction and real-time hemodynamic organ telemetry</p>
             </div>
             <div className="flex items-center gap-2">
@@ -1497,7 +1455,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
               </div>
               <div>
                 <h3 className="text-xl font-black text-rose-600 dark:text-rose-400">Emergency & Critical Code Pager</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Hospital-wide telemetry alerts, trauma bay activations, and physician emergency dispatch</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Hospital-wide telemetry alerts, trauma bay activations, and doctor emergency dispatch</p>
               </div>
             </div>
 
@@ -1560,7 +1518,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <Pill className="w-5 h-5 text-teal-500" />
-                <h3 className="font-black text-lg">Physician E-Prescription Form</h3>
+                <h3 className="font-black text-lg">Doctor E-Prescription Form</h3>
               </div>
               <button onClick={() => setRxModalOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X className="w-5 h-5" />
@@ -1746,7 +1704,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
               </div>
 
               <div>
-                <label className="font-bold block mb-1">Clinical Indication / Physician Notes</label>
+                <label className="font-bold block mb-1">Clinical Indication / Doctor Notes</label>
                 <textarea
                   value={labNotes}
                   onChange={e => setLabNotes(e.target.value)}
@@ -1775,7 +1733,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
         </div>
       )}
 
-      {/* ================= MODAL: PHYSICIAN LAB SIGN-OFF ================= */}
+      {/* ================= MODAL: DOCTOR LAB SIGN-OFF ================= */}
       {labSignOffModalOpen && selectedLabToSign && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`w-full max-w-lg rounded-3xl p-6 border shadow-2xl ${
@@ -1784,7 +1742,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <FileCheck2 className="w-5 h-5 text-teal-500" />
-                <h3 className="font-black text-lg">Physician Diagnostic Review & Sign-Off</h3>
+                <h3 className="font-black text-lg">Doctor Diagnostic Review & Sign-Off</h3>
               </div>
               <button onClick={() => setLabSignOffModalOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
                 <X className="w-5 h-5" />
@@ -1824,7 +1782,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
               </div>
 
               <div>
-                <label className="font-bold block mb-1">Attending Physician Impression Note</label>
+                <label className="font-bold block mb-1">Attending Doctor Impression Note</label>
                 <textarea
                   value={signOffNotes}
                   onChange={e => setSignOffNotes(e.target.value)}
@@ -2079,7 +2037,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
               </div>
 
               <div>
-                <label className="font-bold block mb-1">Assessment (A) - Physician Impression & Acuity</label>
+                <label className="font-bold block mb-1">Assessment (A) - Doctor Impression & Acuity</label>
                 <textarea
                   value={soapAssessment}
                   onChange={e => setSoapAssessment(e.target.value)}
@@ -2375,7 +2333,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
               </div>
               <div className="flex justify-between border-b pb-2">
                 <span>Date: <strong>{viewSignedSoap.date}</strong></span>
-                <span>Physician: <strong>{viewSignedSoap.doctor}</strong></span>
+                <span>Doctor: <strong>{viewSignedSoap.doctor}</strong></span>
               </div>
               <div className="pt-2">
                 <span className="font-bold text-teal-800 block mb-1">Clinical Progress Note:</span>

@@ -105,7 +105,7 @@ const PAGE_TITLES: Record<string, string> = {
   'patient-messages': 'Direct Doctor Communication',
   'patient-nutrition': 'Nutrition & Wellness Tracker',
   'patient-emergency': 'Emergency SOS Dispatch',
-  'doctor-consult': 'Physician Clinical Station',
+  'doctor-consult': 'Doctor Clinical Station',
   'doctor-chat': 'Patient Inquiries & Tele-Chat',
   'doctor-patients': 'Inpatient Rounds & Rosters',
   'doctor-rx': 'E-Prescriptions & Refills',
@@ -256,7 +256,7 @@ export default function App() {
   const currentDoctor = doctors[0];
 
   const getUserName = () => {
-    if (portalMode === 'doctor') return currentDoctor?.name || 'Dr. Physician';
+    if (portalMode === 'doctor') return currentDoctor?.name || 'Dr. Roger S.';
     if (portalMode === 'patient') return selectedPatient?.name || patients[0]?.name || 'Patient';
     if (portalMode === 'super-admin') return 'Dr. Chief Admin';
     if (portalMode === 'nurse') return 'Head Nurse Sarah';
