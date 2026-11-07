@@ -62,11 +62,11 @@ export const BillingManager: React.FC<BillingManagerProps> = ({ theme }) => {
         <div className="flex items-center gap-3">
           <div className={`p-3 rounded-2xl border ${isDark ? 'bg-[#0E2035] border-slate-800' : 'bg-white border-slate-200'}`}>
             <span className="text-[10px] text-slate-400 font-semibold block">Total Hospital Revenue</span>
-            <span className="text-lg font-black text-emerald-500">₹${(totalRevenue / 1000000).toFixed(2)}M</span>
+            <span className="text-lg font-black text-emerald-500">₹{(totalRevenue / 1000000).toFixed(2)}M</span>
           </div>
           <div className={`p-3 rounded-2xl border ${isDark ? 'bg-[#0E2035] border-slate-800' : 'bg-white border-slate-200'}`}>
             <span className="text-[10px] text-slate-400 font-semibold block">Pending Receivables</span>
-            <span className="text-lg font-black text-amber-500">₹${pendingTotal.toFixed(2)}</span>
+            <span className="text-lg font-black text-amber-500">₹{pendingTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>
@@ -160,8 +160,8 @@ export const BillingManager: React.FC<BillingManagerProps> = ({ theme }) => {
                         <tr key={idx}>
                           <td className="py-2.5 font-medium">{item.description}</td>
                           <td className="py-2.5 text-center text-slate-400">{item.quantity}</td>
-                          <td className="py-2.5 text-right font-mono">₹${item.unitPrice.toFixed(2)}</td>
-                          <td className="py-2.5 text-right font-mono font-bold">₹${item.total.toFixed(2)}</td>
+                          <td className="py-2.5 text-right font-mono">₹{item.unitPrice.toFixed(2)}</td>
+                          <td className="py-2.5 text-right font-mono font-bold">₹{item.total.toFixed(2)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -176,7 +176,7 @@ export const BillingManager: React.FC<BillingManagerProps> = ({ theme }) => {
                     <div className="text-emerald-500 font-semibold">Insurance Coverage Discount: -${selectedInvoice.discount.toFixed(2)}</div>
                   )}
                   <div className="text-base font-extrabold text-teal-600 dark:text-teal-400 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    Grand Total: ₹${selectedInvoice.grandTotal.toFixed(2)}
+                    Grand Total: ₹{selectedInvoice.grandTotal.toFixed(2)}
                   </div>
                 </div>
               </div>
@@ -231,7 +231,7 @@ export const BillingManager: React.FC<BillingManagerProps> = ({ theme }) => {
           }`}>
             <h3 className="font-extrabold text-base mb-1">Process Inpatient/Outpatient Payment</h3>
             <p className="text-xs text-slate-400 mb-4">
-              Authorize remittance of ₹${selectedInvoice?.grandTotal.toFixed(2)} for {selectedInvoice?.patientName}
+              Authorize remittance of ₹{selectedInvoice?.grandTotal.toFixed(2)} for {selectedInvoice?.patientName}
             </p>
 
             <form onSubmit={handlePayInvoice} className="space-y-4">

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * DocR-inspired Sidebar Navigation
  * Fixed sidebar with collapsible support, role-based nav groups,
  * and smooth animations for the MediCore HMS.
