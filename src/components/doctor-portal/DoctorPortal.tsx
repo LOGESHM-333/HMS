@@ -535,7 +535,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
       // 2. Add consultation record into Patient Medical History
       await api.addPatientHistory(activeTelehealthApt.patientId, {
         date: new Date().toISOString().split('T')[0],
-        event: `Virtual Telehealth Consultation (Duration: ${formatTimer(callTimer)})`,
+                  event: `Virtual Telehealth Consultation (Duration: ${formatTimer(callTimer)})`,
         doctor: 'Dr. Roger S., MD',
         facility: 'MediCore Telehealth Cloud Gateway',
         notes: consultNotes || 'Virtual clinical consultation completed successfully. Patient in good recovery.'
@@ -573,7 +573,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
     if (!selectedPatient) return;
 
     sound.playClick();
-    const formattedNotes = `ICD-10: [${soapIcdCode}]\nâ€¢ SUBJECTIVE: ${soapSubjective}\nâ€¢ OBJECTIVE: ${soapObjective}\nâ€¢ ASSESSMENT: ${soapAssessment}\nâ€¢ PLAN: ${soapPlan}\n[Digitally signed by Dr. Roger S., MD at ${new Date().toLocaleTimeString()}]`;
+    const formattedNotes = `ICD-10: [${soapIcdCode}]\n• SUBJECTIVE: ${soapSubjective}\n• OBJECTIVE: ${soapObjective}\n• ASSESSMENT: ${soapAssessment}\n• PLAN: ${soapPlan}\n[Digitally signed by Dr. Roger S., MD at ${new Date().toLocaleTimeString()}]`;
 
     try {
       await api.addPatientHistory(selectedPatient.id, {
@@ -647,7 +647,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
     sound.playAlert();
 
     const newAlertData = {
-      title: `ðŸš¨ ${broadcastCodeType}`,
+      title: `🚨 ${broadcastCodeType}`,
       department: broadcastDept,
       severity: 'critical' as const,
       actionRequired: `Immediate emergency response: ${broadcastLocation}. ${broadcastNotes}`
@@ -787,8 +787,8 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                         </p>
                         <div className="flex items-center gap-2 mt-1.5 text-[10px]">
                           <span className="text-emerald-500 font-bold">BP: {pat.vitals?.bloodPressure || '120/80'}</span>
-                          <span>â€¢</span>
-                          <span className="text-slate-400">{pat.age} yrs â€¢ {pat.bloodGroup}</span>
+                          <span>•</span>
+                          <span className="text-slate-400">{pat.age} yrs • {pat.bloodGroup}</span>
                         </div>
                       </div>
                     </button>
@@ -798,7 +798,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
             </div>
 
             <div className="mt-4 p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-xs">
-              <span className="font-bold text-teal-600 dark:text-teal-400 block mb-1">âš¡ Live Clinical Bridge:</span>
+              <span className="font-bold text-teal-600 dark:text-teal-400 block mb-1">⚡ Live Clinical Bridge:</span>
               <p className="text-[11px] text-slate-600 dark:text-slate-300">
                 Any reply sent here syncs instantly into the Patient Portal. Messages poll automatically every 2.5 seconds.
               </p>
@@ -826,7 +826,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                       </span>
                     </div>
                     <p className="text-xs text-slate-400">
-                      Diagnosis: {selectedPatient?.diagnosis} â€¢ Room: {selectedPatient?.roomNumber || 'Ward 4'} â€¢ Attending: Dr. Roger S.
+                      Diagnosis: {selectedPatient?.diagnosis} • Room: {selectedPatient?.roomNumber || 'Ward 4'} • Attending: Dr. Roger S.
                     </p>
                   </div>
                 </div>
@@ -886,7 +886,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                           <strong className={isDoctor ? 'text-teal-400' : 'text-slate-700 dark:text-slate-200'}>
                             {msg.senderName}
                           </strong>
-                          <span>â€¢</span>
+                          <span>•</span>
                           <span>{msg.timestamp}</span>
                         </div>
 
@@ -989,7 +989,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                       <img src={p.avatar} alt={p.name} className="w-12 h-12 rounded-xl object-cover ring-2 ring-teal-500/20" />
                       <div>
                         <h4 className="font-extrabold text-sm">{p.name}</h4>
-                        <span className="font-mono text-[10px] text-teal-600 font-bold">{p.patientCode} â€¢ {p.age} yrs â€¢ {p.bloodGroup}</span>
+                        <span className="font-mono text-[10px] text-teal-600 font-bold">{p.patientCode} • {p.age} yrs • {p.bloodGroup}</span>
                       </div>
                     </div>
                     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
@@ -1122,9 +1122,9 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      Patient: <strong className="text-slate-700 dark:text-slate-200">{rxItem.patientName}</strong> â€¢ Frequency: {rxItem.frequency} â€¢ Total Dispense: {rxItem.quantity} units ({rxItem.duration})
+                      Patient: <strong className="text-slate-700 dark:text-slate-200">{rxItem.patientName}</strong> • Frequency: {rxItem.frequency} • Total Dispense: {rxItem.quantity} units ({rxItem.duration})
                     </p>
-                    <span className="text-[11px] text-slate-400">Prescribed by Dr. Roger S. â€¢ Ref Rx #{rxItem.rxId} â€¢ Date: {rxItem.date}</span>
+                    <span className="text-[11px] text-slate-400">Prescribed by Dr. Roger S. • Ref Rx #{rxItem.rxId} • Date: {rxItem.date}</span>
                   </div>
                 </div>
 
@@ -1191,7 +1191,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                     </span>
                   </div>
                   <div className="text-xs text-slate-400 mt-1">
-                    Patient: <strong className="text-slate-700 dark:text-slate-300">{order.patientName}</strong> â€¢ Ordered Date: {order.orderedDate} â€¢ Ref #{order.id}
+                    Patient: <strong className="text-slate-700 dark:text-slate-300">{order.patientName}</strong> • Ordered Date: {order.orderedDate} • Ref #{order.id}
                   </div>
                   {order.resultValue && (
                     <div className="mt-2 text-xs font-mono p-2.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-teal-600 dark:text-teal-400">
@@ -1226,7 +1226,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
               <p className="text-xs text-slate-400">Scheduled outpatient sessions, follow-ups, and live virtual consultation rooms</p>
             </div>
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-teal-500/10 text-teal-600">
-              Dr. Roger S. â€¢ Schedule Active
+              Dr. Roger S. • Schedule Active
             </span>
           </div>
 
@@ -1253,7 +1253,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                     </span>
                   </div>
                   <div className="text-xs text-slate-400 mt-1">
-                    â° {apt.time} â€¢ ðŸ“… {apt.date} â€¢ Unit 402 â€¢ Clinical Focus: "{apt.notes || 'Routine consultation'}"
+                    ⏰ {apt.time} • 📅 {apt.date} • Unit 402 • Clinical Focus: "{apt.notes || 'Routine consultation'}"
                   </div>
                 </div>
 
@@ -1307,7 +1307,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                     </span>
                     <span className="font-mono text-xs text-teal-600 font-bold">{rec.date}</span>
                   </div>
-                  <div className="text-xs text-slate-400 mb-2">Attending: {rec.doctor} â€¢ Facility: {rec.facility}</div>
+                  <div className="text-xs text-slate-400 mb-2">Attending: {rec.doctor} • Facility: {rec.facility}</div>
                   <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-line bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 font-sans leading-relaxed">
                     {rec.notes}
                   </div>
@@ -1383,7 +1383,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
 
             <div className="relative z-10 flex items-start justify-between">
               <div className="px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-md border border-cyan-500/30 text-white text-xs font-mono">
-                CLINICAL 3D REVIEW: {selectedPatient?.name?.toUpperCase()} ({selectedPatient?.patientCode}) â€¢ SYSTEM: {active3dSystem.toUpperCase()}
+                CLINICAL 3D REVIEW: {selectedPatient?.name?.toUpperCase()} ({selectedPatient?.patientCode}) • SYSTEM: {active3dSystem.toUpperCase()}
               </div>
               <div className="px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4" />
@@ -1487,7 +1487,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                     </span>
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    Department: {al.department} â€¢ Time: {al.time}
+                    Department: {al.department} • Time: {al.time}
                   </div>
                   <p className="text-xs text-slate-700 dark:text-slate-300 mt-1">
                     Action Required: <strong>{al.actionRequired}</strong>
@@ -1829,7 +1829,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
 
             <form onSubmit={handleSaveBedsideVitals} className="space-y-3 mt-4 text-xs">
               <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-bold">
-                {vitalsPatient.name} â€¢ {vitalsPatient.patientCode} ({vitalsPatient.roomNumber || 'Bed 401-A'})
+                {vitalsPatient.name} • {vitalsPatient.patientCode} ({vitalsPatient.roomNumber || 'Bed 401-A'})
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -1868,7 +1868,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="font-bold block mb-1">Temperature (Â°C)</label>
+                  <label className="font-bold block mb-1">Temperature (°C)</label>
                   <input
                     type="text"
                     value={inputTemp}
@@ -2100,10 +2100,10 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                   onChange={e => setBroadcastCodeType(e.target.value)}
                   className="w-full p-2.5 rounded-xl border border-rose-500/40 bg-black/60 text-white font-bold"
                 >
-                  <option value="CODE BLUE - Cardiac Arrest / Resuscitation Team STAT">ðŸš¨ CODE BLUE - Cardiac Arrest / Resuscitation STAT</option>
-                  <option value="CODE RED - Mass Casualty / Trauma Bay Influx">ðŸš¨ CODE RED - Mass Casualty / Trauma Influx</option>
-                  <option value="STAT STROKE - Emergency Neuro-Interventional Alert">âš¡ STAT STROKE - Emergency Neuro-Intervention</option>
-                  <option value="SEPSIS PROTOCOL - Rapid Response Shock Alert">âš ï¸ SEPSIS PROTOCOL - Rapid Response Shock Alert</option>
+                  <option value="CODE BLUE - Cardiac Arrest / Resuscitation Team STAT">🚨 CODE BLUE - Cardiac Arrest / Resuscitation STAT</option>
+                  <option value="CODE RED - Mass Casualty / Trauma Bay Influx">🚨 CODE RED - Mass Casualty / Trauma Influx</option>
+                  <option value="STAT STROKE - Emergency Neuro-Interventional Alert">⚡ STAT STROKE - Emergency Neuro-Intervention</option>
+                  <option value="SEPSIS PROTOCOL - Rapid Response Shock Alert">⚠️  SEPSIS PROTOCOL - Rapid Response Shock Alert</option>
                 </select>
               </div>
 
@@ -2171,17 +2171,17 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
                 <div>
                   <h3 className="font-black text-sm text-cyan-300">
-                    MediCore Encrypted Telehealth Suite â€¢ {activeTelehealthApt.patientName}
+                    MediCore Encrypted Telehealth Suite • {activeTelehealthApt.patientName}
                   </h3>
                   <span className="text-[11px] text-slate-400">
-                    Attending: Dr. Roger S., MD â€¢ Channel 256-Bit TLS Encrypted
+                    Attending: Dr. Roger S., MD • Channel 256-Bit TLS Encrypted
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center gap-4">
                 <div className="px-3 py-1 rounded-full bg-black/60 border border-cyan-400/30 font-mono text-xs text-cyan-400 font-bold">
-                  â± {formatTimer(callTimer)}
+                  ⏱ {formatTimer(callTimer)}
                 </div>
                 <button
                   onClick={() => setTelehealthRoomOpen(false)}
@@ -2304,7 +2304,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 </div>
 
                 <div className="pt-3 border-t border-slate-800 text-[11px] text-slate-400">
-                  Patient Vitals: <strong className="text-teal-400">BP 120/80 â€¢ HR 72 bpm â€¢ SpO2 99%</strong>
+                  Patient Vitals: <strong className="text-teal-400">BP 120/80 • HR 72 bpm • SpO2 99%</strong>
                 </div>
               </div>
             </div>
@@ -2319,7 +2319,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div className="flex items-center gap-2 text-teal-700">
                 <Printer className="w-5 h-5" />
-                <h3 className="font-black text-base">MediCore Health System â€¢ Official EMR Transcript</h3>
+                <h3 className="font-black text-base">MediCore Health System • Official EMR Transcript</h3>
               </div>
               <button onClick={() => setViewSignedSoap(null)} className="p-1 rounded-lg hover:bg-slate-100">
                 <X className="w-5 h-5" />
@@ -2345,7 +2345,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
 
             <div className="flex justify-between items-center pt-2">
               <span className="text-[10px] text-slate-400 font-mono">
-                SHA-256 DIGITAL SIGNATURE VERIFIED âœ“
+                SHA-256 DIGITAL SIGNATURE VERIFIED ✓
               </span>
               <button
                 onClick={() => {

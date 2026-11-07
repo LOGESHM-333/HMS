@@ -198,7 +198,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
       { id: 'b-icu-1', bedNumber: 'ICU-01', wardId: 'w-icu', wardName: 'Intensive Care Unit', type: 'ICU', status: 'Occupied', patientName: 'Kavitha Ramaswamy' },
       { id: 'b-icu-2', bedNumber: 'ICU-02', wardId: 'w-icu', wardName: 'Intensive Care Unit', type: 'ICU', status: 'Occupied', patientName: 'Magnus Stephenson' },
       { id: 'b-gw-104', bedNumber: 'GW-104', wardId: 'w-gen', wardName: 'General Ward A', type: 'General', status: 'Occupied', patientName: 'Elena Rostova' },
-      { id: 'b-sr-108', bedNumber: 'SR-108', wardId: 'w-surg', wardName: 'Surgical Recovery', type: 'Surgical', status: 'Occupied', patientName: 'David K. Oâ€™Connor' },
+      { id: 'b-sr-108', bedNumber: 'SR-108', wardId: 'w-surg', wardName: 'Surgical Recovery', type: 'Surgical', status: 'Occupied', patientName: 'David K. O\'Connor' },
       { id: 'b-cw-304', bedNumber: 'CW-304', wardId: 'w-card', wardName: 'Cardiac Care Pavilion', type: 'Cardiac', status: 'Available' },
       { id: 'b-er-102', bedNumber: 'ER-102', wardId: 'w-er', wardName: 'Emergency Trauma', type: 'Emergency', status: 'Cleaning' },
     ];
@@ -280,7 +280,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
     {
       id: 'mar-4',
       patientId: 'pat-4',
-      patientName: 'David K. Oâ€™Connor',
+      patientName: 'David K. O\'Connor',
       bedNumber: 'SR-108',
       medication: 'Hydromorphone (Dilaudid)',
       dosage: '1 mg',
@@ -446,7 +446,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
     },
     {
       id: 'ord-3',
-      patientName: 'David K. Oâ€™Connor',
+      patientName: 'David K. O\'Connor',
       bed: 'SR-108',
       orderType: 'Dressing',
       orderText: 'Post-op lumbar spine incision inspection & sterile Betadine dressing change',
@@ -607,7 +607,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
       sound.playAlert();
       setCodeBlueActive(true);
       setCodeTimerSeconds(0);
-      showToast('ðŸš¨ CODE BLUE ACTIVATED: Crash cart and ICU team alerted for ICU Bed 02!');
+      showToast('🚨 CODE BLUE ACTIVATED: Crash cart and ICU team alerted for ICU Bed 02!');
     } else {
       sound.playSuccess();
       setCodeBlueActive(false);
@@ -676,7 +676,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                 <span className="font-mono font-bold text-xs">CRITICAL RESUSCITATION</span>
               </div>
               <h3 className="text-lg sm:text-xl font-black mt-0.5">
-                Bed: ICU-02 â€¢ Resuscitation Running Time: {Math.floor(codeTimerSeconds / 60).toString().padStart(2, '0')}:{(codeTimerSeconds % 60).toString().padStart(2, '0')}
+                Bed: ICU-02 • Resuscitation Running Time: {Math.floor(codeTimerSeconds / 60).toString().padStart(2, '0')}:{(codeTimerSeconds % 60).toString().padStart(2, '0')}
               </h3>
             </div>
           </div>
@@ -685,7 +685,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
             onClick={toggleCodeBlue}
             className="px-5 py-2.5 rounded-2xl bg-white text-rose-700 hover:bg-rose-50 font-black text-xs shadow-md transition-all cursor-pointer"
           >
-            Terminate Code / ROSC Achieved âœ“
+            Terminate Code / ROSC Achieved ✓
           </button>
         </div>
       )}
@@ -881,7 +881,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] text-slate-400">{bed.wardName} â€¢ {bed.type} Unit</span>
+                        <span className="text-[10px] text-slate-400">{bed.wardName} • {bed.type} Unit</span>
                       </div>
                     </div>
 
@@ -959,7 +959,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                           onClick={() => openVitalsForPatient(pat)}
                           className="text-teal-600 dark:text-teal-400 font-bold hover:underline cursor-pointer"
                         >
-                          Log Vitals â†’
+                          Log Vitals →
                         </button>
                       </div>
                     </div>
@@ -974,7 +974,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                         }}
                         className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-xs cursor-pointer"
                       >
-                        âœ“ Mark Cleaned & Ready
+                        ✓ Mark Cleaned & Ready
                       </button>
                     </div>
                   ) : (
@@ -1070,7 +1070,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                             onClick={() => handleAdministerMed(item.id)}
                             className="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-xs cursor-pointer active:scale-95 transition-all"
                           >
-                            âœ“ Administer Dose
+                            ✓ Administer Dose
                           </button>
                         ) : (
                           <span className="text-[11px] text-slate-400 font-medium">
@@ -1159,7 +1159,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Body Temperature:</span>
-                      <strong className="text-slate-800 dark:text-slate-200">{temp} Â°C</strong>
+                      <strong className="text-slate-800 dark:text-slate-200">{temp} °C</strong>
                     </div>
                   </div>
 
@@ -1261,7 +1261,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
 
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
                   <span>Logged by: <strong className="text-slate-700 dark:text-slate-300">{note.nurseName}</strong></span>
-                  <span className="text-emerald-500 font-bold">âœ“ Signed Off</span>
+                  <span className="text-emerald-500 font-bold">✓ Signed Off</span>
                 </div>
               </div>
             ))}
@@ -1306,7 +1306,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      Patient: <strong className="text-slate-700 dark:text-slate-200">{order.patientName} ({order.bed})</strong> â€¢ Ordered by: {order.orderedBy}
+                      Patient: <strong className="text-slate-700 dark:text-slate-200">{order.patientName} ({order.bed})</strong> • Ordered by: {order.orderedBy}
                     </p>
                     {order.executionNotes && (
                       <p className="text-[11px] text-teal-600 dark:text-teal-400 mt-1 italic">
@@ -1326,7 +1326,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                       }}
                       className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-xs cursor-pointer active:scale-95 transition-all"
                     >
-                      Mark Executed âœ“
+                      Mark Executed ✓
                     </button>
                   ) : (
                     <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-500">
@@ -1367,7 +1367,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                   </div>
                   <div>
                     <h4 className="font-bold text-sm text-slate-900 dark:text-white">{nurse.name}</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{nurse.role} â€¢ {nurse.unit}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{nurse.role} • {nurse.unit}</p>
                     <div className="flex flex-wrap items-center gap-1.5 mt-2">
                       <span className="text-[10px] text-slate-400">Assigned Beds:</span>
                       {nurse.assignedBeds.map(b => (
@@ -1421,7 +1421,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                   codeBlueActive ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/30'
                 }`}
               >
-                {codeBlueActive ? 'âœ“ Terminate Code Blue / ROSC' : 'ðŸš¨ Trigger Code Blue Drill (Crash Cart)'}
+                {codeBlueActive ? '✓ Terminate Code Blue / ROSC' : '🚨 Trigger Code Blue Drill (Crash Cart)'}
               </button>
 
               <button
@@ -1431,7 +1431,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                 }}
                 className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm cursor-pointer active:scale-95 transition-all"
               >
-                âš ï¸ Call Rapid Response Team (RRT)
+                ⚠️  Call Rapid Response Team (RRT)
               </button>
             </div>
           </div>
@@ -1692,7 +1692,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold block mb-1">Temperature (Â°C)</label>
+                  <label className="font-bold block mb-1">Temperature (°C)</label>
                   <input
                     type="text"
                     value={vTemp}
@@ -1767,7 +1767,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold shadow-md"
                 >
-                  Sign & Complete Order âœ“
+                  Sign & Complete Order ✓
                 </button>
               </div>
             </form>

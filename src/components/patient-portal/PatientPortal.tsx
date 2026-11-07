@@ -224,7 +224,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
   // 7. BILLING & INSURANCE STATES
   const [payModalInvoice, setPayModalInvoice] = useState<Invoice | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('Credit Card');
-  const [cardNumber, setCardNumber] = useState('4532 â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ 8829');
+  const [cardNumber, setCardNumber] = useState('4532 •••• •••• 8829');
   const [cardExpiry, setCardExpiry] = useState('08/29');
   const [claimModalOpen, setClaimModalOpen] = useState(false);
   const [claimInvoiceId, setClaimInvoiceId] = useState(invoices[0]?.id || '');
@@ -298,7 +298,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
     callsign: 'MediCore Rapid Response Unit 4 (ALS Spec)',
     leadParamedic: 'Captain Marcus Vance, EMT-P',
     erBay: 'Resuscitation Trauma Bay 2',
-    coordinates: '37.7749Â° N, 122.4194Â° W (Home Geolocation)'
+    coordinates: '37.7749° N, 122.4194° W (Home Geolocation)'
   });
 
   // SOS Countdown timer effect
@@ -341,13 +341,13 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
           callsign: res.ambulanceUnit,
           leadParamedic: res.driverParamedic || 'Captain Marcus Vance, EMT-P',
           erBay: res.hospitalBay || 'Trauma Bay 2',
-          coordinates: '37.7749Â° N, 122.4194Â° W'
+          coordinates: '37.7749° N, 122.4194° W'
         });
       }
     } catch {
       // Fallback
     }
-    showToast('ðŸš¨ AMBULANCE UNIT 4 DISPATCHED TO YOUR CURRENT LOCATION!');
+    showToast('🚨 AMBULANCE UNIT 4 DISPATCHED TO YOUR CURRENT LOCATION!');
   };
 
   // ================= SUBMIT HANDLERS ================= //
@@ -737,7 +737,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
               <div className="relative z-10 flex items-start justify-between">
                 <div className="px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-md border border-cyan-500/30 text-white text-xs font-mono flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
-                  <span>3D SCAN: {patient.name.toUpperCase()} â€¢ {activeSystem.toUpperCase()}</span>
+                  <span>3D SCAN: {patient.name.toUpperCase()} • {activeSystem.toUpperCase()}</span>
                 </div>
                 <div className="px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5" />
@@ -848,7 +848,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                 <Sparkles className="w-4 h-4 text-amber-500" />
               </div>
               <div className="text-2xl font-black mt-2 text-slate-900 dark:text-white">
-                {patient.vitals.temperature} <span className="text-xs font-normal text-slate-400">Â°C</span>
+                {patient.vitals.temperature} <span className="text-xs font-normal text-slate-400">°C</span>
               </div>
               <div className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -910,7 +910,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
               <div className="text-3xl font-black mt-2">
                 7h 45m <span className="text-xs font-normal text-slate-400">Deep: 2h 10m</span>
               </div>
-              <div className="mt-2 text-xs text-slate-400">Target: 8.0 hrs â€¢ REM cycles optimal</div>
+              <div className="mt-2 text-xs text-slate-400">Target: 8.0 hrs • REM cycles optimal</div>
             </div>
 
             {/* Step activity */}
@@ -983,7 +983,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                         {apt.visitType}
                       </span>
                     </div>
-                    <span className="text-xs text-slate-500 dark:text-slate-400">{apt.department} â€¢ Room 402</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{apt.department} • Room 402</span>
                     {apt.notes && <p className="text-xs text-slate-400 mt-1 italic">"{apt.notes}"</p>}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -1016,9 +1016,9 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                   </div>
                 </div>
                 <div className="mt-4 flex flex-wrap items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-200/60 dark:border-slate-800 gap-2">
-                  <span>ðŸ“… Date: <strong className="text-slate-700 dark:text-slate-300">{apt.date}</strong></span>
-                  <span>â° Time: <strong className="text-slate-700 dark:text-slate-300">{apt.time}</strong></span>
-                  <span>ðŸ¥ MediCore Main Clinic Pavilion</span>
+                  <span>📅 Date: <strong className="text-slate-700 dark:text-slate-300">{apt.date}</strong></span>
+                  <span>⏰ Time: <strong className="text-slate-700 dark:text-slate-300">{apt.time}</strong></span>
+                  <span>🏥 MediCore Main Clinic Pavilion</span>
                 </div>
               </div>
             ))}
@@ -1091,14 +1091,14 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                         </span>
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        Instructions: <strong className="text-slate-700 dark:text-slate-200">{item.frequency}</strong> â€¢ Duration: {item.duration}
+                        Instructions: <strong className="text-slate-700 dark:text-slate-200">{item.frequency}</strong> • Duration: {item.duration}
                       </p>
                       <div className="flex flex-wrap items-center gap-3 mt-2 text-[11px] text-slate-400">
                         <span>Quantity: {item.quantity} units</span>
-                        <span>â€¢</span>
-                        <span>Prescribing Physician: {patient.primaryDoctorName}</span>
+                        <span>•</span>
+                        <span>Prescribing Doctor: {patient.primaryDoctorName}</span>
                         {medState?.timestamp && (
-                          <span className="text-emerald-500 font-bold">â€¢ Taken at {medState.timestamp}</span>
+                          <span className="text-emerald-500 font-bold">• Taken at {medState.timestamp}</span>
                         )}
                       </div>
                     </div>
@@ -1160,7 +1160,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                       </span>
                     </div>
                     <div className="text-xs text-slate-400 mt-1">
-                      Ordered on {order.orderedDate} â€¢ Ref #{order.id} â€¢ Laboratory Division: Core Pathology
+                      Ordered on {order.orderedDate} • Ref #{order.id} • Laboratory Division: Core Pathology
                     </div>
                   </div>
                   <div className="flex items-center gap-2 self-start sm:self-center">
@@ -1248,7 +1248,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                     <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 font-semibold">{item.date}</span>
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                    Attending: <strong className="text-slate-700 dark:text-slate-300">{item.doctor}</strong> â€¢ Facility: {item.facility}
+                    Attending: <strong className="text-slate-700 dark:text-slate-300">{item.doctor}</strong> • Facility: {item.facility}
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-950 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 italic">
                     "{item.notes}"
@@ -1312,7 +1312,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                     </div>
                     <div>
                       <h4 className="font-bold text-sm">{v.vaccine}</h4>
-                      <span className="text-xs text-slate-400">{v.manufacturer} â€¢ Lot #{v.lot}</span>
+                      <span className="text-xs text-slate-400">{v.manufacturer} • Lot #{v.lot}</span>
                     </div>
                   </div>
                   <button
@@ -1329,7 +1329,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                 </div>
                 <div className="mt-3 pt-3 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
                   <span>Administered: <strong className="text-slate-600 dark:text-slate-300">{v.date}</strong></span>
-                  <span className="text-emerald-500 font-bold">âœ“ {v.status}</span>
+                  <span className="text-emerald-500 font-bold">✓ {v.status}</span>
                 </div>
               </div>
             ))}
@@ -1406,7 +1406,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                         {inv.status}
                       </span>
                     </div>
-                    <span className="text-xs text-slate-400">Billed on {inv.date} â€¢ Due on {inv.dueDate}</span>
+                    <span className="text-xs text-slate-400">Billed on {inv.date} • Due on {inv.dueDate}</span>
                   </div>
 
                   <div className="flex items-center gap-4">
@@ -1473,7 +1473,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                 <h3 className="text-base font-extrabold">{selectedChatDoctor.name}</h3>
                 <span className="text-xs text-emerald-500 font-semibold flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  {selectedChatDoctor.role} â€¢ {selectedChatDoctor.status}
+                  {selectedChatDoctor.role} • {selectedChatDoctor.status}
                 </span>
               </div>
             </div>
@@ -1703,9 +1703,9 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
             }`}>
               <span className="text-xs font-bold text-emerald-600 uppercase block mb-2">Recommended Foods</span>
               <ul className="text-xs space-y-1.5 text-slate-600 dark:text-slate-300">
-                <li>â€¢ <strong>Omega-3s:</strong> Wild salmon, mackerel, chia seeds, walnuts</li>
-                <li>â€¢ <strong>Cardio-protective:</strong> Steamed spinach, kale, blueberries, oats</li>
-                <li>â€¢ <strong>Hydration:</strong> 2,000+ mL mineral-rich water</li>
+                <li>• <strong>Omega-3s:</strong> Wild salmon, mackerel, chia seeds, walnuts</li>
+                <li>• <strong>Cardio-protective:</strong> Steamed spinach, kale, blueberries, oats</li>
+                <li>• <strong>Hydration:</strong> 2,000+ mL mineral-rich water</li>
               </ul>
             </div>
 
@@ -1714,9 +1714,9 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
             }`}>
               <span className="text-xs font-bold text-rose-500 uppercase block mb-2">Foods to Restrict</span>
               <ul className="text-xs space-y-1.5 text-slate-600 dark:text-slate-300">
-                <li>â€¢ âŒ Canned soups & packaged sodium foods (&gt;1,500 mg/day)</li>
-                <li>â€¢ âŒ Cured deli meats & hydrogenated trans-fats</li>
-                <li>â€¢ âŒ High caffeine beverages (&gt;2 cups/day)</li>
+                      <li>• ❌ Canned soups & packaged sodium foods (&gt;1,500 mg/day)</li>
+                      <li>• ❌ Cured deli meats & hydrogenated trans-fats</li>
+                      <li>• ❌ High caffeine beverages (&gt;2 cups/day)</li>
               </ul>
             </div>
           </div>
@@ -1837,7 +1837,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-slate-800">
                     <span className="text-slate-400">Emergency Contact:</span>
-                    <span className="font-bold">Sarah Stephenson (Spouse) â€¢ +1 (555) 234-8902</span>
+                    <span className="font-bold">Sarah Stephenson (Spouse) • +1 (555) 234-8902</span>
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-slate-100 dark:border-slate-800">
                     <span className="text-slate-400">Blood Type:</span>
@@ -1920,7 +1920,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="font-bold block mb-1">Body Temp (Â°C)</label>
+                  <label className="font-bold block mb-1">Body Temp (°C)</label>
                   <input
                     type="number"
                     step="0.1"
@@ -2081,11 +2081,11 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                 <div className="w-3 h-3 rounded-full bg-rose-500 animate-pulse" />
                 <div>
                   <h4 className="font-extrabold text-sm">Virtual Telehealth Consultation</h4>
-                  <span className="text-xs text-slate-400">Dr. Roger S., MD â€¢ Patient: {patient.name}</span>
+                  <span className="text-xs text-slate-400">Dr. Roger S., MD • Patient: {patient.name}</span>
                 </div>
               </div>
               <div className="px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs font-mono font-bold text-teal-400">
-                â± {formatTimer(callDuration)}
+                  ⏱ {formatTimer(callDuration)}
               </div>
             </div>
 
@@ -2328,7 +2328,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
             <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
               <div>
                 <h4 className="font-extrabold text-sm">{activeScanOrder.testName}</h4>
-                <span className="text-xs text-slate-400">DICOM Series â€¢ High-Resolution Diagnostic Volumetry</span>
+                <span className="text-xs text-slate-400">DICOM Series • High-Resolution Diagnostic Volumetry</span>
               </div>
               <button onClick={() => setScanViewerOpen(false)} className="p-1 rounded-lg hover:bg-slate-800">
                 <X className="w-5 h-5" />
@@ -2404,7 +2404,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
               <div>
                 <h2 className="text-xl font-black text-teal-800 tracking-tight">MEDICORE ENTERPRISE HEALTH SYSTEM</h2>
                 <p className="text-xs text-slate-500">Department of Diagnostic Pathology & Clinical Radiology</p>
-                <span className="text-[10px] text-slate-400">Accredited by CAP & CLIA â€¢ ISO 15189 Certified</span>
+                <span className="text-[10px] text-slate-400">Accredited by CAP & CLIA • ISO 15189 Certified</span>
               </div>
               <div className="text-right">
                 <span className="text-xs font-mono font-bold block">REF: #{activePrintReport.id}</span>
@@ -2577,7 +2577,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
             </div>
 
             <h4 className="font-extrabold text-sm text-slate-900 mb-1">{activeVaccine.vaccine}</h4>
-            <p className="text-xs text-slate-500 mb-4">{activeVaccine.issuer} â€¢ Lot #{activeVaccine.lot}</p>
+            <p className="text-xs text-slate-500 mb-4">{activeVaccine.issuer} • Lot #{activeVaccine.lot}</p>
 
             <button
               onClick={() => handlePrintDocument('Immunization QR Passport')}

@@ -163,7 +163,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
     setSecurityConfig(db.getSecurityConfig());
     setAuditLogs(db.getAuditLogs());
     setLockdownModalOpen(false);
-    showToast(securityConfig.lockdownActive ? 'Facility lockdown cleared.' : 'ðŸš¨ Multi-Facility Lockdown Protocol Engaged');
+    showToast(securityConfig.lockdownActive ? 'Facility lockdown cleared.' : '🚨 Multi-Facility Lockdown Protocol Engaged');
   };
 
   const handleSendBroadcast = (e: React.FormEvent) => {
@@ -237,7 +237,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 <span className="font-mono font-bold text-xs">ROOT SECURITY ENGAGED</span>
               </div>
               <h3 className="text-base sm:text-lg font-black mt-0.5">
-                All external facility perimeters locked â€¢ Access restricted to Super Admin & Trauma Critical Response
+                All external facility perimeters locked • Access restricted to Super Admin & Trauma Critical Response
               </h3>
             </div>
           </div>
@@ -245,7 +245,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             onClick={handleToggleLockdown}
             className="px-5 py-2.5 rounded-2xl bg-white text-rose-700 hover:bg-rose-50 font-black text-xs shadow-md transition-all cursor-pointer"
           >
-            Disengage Lockdown Protocol âœ“
+            Disengage Lockdown Protocol ✓
           </button>
         </div>
       )}
@@ -459,7 +459,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                             {fac.status}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-0.5">{fac.city} â€¢ {fac.type}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{fac.city} • {fac.type}</p>
                       </div>
 
                       <div className="text-right shrink-0">
@@ -496,7 +496,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                         onClick={() => showToast(`Synchronized with ${fac.name} telemetry node.`)}
                         className="px-2.5 py-1 rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 font-bold transition-all"
                       >
-                        Node Telemetry â†’
+                        Node Telemetry →
                       </button>
                     </div>
                   </div>
@@ -611,7 +611,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                               : 'bg-rose-500/15 text-rose-500 border-rose-500/30'
                           }`}
                         >
-                          {u.mfaEnabled ? 'âœ“ 2FA Enforced' : 'âœ— 2FA Disabled'}
+                          {u.mfaEnabled ? '✓ 2FA Enforced' : '✕ 2FA Disabled'}
                         </button>
                       </td>
                       <td className="p-4">
@@ -658,7 +658,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             <div>
               <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                 <FileText className="w-5 h-5 text-amber-500" />
-                <span>Immutable HIPAA Security Rule (Â§ 164.312) Audit Trail</span>
+                <span>Immutable HIPAA Security Rule (§ 164.312) Audit Trail</span>
               </h3>
               <p className="text-xs text-slate-400">
                 Cryptographically tracked clinical access, role switches, and emergency overrides
@@ -976,7 +976,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
               </div>
 
               <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-[11px]">
-                â„¹ï¸ <strong>HIPAA Security Notice:</strong> Account will be provisioned with mandatory 2FA enforcement and logged to the master audit dossier.
+                ℹ️  <strong>HIPAA Security Notice:</strong> Account will be provisioned with mandatory 2FA enforcement and logged to the master audit dossier.
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
@@ -991,7 +991,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold shadow-md cursor-pointer"
                 >
-                  Provision User âœ“
+                  Provision User ✓
                 </button>
               </div>
             </form>
@@ -1083,7 +1083,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs shadow-md cursor-pointer"
                 >
-                  Broadcast to All Terminals ðŸ“¡
+                  Broadcast to All Terminals 📡
                 </button>
               </div>
             </form>

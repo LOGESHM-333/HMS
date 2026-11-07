@@ -446,7 +446,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                 <Search className="w-3.5 h-3.5" />
                 <span>Search</span>
                 <kbd className="ml-2 px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-[10px] font-mono text-slate-500">
-                  âŒ˜K
+                  ⌘K
                 </kbd>
               </div>
 
@@ -513,7 +513,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                       Ward overview
                     </h1>
                     <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                      Ward 4 Â· {occupiedBeds} of {totalBeds} beds
+                      Ward 4 · {occupiedBeds} of {totalBeds} beds
                     </span>
                   </div>
 
@@ -640,7 +640,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                     <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                       37.8
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">Â°C</span>
+                    <span className="text-xs text-slate-400 font-medium">°C</span>
                   </div>
                   <div className="text-xs text-slate-400 mb-3">ref 36.1 to 37.2</div>
                   <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800/40">
@@ -739,7 +739,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                       {alertsCount || 3}
                     </span>
                     <span className="text-xs font-bold text-rose-500 flex items-center">
-                      â–² +1
+                      ▲ +1
                     </span>
                   </div>
                 </div>

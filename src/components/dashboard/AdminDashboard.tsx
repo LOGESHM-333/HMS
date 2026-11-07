@@ -204,7 +204,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-extrabold tracking-tight">1,223</span>
                 <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/10 text-emerald-600 flex items-center gap-0.5">
-                  â–² 4.3%
+                  ▲ 4.3%
                 </span>
               </div>
               <p className="text-[10px] text-slate-400 mt-2">Active clinic & in-patient census</p>
@@ -237,7 +237,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-extrabold tracking-tight">74</span>
-                <span className="text-[10px] text-emerald-500 font-semibold">â— 100% Shift Coverage</span>
+                <span className="text-[10px] text-emerald-500 font-semibold">●  100% Shift Coverage</span>
               </div>
               <p className="text-[10px] text-slate-400 mt-2">12 surgical suites active</p>
             </div>
@@ -371,7 +371,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="bg-rose-500 w-[30%]" />
             </div>
             <span className="text-xs font-bold text-rose-500 flex items-center gap-1">
-              â–² High 35.4%
+              ▲ High 35.4%
             </span>
           </div>
         </div>
@@ -486,7 +486,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
                     }`}
                   >
-                    {sym} {active && 'Ã—'}
+                    {sym} {active && '×'}
                   </button>
                 );
               })}
@@ -525,8 +525,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <span className="text-[11px] font-bold text-lime-400 block">Neurology</span>
                 <div className="text-2xl font-black text-lime-400 mt-2">97%</div>
                 <div className="mt-2 text-[10px] text-slate-300 space-y-0.5">
-                  <div>ðŸ‘¥ 72 patient</div>
-                  <div>â±ï¸ 14 min wait</div>
+                  <div>👥 72 patient</div>
+                  <div>⏱ 14 min wait</div>
                 </div>
               </div>
 
@@ -535,8 +535,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <span className="text-[11px] font-bold text-orange-400 block">Pediatric</span>
                 <div className="text-2xl font-black text-orange-400 mt-2">91%</div>
                 <div className="mt-2 text-[10px] text-slate-300 space-y-0.5">
-                  <div>ðŸ‘¥ 58 patient</div>
-                  <div>â±ï¸ 13 min wait</div>
+                  <div>👥 58 patient</div>
+                  <div>⏱ 13 min wait</div>
                 </div>
               </div>
 
@@ -545,8 +545,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <span className="text-[11px] font-bold text-cyan-400 block">Cardiology</span>
                 <div className="text-2xl font-black text-cyan-400 mt-2">95%</div>
                 <div className="mt-2 text-[10px] text-slate-300 space-y-0.5">
-                  <div>ðŸ‘¥ 87 patient</div>
-                  <div>â±ï¸ 12 min wait</div>
+                  <div>👥 87 patient</div>
+                  <div>⏱ 12 min wait</div>
                 </div>
               </div>
             </div>

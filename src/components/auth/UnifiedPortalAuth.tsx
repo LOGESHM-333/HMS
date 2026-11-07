@@ -588,10 +588,10 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
             {/* Footer note */}
             <div className="mt-8 pt-6 border-t text-center" style={{ borderColor: 'var(--color-border)' }}>
               <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                Protected by HIPAA compliance Â· End-to-end encrypted
+                Protected by HIPAA compliance · End-to-end encrypted
               </p>
               <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                MediCore OS Enterprise Â· MySQL-backed Â· v3.0
+                MediCore OS Enterprise · MySQL-backed · v3.0
               </p>
             </div>
           </div>

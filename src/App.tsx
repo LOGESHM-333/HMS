@@ -2,7 +2,7 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  *
- * MediCore HMS â€” DocR-inspired Layout Shell
+ * MediCore HMS — DocR-inspired Layout Shell
  * Complete rewrite preserving all original business logic and modules.
  */
 
@@ -525,12 +525,12 @@ export default function App() {
         >
           <div className="flex items-center gap-2">
             <span style={{ color: 'var(--color-brand-accent)', fontWeight: 700 }}>MediCore OS</span>
-            <span>Â·</span>
+            <span>·</span>
             <span>Enterprise Hospital Operating & Clinical Intelligence System</span>
           </div>
           <div className="hidden sm:flex items-center gap-2 text-[11px]">
             <span>Press</span>
-            <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>âŒ˜</kbd>
+            <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>⌘</kbd>
             <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-surface-2)', border: '1px solid var(--color-border)' }}>K</kbd>
             <span>for Global Search</span>
           </div>
@@ -631,11 +631,11 @@ export default function App() {
             >
               <div className="flex items-center gap-3 text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>â†‘â†“</kbd>
+                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>↑↓</kbd>
                   Navigate
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>â†µ</kbd>
+                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>↵</kbd>
                   Select
                 </span>
                 <span className="flex items-center gap-1">

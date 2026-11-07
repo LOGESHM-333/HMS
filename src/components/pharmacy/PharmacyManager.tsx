@@ -219,7 +219,7 @@ export const PharmacyManager: React.FC<PharmacyManagerProps> = ({ theme }) => {
                     <h3 className="font-bold text-base">{rx.patientName}</h3>
                     <span className="text-xs font-mono text-teal-600 dark:text-teal-400 font-semibold">{rx.id}</span>
                   </div>
-                  <span className="text-xs text-slate-400">Prescribing Physician: {rx.doctorName} • {rx.date}</span>
+                  <span className="text-xs text-slate-400">Prescribing Doctor: {rx.doctorName} • {rx.date}</span>
                 </div>
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20">
                   {rx.status}
