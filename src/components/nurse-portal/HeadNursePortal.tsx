@@ -42,7 +42,9 @@ import {
   Stethoscope,
   X,
   Zap,
-  Building2
+  Building2,
+  ChevronRight,
+  ArrowRight
 } from 'lucide-react';
 
 interface HeadNursePortalProps {
@@ -180,6 +182,8 @@ export const calculateMewsScore = (
 
 export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
   theme,
+  activeSection,
+  onSelectSection,
   onLogout,
   onSwitchToDoctorPortal,
   onSwitchToPatientPortal,
@@ -208,8 +212,21 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<
-    'rounds' | 'mar' | 'triage' | 'sbar' | 'orders' | 'roster' | 'emergency'
-  >('rounds');
+    'dashboard' | 'rounds' | 'mar' | 'triage' | 'sbar' | 'orders' | 'roster' | 'emergency'
+  >('dashboard');
+
+  useEffect(() => {
+    if (activeSection) {
+      if (activeSection === 'nurse-dashboard') setActiveTab('dashboard');
+      else if (activeSection === 'nurse-rounds') setActiveTab('rounds');
+      else if (activeSection === 'nurse-mar') setActiveTab('mar');
+      else if (activeSection === 'nurse-triage') setActiveTab('triage');
+      else if (activeSection === 'nurse-sbar') setActiveTab('sbar');
+      else if (activeSection === 'nurse-orders') setActiveTab('orders');
+      else if (activeSection === 'nurse-roster') setActiveTab('roster');
+      else if (activeSection === 'nurse-emergency') setActiveTab('emergency');
+    }
+  }, [activeSection]);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const showToast = (msg: string) => {
@@ -240,6 +257,24 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
       ...prev,
       [bedNumber]: isNowActive
     }));
+  };
+
+  const handleTabChange = (tab: string) => {
+    sound.playClick();
+    if (onSelectSection) onSelectSection(tab);
+    else {
+      const tabMap: Record<string, any> = {
+        'nurse-dashboard': 'dashboard',
+        'nurse-rounds': 'rounds',
+        'nurse-mar': 'mar',
+        'nurse-triage': 'triage',
+        'nurse-sbar': 'sbar',
+        'nurse-orders': 'orders',
+        'nurse-roster': 'roster',
+        'nurse-emergency': 'emergency'
+      };
+      if (tabMap[tab]) setActiveTab(tabMap[tab]);
+    }
   };
 
   // 1. MAR List
@@ -692,77 +727,355 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
         </div>
       )}
 
-      {/* DOCR HEAD NURSE HEADER */}
-      <div className={`p-5 rounded-2xl border transition-all ${
-        isDark ? 'bg-[#0E2035] border-slate-800 text-white' : 'bg-white border-slate-200 text-[#1E293B] shadow-xs'
-      }`}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
-          <div className="flex items-center gap-3.5">
-            <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1594824813571-638f02614d3f?w=150&auto=format&fit=crop&q=80"
-                alt="Nurse Sarah Jenkins"
-                className="w-12 h-12 rounded-xl object-cover ring-2 ring-teal-500/25 shrink-0"
-              />
-              <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900" />
+      {/* ================= NURSE MODULE 0: NURSE DASHBOARD ================= */}
+      {activeTab === 'dashboard' && (
+        <div className="space-y-6">
+          {/* 1. FOUR CORE NURSE STAT CARDS */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Stat 1: Assigned Beds */}
+            <div
+              onClick={() => handleTabChange('nurse-rounds')}
+              className={`p-5 rounded-2xl border transition-all cursor-pointer hover:scale-[1.01] ${
+                isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white hover:border-teal-500/50' : 'bg-white border-slate-200 text-[#142C43] hover:border-teal-500/50 shadow-xs'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Inpatient Census</span>
+                <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                  <BedIcon className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-2xl font-black">{beds.filter(b => b.status === 'Occupied').length} Admitted Beds</div>
+              <div className="text-xs text-teal-600 dark:text-teal-400 font-semibold mt-1 flex items-center gap-1">
+                <span>{beds.filter(b => b.status === 'Available').length} beds available • Rounding active</span>
+                <ChevronRight className="w-3 h-3" />
+              </div>
             </div>
 
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-lg font-bold tracking-tight">Nurse Sarah Jenkins, RN</h2>
-                <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 font-semibold border border-teal-500/20">
-                  HEAD CHARGE NURSE
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3" />
-                  ICU & Surgical Wing
-                </span>
+            {/* Stat 2: Meds Due (MAR) */}
+            <div
+              onClick={() => handleTabChange('nurse-mar')}
+              className={`p-5 rounded-2xl border transition-all cursor-pointer hover:scale-[1.01] ${
+                isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white hover:border-amber-500/50' : 'bg-white border-slate-200 text-[#142C43] hover:border-amber-500/50 shadow-xs'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Medications Due</span>
+                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                  <Pill className="w-4 h-4" />
+                </div>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5">
-                <span>Shift: <strong className="text-slate-700 dark:text-slate-200">Morning (07:00 - 15:00)</strong></span>
-                <span>•</span>
-                <span>Census: <strong className="text-teal-600 dark:text-teal-400">{beds.filter(b => b.status === 'Occupied').length} Admitted</strong></span>
-                <span>•</span>
-                <span>Meds Due: <strong className="text-amber-500">{marList.filter(m => m.status === 'Due').length} Doses</strong></span>
-                <span>•</span>
-                <span>Orders: <strong className="text-rose-500">{doctorOrders.filter(o => o.status === 'Pending').length} Pending</strong></span>
-              </p>
+              <div className="text-2xl font-black">{marList.filter(m => m.status === 'Due').length} Scheduled Doses</div>
+              <div className="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-1 flex items-center gap-1">
+                <span>{marList.filter(m => m.status === 'Given').length} given today • MAR updated</span>
+                <ChevronRight className="w-3 h-3" />
+              </div>
+            </div>
+
+            {/* Stat 3: Doctor Orders */}
+            <div
+              onClick={() => handleTabChange('nurse-orders')}
+              className={`p-5 rounded-2xl border transition-all cursor-pointer hover:scale-[1.01] ${
+                isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white hover:border-rose-500/50' : 'bg-white border-slate-200 text-[#142C43] hover:border-rose-500/50 shadow-xs'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Doctor Orders</span>
+                <div className="p-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                  <FileText className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-2xl font-black">{doctorOrders.filter(o => o.status === 'Pending').length} Pending Orders</div>
+              <div className="text-xs text-rose-600 dark:text-rose-400 font-semibold mt-1 flex items-center gap-1">
+                <span>{doctorOrders.filter(o => o.priority === 'STAT').length} STAT priority orders</span>
+                <ChevronRight className="w-3 h-3" />
+              </div>
+            </div>
+
+            {/* Stat 4: Staff On Duty */}
+            <div
+              onClick={() => handleTabChange('nurse-roster')}
+              className={`p-5 rounded-2xl border transition-all cursor-pointer hover:scale-[1.01] ${
+                isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white hover:border-blue-500/50' : 'bg-white border-slate-200 text-[#142C43] hover:border-blue-500/50 shadow-xs'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nursing Staff</span>
+                <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                  <Users className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="text-2xl font-black">{nursingStaff.filter(n => n.status === 'On Duty').length} Nurses Active</div>
+              <div className="text-xs text-blue-600 dark:text-blue-400 font-semibold mt-1 flex items-center gap-1">
+                <span>Morning Shift (07:00 - 15:00)</span>
+                <ChevronRight className="w-3 h-3" />
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={() => {
-                sound.playClick();
-                setNewMarModalOpen(true);
-              }}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-teal-500/30 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 hover:bg-teal-100 transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <Pill className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-              <span>+ MAR Dose</span>
-            </button>
+          {/* 2. TWO-COLUMN COMMAND CENTER */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* LEFT COLUMN: Shift Meds Due & High Acuity Patients (7 cols) */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* Card 1: Upcoming Medication Administration (MAR) */}
+              <div className={`p-6 rounded-3xl border ${
+                isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
+              }`}>
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-4">
+                  <div>
+                    <h3 className="font-extrabold text-base tracking-tight">Shift Medications Queue (MAR)</h3>
+                    <p className="text-xs text-slate-400">Scheduled doses due for administration on Ward 4</p>
+                  </div>
+                  <button
+                    onClick={() => handleTabChange('nurse-mar')}
+                    className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Full MAR</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
 
-            <button
-              onClick={() => {
-                sound.playClick();
-                setSbarModalOpen(true);
-              }}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-sky-500/30 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 hover:bg-sky-100 transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <ClipboardList className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-              <span>+ SBAR Handover</span>
-            </button>
+                <div className="space-y-3">
+                  {marList.slice(0, 3).map((item) => (
+                    <div
+                      key={item.id}
+                      className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                        isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
+                          item.status === 'Due' ? 'bg-amber-500/10 text-amber-600' : 'bg-emerald-500/10 text-emerald-600'
+                        }`}>
+                          <Pill className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-extrabold text-sm">{item.medication}</span>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600">
+                              {item.dosage}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-400 mt-0.5">
+                            Bed: <strong className="text-slate-700 dark:text-slate-200">{item.bedNumber}</strong> • {item.patientName} • {item.route}
+                          </p>
+                        </div>
+                      </div>
 
-            <button
-              onClick={() => openVitalsForPatient(patients[0] || DEFAULT_PATIENT)}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#0F52BA] hover:bg-[#0D47A8] text-white transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-            >
-              <Activity className="w-3.5 h-3.5" />
-              <span>Rapid Triage</span>
-            </button>
+                      <div className="flex items-center gap-2 self-start sm:self-center">
+                        {item.status === 'Due' ? (
+                          <button
+                            onClick={() => handleAdministerMed(item.id)}
+                            className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Give Dose</span>
+                          </button>
+                        ) : (
+                          <span className="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-600 flex items-center gap-1">
+                            <Check className="w-3 h-3" />
+                            <span>Given at {item.adminTime}</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Card 2: Acuity Bedside Telemetry Watchlist */}
+              <div className={`p-6 rounded-3xl border ${
+                isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
+              }`}>
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-4">
+                  <div>
+                    <h3 className="font-extrabold text-base tracking-tight">High-Acuity Bedside Telemetry</h3>
+                    <p className="text-xs text-slate-400">MEWS triage risk scores & live bedside parameters</p>
+                  </div>
+                  <button
+                    onClick={() => handleTabChange('nurse-triage')}
+                    className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>All Triage</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {patients.slice(0, 3).map((pat) => {
+                    const sys = parseInt((pat.vitals?.bloodPressure || '120/80').split('/')[0]) || 120;
+                    const hr = pat.vitals?.pulseRate || 74;
+                    const rr = pat.vitals?.respiratoryRate || 16;
+                    const temp = pat.vitals?.temperature || 37.0;
+                    const mews = calculateMewsScore(sys, hr, rr, temp);
+
+                    return (
+                      <div
+                        key={pat.id}
+                        className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                          isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <img src={pat.avatar} alt={pat.name} className="w-10 h-10 rounded-xl object-cover ring-2 ring-teal-500/20 shrink-0" />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-extrabold text-sm">{pat.name}</span>
+                              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-600 font-bold">
+                                {pat.bedNumber || 'ICU-02'}
+                              </span>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${mews.color}`}>
+                                MEWS: {mews.score} ({mews.level})
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-slate-400 mt-1">
+                              <span>BP: <strong className="text-slate-700 dark:text-slate-200">{pat.vitals?.bloodPressure || '120/80'}</strong></span>
+                              <span>•</span>
+                              <span>HR: <strong className="text-slate-700 dark:text-slate-200">{hr} bpm</strong></span>
+                              <span>•</span>
+                              <span>SpO2: <strong className="text-teal-600">{pat.vitals?.oxygenSaturation || 98}%</strong></span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => openVitalsForPatient(pat)}
+                          className="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
+                        >
+                          <Activity className="w-3.5 h-3.5 text-teal-600" />
+                          <span>Log Vitals</span>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN: Pending Doctor Orders & SBAR Handover (5 cols) */}
+            <div className="lg:col-span-5 space-y-6">
+              {/* Card 3: Pending Doctor Orders */}
+              <div className={`p-6 rounded-3xl border ${
+                isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
+              }`}>
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-3">
+                  <div>
+                    <h3 className="font-extrabold text-base tracking-tight">Doctor Orders to Execute</h3>
+                    <p className="text-xs text-slate-400">Clinical orders pending nursing execution</p>
+                  </div>
+                  <button
+                    onClick={() => handleTabChange('nurse-orders')}
+                    className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>View All</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+
+                <div className="space-y-2.5">
+                  {doctorOrders.slice(0, 3).map((order) => (
+                    <div
+                      key={order.id}
+                      className={`p-3.5 rounded-2xl border transition-all ${
+                        isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-bold text-xs">{order.orderType}: {order.patientName}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          order.priority === 'STAT'
+                            ? 'bg-rose-500/10 text-rose-600'
+                            : order.status === 'Completed'
+                              ? 'bg-emerald-500/10 text-emerald-600'
+                              : 'bg-amber-500/10 text-amber-600'
+                        }`}>
+                          {order.priority} • {order.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-300 mb-2">{order.orderText}</p>
+                      <div className="flex items-center justify-between text-[11px] text-slate-400">
+                        <span>Bed: {order.bed} • Ordered by {order.orderedBy}</span>
+                        {order.status === 'Pending' && (
+                          <button
+                            onClick={() => {
+                              setSelectedOrderToExecute(order);
+                              setOrderModalOpen(true);
+                            }}
+                            className="px-2.5 py-1 rounded-lg text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white cursor-pointer"
+                          >
+                            Execute
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Card 4: SBAR Shift Handover Summary */}
+              <div className={`p-6 rounded-3xl border ${
+                isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
+              }`}>
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-3">
+                  <div>
+                    <h3 className="font-extrabold text-base tracking-tight">Recent SBAR Handover</h3>
+                    <p className="text-xs text-slate-400">Shift debrief from attending charge nurse</p>
+                  </div>
+                  <button
+                    onClick={() => handleTabChange('nurse-sbar')}
+                    className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>All SBAR</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {sbarList.slice(0, 2).map((sbar) => (
+                    <div
+                      key={sbar.id}
+                      className={`p-3.5 rounded-2xl border ${
+                        isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="font-bold">{sbar.patientName} ({sbar.bedNumber})</span>
+                        <span className="text-[10px] text-slate-400">{sbar.time}</span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-300 font-medium line-clamp-2">
+                        <strong className="text-teal-600">S:</strong> {sbar.situation}
+                      </p>
+                      <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
+                        <strong className="text-amber-500">R:</strong> {sbar.recommendation}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Card 5: Rapid Response Drill Status */}
+              <div className="p-5 rounded-3xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-300">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-rose-600" />
+                    <span className="font-extrabold text-xs uppercase tracking-wider">Crash Cart & Resuscitation STAT</span>
+                  </div>
+                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                </div>
+                <p className="text-xs text-rose-600 dark:text-rose-300/80 mb-3">
+                  ICU Bed 02 Crash Cart inspected & defibrillator charged. Emergency airway and ACLS medications verified for shift.
+                </p>
+                <button
+                  onClick={toggleCodeBlue}
+                  className="w-full py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition-all shadow-sm cursor-pointer"
+                >
+                  {codeBlueActive ? 'Acknowledge & Clear Code Blue' : 'Simulate Code Blue Resuscitation Alert'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ================= MODULE 1: WARD & BED ROUNDS ================= */}
       {activeTab === 'rounds' && (

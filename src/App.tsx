@@ -135,7 +135,7 @@ export default function App() {
     if (saved === 'super-admin') return 'overview';
     if (saved === 'patient') return 'patient-health';
     if (saved === 'doctor') return 'doctor-overview';
-    if (saved === 'nurse') return 'nurse-rounds';
+    if (saved === 'nurse') return 'nurse-dashboard';
     return 'dashboard';
   });
 
@@ -330,7 +330,7 @@ export default function App() {
           onLoginNurse={() => {
             setPortalMode('nurse');
             setCurrentRole('NURSE');
-            setCurrentTab('nurse-rounds');
+            setCurrentTab('nurse-dashboard');
             localStorage.setItem('medicore_portal_mode', 'nurse');
             localStorage.setItem('medicore_authenticated', 'true');
             setIsAuthenticated(true);
@@ -548,7 +548,7 @@ export default function App() {
               )}
               {currentTab === 'patients' && <PatientDirectory theme={theme} onSelectPatientFor3D={(p: Patient) => { db.setSelectedPatient(p.id); setSelectedPatient(p); }} />}
               {currentTab === 'beds' && <BedManagement theme={theme} />}
-              {currentTab === 'ward' && <WardOverview theme={theme} currentRole={currentRole} onNavigateTab={handleTabChange} />}
+              {/* Ward Overview removed for nurse */}
               {currentTab === 'settings' && (
                 <SettingsView
                   theme={theme}

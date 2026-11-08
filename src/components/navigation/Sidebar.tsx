@@ -46,7 +46,7 @@ export type NavTab =
   | 'patient-messages' | 'patient-nutrition' | 'patient-emergency'
   | 'doctor-overview' | 'doctor-chat' | 'doctor-patients' | 'doctor-rx' | 'doctor-labs'
   | 'doctor-schedule' | 'doctor-soap' | 'doctor-3d' | 'doctor-alerts'
-  | 'nurse-mar' | 'nurse-triage' | 'nurse-sbar' | 'nurse-orders' | 'nurse-roster' | 'nurse-emergency';
+  | 'nurse-dashboard' | 'nurse-mar' | 'nurse-triage' | 'nurse-sbar' | 'nurse-orders' | 'nurse-roster' | 'nurse-emergency';
 
 interface NavItem {
   id: NavTab;
@@ -66,11 +66,11 @@ interface NavGroup {
 const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Overview',
-    roles: ['super-admin', 'admin', 'management', 'doctor', 'nurse'],
+    roles: ['super-admin', 'admin', 'management', 'doctor'],
     items: [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'management'] },
       { id: 'overview', label: 'Enterprise Overview', icon: Building2, roles: ['super-admin'] },
-      { id: 'ward', label: 'Ward Overview', icon: Layers, roles: ['admin', 'management', 'nurse'] },
+      { id: 'ward', label: 'Ward Overview', icon: Layers, roles: ['admin', 'management'] },
       { id: 'analytics', label: 'Analytics & Reports', icon: BarChart3, roles: ['admin', 'management', 'super-admin'] },
     ],
   },
@@ -108,6 +108,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: 'doctor-soap', label: 'SOAP Notes & EMR', icon: ClipboardList, roles: ['doctor'] },
       { id: 'doctor-3d', label: '3D Organ Telemetry', icon: Heart, roles: ['doctor'] },
       { id: 'doctor-alerts', label: 'Critical Code Alerts', icon: ShieldCheck, roles: ['doctor'], badge: 'Alert', badgeVariant: 'danger' },
+      { id: 'nurse-dashboard', label: 'Nurse Dashboard', icon: LayoutDashboard, roles: ['nurse'] },
       { id: 'nurse-rounds', label: 'Ward & Bed Rounds', icon: Bed, roles: ['nurse'] },
       { id: 'nurse-mar', label: 'MAR Medication Admin', icon: Pill, roles: ['nurse'], badge: '3' },
       { id: 'nurse-triage', label: 'Vitals & MEWS Triage', icon: Activity, roles: ['nurse'] },
