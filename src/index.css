@@ -215,7 +215,8 @@
   display: flex;
   flex-direction: column;
 }
-.sidebar-collapsed .docr-main {
+.sidebar-collapsed .docr-main,
+.docr-sidebar.collapsed ~ .docr-main {
   margin-left: var(--sidebar-collapsed-width);
 }
 

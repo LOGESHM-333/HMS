@@ -154,6 +154,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(db.getSelectedPatient());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Auth init portal category
   const [initAuthCategory, setInitAuthCategory] = useState<AuthPortalCategory>(() => {
@@ -362,7 +363,7 @@ export default function App() {
   // AUTHENTICATED LAYOUT
   // ============================================================
   return (
-    <div className={`docr-layout ${isDark ? 'dark' : ''}`}>
+    <div className={`docr-layout ${isDark ? 'dark' : ''} ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
 
       {/* ===== SIDEBAR ===== */}
       <Sidebar
@@ -376,6 +377,8 @@ export default function App() {
         userAvatar={getUserAvatar()}
         mobileOpen={mobileMenuOpen}
         onMobileClose={() => setMobileMenuOpen(false)}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
 
       {/* ===== MAIN CONTENT AREA ===== */}

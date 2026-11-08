@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { UserRole, ThemeMode } from '../../types';
 import { Avatar, Badge } from '../ui';
+import { sound } from '../../services/audioService';
 
 export type NavTab =
   | 'dashboard' | 'ward' | 'analytics' | 'overview'
@@ -146,6 +147,8 @@ interface SidebarProps {
   userAvatar?: string;
   mobileOpen?: boolean;
   onMobileClose?: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -159,8 +162,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
   userAvatar,
   mobileOpen = false,
   onMobileClose,
+  collapsed: externalCollapsed,
+  onToggleCollapse,
 }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
+  const collapsed = externalCollapsed !== undefined ? externalCollapsed : internalCollapsed;
+  const toggleCollapse = () => {
+    sound.playClick();
+    if (onToggleCollapse) {
+      onToggleCollapse();
+    } else {
+      setInternalCollapsed(!internalCollapsed);
+    }
+  };
   const isDark = theme === 'dark';
 
   // Filter groups & items by portal mode
@@ -245,8 +259,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Collapse toggle on desktop */}
           <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="hidden md:flex p-1.5 rounded-lg transition-colors ml-auto"
+            onClick={toggleCollapse}
+            className="hidden md:flex p-1.5 rounded-lg transition-colors ml-auto cursor-pointer"
             style={{ color: 'var(--color-text-muted)', background: 'var(--color-surface-2)' }}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
