@@ -44,7 +44,8 @@ export type NavTab =
   | 'patient-records' | 'patient-vaccines' | 'patient-billing'
   | 'patient-messages' | 'patient-nutrition' | 'patient-emergency'
   | 'doctor-overview' | 'doctor-chat' | 'doctor-patients' | 'doctor-rx' | 'doctor-labs'
-  | 'doctor-schedule' | 'doctor-soap' | 'doctor-3d' | 'doctor-alerts';
+  | 'doctor-schedule' | 'doctor-soap' | 'doctor-3d' | 'doctor-alerts'
+  | 'nurse-mar' | 'nurse-triage' | 'nurse-sbar' | 'nurse-orders' | 'nurse-roster' | 'nurse-emergency';
 
 interface NavItem {
   id: NavTab;
@@ -106,7 +107,13 @@ const NAV_GROUPS: NavGroup[] = [
       { id: 'doctor-soap', label: 'SOAP Notes & EMR', icon: ClipboardList, roles: ['doctor'] },
       { id: 'doctor-3d', label: '3D Organ Telemetry', icon: Heart, roles: ['doctor'] },
       { id: 'doctor-alerts', label: 'Critical Code Alerts', icon: ShieldCheck, roles: ['doctor'], badge: 'Alert', badgeVariant: 'danger' },
-      { id: 'nurse-rounds', label: 'Nursing Station', icon: Syringe, roles: ['nurse'] },
+      { id: 'nurse-rounds', label: 'Ward & Bed Rounds', icon: Bed, roles: ['nurse'] },
+      { id: 'nurse-mar', label: 'MAR Medication Admin', icon: Pill, roles: ['nurse'], badge: '3' },
+      { id: 'nurse-triage', label: 'Vitals & MEWS Triage', icon: Activity, roles: ['nurse'] },
+      { id: 'nurse-sbar', label: 'SBAR Shift Handover', icon: ClipboardList, roles: ['nurse'] },
+      { id: 'nurse-orders', label: 'Doctor Orders Queue', icon: FileText, roles: ['nurse'], badge: 'Pending', badgeVariant: 'warning' },
+      { id: 'nurse-roster', label: 'Nurse Staff Roster', icon: Users, roles: ['nurse'] },
+      { id: 'nurse-emergency', label: 'Rapid Response SOS', icon: ShieldCheck, roles: ['nurse'], badge: 'Alert', badgeVariant: 'danger' },
       { id: 'patient-health', label: 'Health Summary & 3D', icon: Heart, roles: ['patient'] },
       { id: 'patient-appointments', label: 'Appointments', icon: Calendar, roles: ['patient'] },
       { id: 'patient-prescriptions', label: 'Prescriptions', icon: Pill, roles: ['patient'] },

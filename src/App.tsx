@@ -255,12 +255,34 @@ export default function App() {
   const doctors = db.getDoctors();
   const currentDoctor = doctors[0];
 
+  const [profileVersion, setProfileVersion] = useState(0);
+
+  const getProfile = () => {
+    try {
+      const saved = localStorage.getItem(`medicore_user_profile_${portalMode}`);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return null;
+  };
+
   const getUserName = () => {
-    if (portalMode === 'doctor') return currentDoctor?.name || 'Dr. Roger S.';
-    if (portalMode === 'patient') return selectedPatient?.name || patients[0]?.name || 'Patient';
-    if (portalMode === 'super-admin') return 'Dr. Chief Admin';
-    if (portalMode === 'nurse') return 'Head Nurse Sarah';
-    return 'Admin User';
+    const custom = getProfile();
+    if (custom?.name) return custom.name;
+    if (portalMode === 'doctor') return currentDoctor?.name || 'Dr. Roger S., MD';
+    if (portalMode === 'patient') return selectedPatient?.name || patients[0]?.name || 'Magnus Stephenson';
+    if (portalMode === 'super-admin') return 'Enterprise Director Harrison Cole';
+    if (portalMode === 'nurse') return 'Nurse Sarah Jenkins, RN';
+    return 'Chief Admin David Vance';
+  };
+
+  const getUserAvatar = () => {
+    const custom = getProfile();
+    if (custom?.avatar) return custom.avatar;
+    if (portalMode === 'doctor') return 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80';
+    if (portalMode === 'patient') return selectedPatient?.avatar || patients[0]?.avatar;
+    if (portalMode === 'super-admin') return 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80';
+    if (portalMode === 'nurse') return 'https://images.unsplash.com/photo-1594824813571-638f02614d3f?w=150&auto=format&fit=crop&q=80';
+    return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
   };
 
   // Filtered search results
@@ -351,6 +373,7 @@ export default function App() {
         theme={theme}
         onLogout={handleLogout}
         userName={getUserName()}
+        userAvatar={getUserAvatar()}
         mobileOpen={mobileMenuOpen}
         onMobileClose={() => setMobileMenuOpen(false)}
       />
@@ -431,7 +454,15 @@ export default function App() {
                 <StaffManagement theme={theme} />
               )}
               {currentTab === 'settings' && (
-                <SettingsView theme={theme} />
+                <SettingsView
+                  theme={theme}
+                  onThemeToggle={handleToggleTheme}
+                  portalMode={portalMode}
+                  currentRole={currentRole}
+                  selectedPatient={selectedPatient || undefined}
+                  onLogout={handleLogout}
+                  onProfileUpdate={() => setProfileVersion(v => v + 1)}
+                />
               )}
             </>
           )}
@@ -458,7 +489,17 @@ export default function App() {
               {currentTab === 'emr' && <MedicalRecords theme={theme} onOpen3DAnatomy={(p: Patient) => { db.setSelectedPatient(p.id); setSelectedPatient(p); }} />}
               {currentTab === 'staff' && <StaffManagement theme={theme} />}
               {currentTab === 'analytics' && <AnalyticsReports theme={theme} />}
-              {currentTab === 'settings' && <SettingsView theme={theme} />}
+              {currentTab === 'settings' && (
+                <SettingsView
+                  theme={theme}
+                  onThemeToggle={handleToggleTheme}
+                  portalMode={portalMode}
+                  currentRole={currentRole}
+                  selectedPatient={selectedPatient || undefined}
+                  onLogout={handleLogout}
+                  onProfileUpdate={() => setProfileVersion(v => v + 1)}
+                />
+              )}
             </>
           )}
 
@@ -475,16 +516,28 @@ export default function App() {
                   onLogout={handleLogout}
                 />
               )}
-              {currentTab === 'settings' && <SettingsView theme={theme} />}
+              {currentTab === 'settings' && (
+                <SettingsView
+                  theme={theme}
+                  onThemeToggle={handleToggleTheme}
+                  portalMode={portalMode}
+                  currentRole={currentRole}
+                  selectedPatient={selectedPatient || undefined}
+                  onLogout={handleLogout}
+                  onProfileUpdate={() => setProfileVersion(v => v + 1)}
+                />
+              )}
             </>
           )}
 
           {/* =========== NURSE PORTAL ROUTES =========== */}
           {portalMode === 'nurse' && (
             <>
-              {currentTab === 'nurse-rounds' && (
+              {currentTab.startsWith('nurse-') && (
                 <HeadNursePortal
                   theme={theme}
+                  activeSection={currentTab}
+                  onSelectSection={handleTabChange}
                   onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}
                   onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
                   onLogout={handleLogout}
@@ -493,7 +546,17 @@ export default function App() {
               {currentTab === 'patients' && <PatientDirectory theme={theme} onSelectPatientFor3D={(p: Patient) => { db.setSelectedPatient(p.id); setSelectedPatient(p); }} />}
               {currentTab === 'beds' && <BedManagement theme={theme} />}
               {currentTab === 'ward' && <WardOverview theme={theme} currentRole={currentRole} onNavigateTab={handleTabChange} />}
-              {currentTab === 'settings' && <SettingsView theme={theme} />}
+              {currentTab === 'settings' && (
+                <SettingsView
+                  theme={theme}
+                  onThemeToggle={handleToggleTheme}
+                  portalMode={portalMode}
+                  currentRole={currentRole}
+                  selectedPatient={selectedPatient || undefined}
+                  onLogout={handleLogout}
+                  onProfileUpdate={() => setProfileVersion(v => v + 1)}
+                />
+              )}
             </>
           )}
 
@@ -512,7 +575,17 @@ export default function App() {
                   onLogout={handleLogout}
                 />
               )}
-              {currentTab === 'settings' && <SettingsView theme={theme} />}
+              {currentTab === 'settings' && (
+                <SettingsView
+                  theme={theme}
+                  onThemeToggle={handleToggleTheme}
+                  portalMode={portalMode}
+                  currentRole={currentRole}
+                  selectedPatient={selectedPatient || undefined}
+                  onLogout={handleLogout}
+                  onProfileUpdate={() => setProfileVersion(v => v + 1)}
+                />
+              )}
             </>
           )}
 
