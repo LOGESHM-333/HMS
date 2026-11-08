@@ -740,62 +740,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
       {/* ================= DOCTOR MODULE 0: DOCTOR OVERVIEW DASHBOARD ================= */}
       {activeTab === 'doctor-overview' && (
         <div className="space-y-6">
-          {/* 1. DOCTOR WELCOME & ACTION BANNER */}
-          <div className={`p-6 rounded-[28px] border transition-all ${
-            isDark ? 'bg-[#0E2035] border-slate-800 text-white shadow-lg' : 'bg-white border-slate-200 text-[#142C43] shadow-md'
-          }`}>
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/20">
-                    Clinical Duty: Shift 08:00 - 16:00
-                  </span>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Ward 4 Station Active
-                  </span>
-                </div>
-                <h2 className="text-2xl font-black tracking-tight">Good Day, Dr. Roger S., MD</h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Lead Pulmonologist & Critical Care Specialist • 4 consultations scheduled today, 5 inpatients currently admitted.
-                </p>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  onClick={() => setRxModalOpen(true)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Write Rx</span>
-                </button>
-                <button
-                  onClick={() => setLabModalOpen(true)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold border border-teal-500/40 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 hover:bg-teal-100 transition-all flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Activity className="w-3.5 h-3.5 text-teal-600" />
-                  <span>Order Lab / Scan</span>
-                </button>
-                <button
-                  onClick={() => setSoapModalOpen(true)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold border border-amber-500/40 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 transition-all flex items-center gap-1.5 cursor-pointer"
-                >
-                  <ClipboardList className="w-3.5 h-3.5 text-amber-600" />
-                  <span>SOAP Note</span>
-                </button>
-                <button
-                  onClick={() => setBroadcastModalOpen(true)}
-                  className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                >
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>Code Blue</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* 2. DOCTOR 4 CORE STAT CARDS */}
+          {/* 1. DOCTOR 4 CORE STAT CARDS */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Stat 1: Consultations */}
             <div
