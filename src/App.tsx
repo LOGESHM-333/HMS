@@ -134,7 +134,7 @@ export default function App() {
     const saved = localStorage.getItem('medicore_portal_mode');
     if (saved === 'super-admin') return 'overview';
     if (saved === 'patient') return 'patient-health';
-    if (saved === 'doctor') return 'doctor-consult';
+    if (saved === 'doctor') return 'doctor-overview';
     if (saved === 'nurse') return 'nurse-rounds';
     return 'dashboard';
   });
@@ -298,7 +298,7 @@ export default function App() {
           onLoginDoctor={(doctor?: Doctor) => {
             setPortalMode('doctor');
             setCurrentRole('DOCTOR');
-            setCurrentTab('doctor-consult');
+            setCurrentTab('doctor-overview');
             localStorage.setItem('medicore_portal_mode', 'doctor');
             localStorage.setItem('medicore_authenticated', 'true');
             setIsAuthenticated(true);

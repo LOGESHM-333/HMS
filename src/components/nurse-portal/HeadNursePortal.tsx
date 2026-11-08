@@ -47,6 +47,8 @@ import {
 
 interface HeadNursePortalProps {
   theme: ThemeMode;
+  activeSection?: string;
+  onSelectSection?: (section: string) => void;
   onLogout?: () => void;
   onSwitchToDoctorPortal?: () => void;
   onSwitchToPatientPortal?: () => void;

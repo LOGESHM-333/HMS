@@ -43,7 +43,7 @@ export type NavTab =
   | 'patient-appointments' | 'patient-prescriptions' | 'patient-labs'
   | 'patient-records' | 'patient-vaccines' | 'patient-billing'
   | 'patient-messages' | 'patient-nutrition' | 'patient-emergency'
-  | 'doctor-chat' | 'doctor-patients' | 'doctor-rx' | 'doctor-labs'
+  | 'doctor-overview' | 'doctor-chat' | 'doctor-patients' | 'doctor-rx' | 'doctor-labs'
   | 'doctor-schedule' | 'doctor-soap' | 'doctor-3d' | 'doctor-alerts';
 
 interface NavItem {
@@ -97,6 +97,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Portal',
     roles: ['doctor', 'nurse', 'patient'],
     items: [
+      { id: 'doctor-overview', label: 'Doctor Overview', icon: LayoutDashboard, roles: ['doctor'] },
       { id: 'doctor-chat', label: 'Patient Inquiries & Tele-Chat', icon: Stethoscope, roles: ['doctor'] },
       { id: 'doctor-patients', label: 'Inpatient Rounds & Rosters', icon: Bed, roles: ['doctor'], badge: '5' },
       { id: 'doctor-rx', label: 'E-Prescriptions & Refills', icon: Pill, roles: ['doctor'], badge: '2' },
@@ -167,7 +168,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     'super-admin': { label: 'Super Admin', color: 'badge-purple' },
     'admin': { label: 'Hospital Admin', color: 'badge-info' },
     'management': { label: 'Management', color: 'badge-info' },
-    'doctor': { label: 'Physician', color: 'badge-success' },
+    'doctor': { label: 'Doctor', color: 'badge-success' },
     'nurse': { label: 'Head Nurse', color: 'badge-warning' },
     'patient': { label: 'Patient', color: 'badge-neutral' },
   };
