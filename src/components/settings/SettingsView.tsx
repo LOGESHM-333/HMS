@@ -419,7 +419,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           }`}
         >
           <Lock className="w-3.5 h-3.5" />
-          <span>Security & Password</span>
+          <span>{portalMode === 'patient' ? 'Security & Access' : 'Security & Password'}</span>
         </button>
 
         <button
@@ -884,119 +884,168 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* ========================================================================= */}
       {activeTab === 'security' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* CHANGE PASSWORD (7 Cols) */}
-          <div className={`lg:col-span-7 p-6 rounded-3xl border ${
-            isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
-          }`}>
-            <div className="pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
-              <h4 className="font-extrabold text-base">Rotate & Change Security Password</h4>
-              <p className="text-xs text-slate-400">Passwords must adhere to HIPAA/SOC-2 256-bit entropy requirements.</p>
-            </div>
-
-            {pwError && (
-              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 text-xs font-bold mb-4 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
-                <span>{pwError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleUpdatePassword} className="space-y-4">
-              {/* Current Password */}
-              <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1.5">Current Password</label>
-                <div className="relative">
-                  <Key className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type={showCurrentPw ? 'text' : 'password'}
-                    value={currentPassword}
-                    onChange={e => setCurrentPassword(e.target.value)}
-                    placeholder="Enter existing password"
-                    className={`w-full pl-10 pr-10 py-2.5 rounded-xl text-xs font-semibold border outline-none transition-all ${
-                      isDark ? 'bg-slate-900/60 border-slate-800 text-white focus:border-teal-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-teal-500'
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowCurrentPw(!showCurrentPw)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+          {portalMode === 'patient' ? (
+            /* HOSPITAL GOVERNANCE CARD FOR PATIENTS (NO PASSWORD CHANGE FORM) */
+            <div className={`lg:col-span-7 p-6 rounded-3xl border ${
+              isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
+            }`}>
+              <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
+                <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-600 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-base">Centrally Managed Patient Credentials</h4>
+                  <p className="text-xs text-slate-400">Maintained and secured by Hospital Management & Medical Records Department</p>
                 </div>
               </div>
 
-              {/* New Password */}
-              <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1.5">New Password</label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type={showNewPw ? 'text' : 'password'}
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
-                    placeholder="Minimum 8 characters with numbers & symbols"
-                    className={`w-full pl-10 pr-10 py-2.5 rounded-xl text-xs font-semibold border outline-none transition-all ${
-                      isDark ? 'bg-slate-900/60 border-slate-800 text-white focus:border-teal-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-teal-500'
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPw(!showNewPw)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
+              <div className="space-y-4">
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Patient account credentials and session access logs are centrally maintained by the Hospital Administration & Medical Records Department (MRD) to guarantee continuity of care, attending physician access, and HIPAA/NABH compliance.
+                </p>
 
-                {/* Strength Meter */}
-                {newPassword && (
-                  <div className="mt-2 space-y-1">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-slate-400">Password Strength:</span>
-                      <span className="font-bold">{pwStrength.label}</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div className={`h-full ${pwStrength.color} transition-all duration-300`} style={{ width: `${pwStrength.score}%` }} />
-                    </div>
+                <div className={`p-4 rounded-2xl border space-y-2.5 text-xs ${
+                  isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">Account Governance:</span>
+                    <span className="font-bold text-teal-600">MediCore Enterprise Hospital Administration</span>
                   </div>
-                )}
-              </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">Patient Identifier:</span>
+                    <span className="font-mono font-bold">{profile.identifier}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">Session Audit Level:</span>
+                    <span className="font-bold text-emerald-500">Continuous 256-Bit Telemetry Logged</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400">Credential Assistance:</span>
+                    <span className="font-semibold">MRD Central Desk (Ext: 104) / reception@medicore.in</span>
+                  </div>
+                </div>
 
-              {/* Confirm Password */}
-              <div>
-                <label className="block text-xs font-bold text-slate-400 mb-1.5">Confirm New Password</label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type={showConfirmPw ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    placeholder="Re-enter new password"
-                    className={`w-full pl-10 pr-10 py-2.5 rounded-xl text-xs font-semibold border outline-none transition-all ${
-                      isDark ? 'bg-slate-900/60 border-slate-800 text-white focus:border-teal-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-teal-500'
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPw(!showConfirmPw)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showConfirmPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+                <div className="p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-300 text-xs flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-teal-600" />
+                  <span>Password changes are handled centrally by the hospital; no manual rotation is required.</span>
                 </div>
               </div>
-
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  className="w-full py-2.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Key className="w-3.5 h-3.5" />
-                  <span>Update Password & Re-Encrypt Keys</span>
-                </button>
+            </div>
+          ) : (
+            /* CHANGE PASSWORD (7 Cols) FOR STAFF PORTALS */
+            <div className={`lg:col-span-7 p-6 rounded-3xl border ${
+              isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
+            }`}>
+              <div className="pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
+                <h4 className="font-extrabold text-base">Rotate & Change Security Password</h4>
+                <p className="text-xs text-slate-400">Passwords must adhere to HIPAA/SOC-2 256-bit entropy requirements.</p>
               </div>
-            </form>
-          </div>
+
+              {pwError && (
+                <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 text-xs font-bold mb-4 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>{pwError}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleUpdatePassword} className="space-y-4">
+                {/* Current Password */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Current Password</label>
+                  <div className="relative">
+                    <Key className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type={showCurrentPw ? 'text' : 'password'}
+                      value={currentPassword}
+                      onChange={e => setCurrentPassword(e.target.value)}
+                      placeholder="Enter existing password"
+                      className={`w-full pl-10 pr-10 py-2.5 rounded-xl text-xs font-semibold border outline-none transition-all ${
+                        isDark ? 'bg-slate-900/60 border-slate-800 text-white focus:border-teal-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-teal-500'
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPw(!showCurrentPw)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* New Password */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1.5">New Password</label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type={showNewPw ? 'text' : 'password'}
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      placeholder="Minimum 8 characters with numbers & symbols"
+                      className={`w-full pl-10 pr-10 py-2.5 rounded-xl text-xs font-semibold border outline-none transition-all ${
+                        isDark ? 'bg-slate-900/60 border-slate-800 text-white focus:border-teal-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-teal-500'
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPw(!showNewPw)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+
+                  {/* Strength Meter */}
+                  {newPassword && (
+                    <div className="mt-2 space-y-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-slate-400">Password Strength:</span>
+                        <span className="font-bold">{pwStrength.label}</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div className={`h-full ${pwStrength.color} transition-all duration-300`} style={{ width: `${pwStrength.score}%` }} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1.5">Confirm New Password</label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type={showConfirmPw ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      placeholder="Re-enter new password"
+                      className={`w-full pl-10 pr-10 py-2.5 rounded-xl text-xs font-semibold border outline-none transition-all ${
+                        isDark ? 'bg-slate-900/60 border-slate-800 text-white focus:border-teal-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-teal-500'
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPw(!showConfirmPw)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showConfirmPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <Key className="w-3.5 h-3.5" />
+                    <span>Update Password & Re-Encrypt Keys</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
 
           {/* TWO FACTOR & SECURITY CONTROLS (5 Cols) */}
           <div className="lg:col-span-5 space-y-6">
