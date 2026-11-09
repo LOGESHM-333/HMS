@@ -2509,7 +2509,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="font-bold block mb-1">Physician</label>
+                  <label className="font-bold block mb-1">Attending Doctor</label>
                   <input
                     type="text"
                     value={historyDoctor}
@@ -2534,7 +2534,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                 <textarea
                   value={historyNotes}
                   onChange={e => setHistoryNotes(e.target.value)}
-                  placeholder="Enter detailed physician notes..."
+                  placeholder="Enter detailed doctor clinical notes..."
                   rows={3}
                   className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                 />

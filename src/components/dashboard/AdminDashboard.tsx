@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -11,7 +11,6 @@ import {
 } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
-import { AnatomyViewer } from '../3d/AnatomyViewer';
 import { 
   TrendingUp, 
   Users, 
@@ -26,14 +25,21 @@ import {
   ArrowUpRight, 
   Sparkles,
   Sliders,
-  CheckCircle2
+  CheckCircle2,
+  Building2,
+  Stethoscope,
+  Layers,
+  AlertTriangle,
+  ArrowRight,
+  ShieldCheck,
+  Check
 } from 'lucide-react';
 
 interface AdminDashboardProps {
   theme: ThemeMode;
   currentRole: UserRole;
   onNavigateTab: (tab: string) => void;
-  onSelectPatient: (pat: Patient) => void;
+  onSelectPatient?: (pat: Patient) => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -43,10 +49,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onSelectPatient
 }) => {
   const isDark = theme === 'dark';
-  const selectedPatient = db.getSelectedPatient();
   const alerts = db.getAlerts();
 
-  // Interactive symptoms selector state (from video 1)
+  // Interactive symptoms selector state
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([
     'Chest Pain', 'Fatigue', 'Dizziness'
   ]);
@@ -77,6 +82,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     { day: 'Sat', admissions: 275 },
   ];
 
+  // Hospital Department Capacity & Occupancy
+  const departments = [
+    { name: 'Intensive Care Unit (ICU)', occupied: 12, total: 14, percent: 86, status: 'High Acuity', note: '2 Ventilators Active', color: 'bg-rose-500', text: 'text-rose-500', bg: 'bg-rose-500/10' },
+    { name: 'Emergency & Trauma Center', occupied: 18, total: 20, percent: 90, status: 'Inflow Active', note: '4 in triage queue', color: 'bg-amber-500', text: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { name: 'Surgical Recovery (Post-Op)', occupied: 24, total: 28, percent: 86, status: 'Post-Op Rounds', note: '6 OR Handovers today', color: 'bg-teal-500', text: 'text-teal-500', bg: 'bg-teal-500/10' },
+    { name: 'Cardiology & CCU Pavilion', occupied: 10, total: 12, percent: 83, status: 'Telemetry Active', note: 'All vitals monitored', color: 'bg-cyan-500', text: 'text-cyan-500', bg: 'bg-cyan-500/10' },
+    { name: 'General Medicine Wards', occupied: 36, total: 48, percent: 75, status: 'Normal Flow', note: '12 Beds Ready for Admission', color: 'bg-emerald-500', text: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+    { name: 'Pediatrics & Maternity Wing', occupied: 12, total: 18, percent: 67, status: 'Stable Flow', note: '6 Beds Available', color: 'bg-purple-500', text: 'text-purple-500', bg: 'bg-purple-500/10' },
+  ];
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-500 pb-12">
       {/* DOCR DASHBOARD HEADER */}
@@ -94,7 +109,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Real-time clinical telemetry & hospital operations overview.
+              Real-time hospital operations, multi-ward bed occupancy, and enterprise clinical metrics.
             </p>
           </div>
 
@@ -124,29 +139,106 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         </div>
       </div>
-      {/* TOP SECTION: 3D ANATOMY ENGINE & PRIMARY KPI GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column (7 cols): Interactive 3D Anatomy Visualizer */}
+
+      {/* TOP SECTION: HOSPITAL OPERATIONS MONITOR (ALTERNATIVE TO 3D ANATOMY) & PRIMARY KPI GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column (7 cols): Enterprise Hospital Operations & Departmental Census */}
         <div className="lg:col-span-7 flex flex-col gap-6">
-          <div className="relative rounded-3xl overflow-hidden shadow-sm">
-            <AnatomyViewer 
-              patient={selectedPatient} 
-              theme={theme} 
-              initialSystem="thoracic"
-            />
+          <div className={`p-6 rounded-3xl border transition-all ${
+            isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
+          }`}>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800 mb-5">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-extrabold text-base tracking-tight">Hospital Facility Operations & Ward Census</h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600 border border-teal-500/20">
+                    LIVE
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">Real-time departmental capacity and bed occupancy across CityCare Central</p>
+              </div>
+
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onNavigateTab('beds');
+                }}
+                className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-center"
+              >
+                <span>Bed Manager</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Department Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {departments.map((dept, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => {
+                    sound.playClick();
+                    onNavigateTab('beds');
+                  }}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer hover:border-teal-500/40 ${
+                    isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200/80'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="font-bold text-xs truncate pr-2">{dept.name}</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${dept.bg} ${dept.text}`}>
+                      {dept.status}
+                    </span>
+                  </div>
+
+                  <div className="flex items-baseline justify-between text-xs mb-1.5">
+                    <span className="text-slate-400">
+                      Occupancy: <strong className="text-slate-700 dark:text-slate-200">{dept.occupied} / {dept.total} Beds</strong>
+                    </span>
+                    <span className="font-black text-xs">{dept.percent}%</span>
+                  </div>
+
+                  <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mb-1.5">
+                    <div className={`h-full rounded-full ${dept.color}`} style={{ width: `${dept.percent}%` }} />
+                  </div>
+
+                  <div className="text-[10px] text-slate-400">{dept.note}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Facility Highlights Bar */}
+            <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+              <div className="p-2.5 rounded-xl bg-teal-500/5 border border-teal-500/15">
+                <span className="text-[10px] font-bold text-slate-400 block uppercase">Operating Theaters</span>
+                <span className="font-black text-sm text-teal-600">4 / 6 Active</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/15">
+                <span className="text-[10px] font-bold text-slate-400 block uppercase">ER Wait Time</span>
+                <span className="font-black text-sm text-emerald-500">14 min avg</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-blue-500/5 border border-blue-500/15">
+                <span className="text-[10px] font-bold text-slate-400 block uppercase">Blood Bank</span>
+                <span className="font-black text-sm text-blue-600">100% Stock</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-purple-500/5 border border-purple-500/15">
+                <span className="text-[10px] font-bold text-slate-400 block uppercase">Pharmacy Stock</span>
+                <span className="font-black text-sm text-purple-600">98.6% Ready</span>
+              </div>
+            </div>
           </div>
 
-          {/* Recovery, Bed, and Care Efficiency Sub-Card (from Video 1) */}
+          {/* Recovery, Bed, and Care Efficiency Sub-Card */}
           <div className={`p-5 rounded-3xl border transition-all ${
             isDark 
               ? 'bg-[#0E2035]/80 border-slate-800 text-white' 
-              : 'bg-white border-teal-100/80 text-[#142C43] shadow-xs'
+              : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
           }`}>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 items-center">
               {/* Patient Recovery */}
               <div>
                 <span className="text-[11px] font-semibold text-slate-400 block mb-1">
-                  Patient Recovery
+                  Overall Patient Recovery Rate
                 </span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-black text-emerald-500">86</span>
@@ -160,7 +252,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {/* Bed Utilization */}
               <div>
                 <span className="text-[11px] font-semibold text-slate-400 block mb-1">
-                  Bed Utilization
+                  Hospital Bed Utilization
                 </span>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-black text-amber-500">86</span>
@@ -194,9 +286,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* 4 KPI Cards Grid */}
           <div className="grid grid-cols-2 gap-4">
             {/* Total Patients */}
-            <div className={`p-4 rounded-3xl border transition-all hover:scale-[1.02] cursor-pointer ${
-              isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
-            }`}>
+            <div 
+              onClick={() => { sound.playClick(); onNavigateTab('patients'); }}
+              className={`p-4 rounded-3xl border transition-all hover:scale-[1.02] cursor-pointer ${
+                isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
+              }`}
+            >
               <div className="flex items-center justify-between text-slate-400 mb-2">
                 <span className="text-xs font-semibold">Total Patients</span>
                 <Users className="w-4 h-4 text-teal-500" />
@@ -211,9 +306,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             {/* Available Beds */}
-            <div className={`p-4 rounded-3xl border transition-all hover:scale-[1.02] cursor-pointer ${
-              isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
-            }`}>
+            <div 
+              onClick={() => { sound.playClick(); onNavigateTab('beds'); }}
+              className={`p-4 rounded-3xl border transition-all hover:scale-[1.02] cursor-pointer ${
+                isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
+              }`}
+            >
               <div className="flex items-center justify-between text-slate-400 mb-2">
                 <span className="text-xs font-semibold">Available Beds</span>
                 <Bed className="w-4 h-4 text-cyan-500" />
@@ -228,24 +326,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             {/* Duty Doctor */}
-            <div className={`p-4 rounded-3xl border transition-all hover:scale-[1.02] cursor-pointer ${
-              isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
-            }`}>
+            <div 
+              onClick={() => { sound.playClick(); onNavigateTab('staff'); }}
+              className={`p-4 rounded-3xl border transition-all hover:scale-[1.02] cursor-pointer ${
+                isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
+              }`}
+            >
               <div className="flex items-center justify-between text-slate-400 mb-2">
-                <span className="text-xs font-semibold">Duty Doctor</span>
+                <span className="text-xs font-semibold">Duty Doctors</span>
                 <Activity className="w-4 h-4 text-amber-500" />
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-extrabold tracking-tight">74</span>
-                <span className="text-[10px] text-emerald-500 font-semibold">●  100% Shift Coverage</span>
+                <span className="text-[10px] text-emerald-500 font-semibold">● 100% Shift</span>
               </div>
               <p className="text-[10px] text-slate-400 mt-2">12 surgical suites active</p>
             </div>
 
             {/* Appointments */}
-            <div className={`p-4 rounded-3xl border transition-all hover:scale-[1.02] cursor-pointer ${
-              isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
-            }`}>
+            <div 
+              onClick={() => { sound.playClick(); onNavigateTab('appointments'); }}
+              className={`p-4 rounded-3xl border transition-all hover:scale-[1.02] cursor-pointer ${
+                isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
+              }`}
+            >
               <div className="flex items-center justify-between text-slate-400 mb-2">
                 <span className="text-xs font-semibold">Appointments</span>
                 <Calendar className="w-4 h-4 text-blue-500" />
@@ -258,7 +362,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           </div>
 
-          {/* Patient Admission Trend Graph (Direct Recreation of Video 1 Chart) */}
+          {/* Patient Admission Trend Graph */}
           <div className={`p-5 rounded-3xl border transition-all flex-1 flex flex-col justify-between ${
             isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
           }`}>
@@ -345,114 +449,103 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       </div>
 
-      {/* CARDIOVASCULAR & BIOMARKER DETAILED REPORT (Direct recreation of Video 2) */}
+      {/* HOSPITAL CLINICAL QUALITY & SAFETY GOVERNANCE INDEX */}
       <div className={`p-6 rounded-3xl border transition-all ${
-        isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-teal-100/80 text-[#142C43] shadow-xs'
+        isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
       }`}>
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
-              <Heart className="w-5 h-5 animate-pulse" />
+              <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base tracking-tight">Cardiovascular System Clinical Index</h3>
+              <h3 className="font-extrabold text-base tracking-tight">Hospital Clinical Quality & Patient Safety Index</h3>
               <p className="text-xs text-slate-400">
-                Risk score projection & circulatory aging algorithm
+                NABH & JCI quality governance metrics, infection control compliance, and care outcomes.
               </p>
             </div>
           </div>
 
-          {/* Risk Score bar */}
-          <div className="flex items-center gap-4">
-            <span className="text-xs font-semibold text-slate-400">Risk Score:</span>
-            <div className="w-48 bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden flex">
-              <div className="bg-emerald-500 w-[30%]" />
-              <div className="bg-amber-500 w-[40%]" />
-              <div className="bg-rose-500 w-[30%]" />
-            </div>
-            <span className="text-xs font-bold text-rose-500 flex items-center gap-1">
-              ▲ High 35.4%
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold text-slate-400">Hospital Accreditation Score:</span>
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5" />
+              <span>NABH Level 5 (94.8% Optimal)</span>
             </span>
           </div>
         </div>
 
-        {/* 3 Metric Summary Blocks */}
+        {/* 3 Hospital Operational Metric Blocks */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          {/* Heart age vs Chronological age */}
+          {/* Average Length of Stay */}
           <div className={`p-4 rounded-2xl border flex items-center justify-between ${
-            isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-teal-50/40 border-teal-100/60'
+            isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200/80'
           }`}>
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-500/10 text-rose-500">
-                  +4 yrs
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/10 text-emerald-600">
+                  -0.4 Days
                 </span>
-                <span className="text-xs font-semibold text-slate-400">Heart age</span>
+                <span className="text-xs font-semibold text-slate-400">Avg Length of Stay (ALOS)</span>
               </div>
               <div className="text-3xl font-extrabold mt-1">
-                48 <span className="text-xs font-normal text-slate-400">yrs</span>
+                3.8 <span className="text-xs font-normal text-slate-400">days</span>
               </div>
+              <span className="text-[10px] text-slate-400 mt-1 block">Hospital Target: &lt; 4.2 days</span>
             </div>
 
             <ChevronRight className="w-4 h-4 text-slate-400" />
-
-            <div>
-              <span className="text-xs font-semibold text-slate-400 block">Chronological</span>
-              <div className="text-3xl font-extrabold mt-1 text-slate-600 dark:text-slate-300">
-                40 <span className="text-xs font-normal text-slate-400">yrs</span>
-              </div>
-            </div>
           </div>
 
           {/* Key Areas of Concern */}
           <div className={`p-4 rounded-2xl border flex flex-col justify-between ${
-            isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-teal-50/40 border-teal-100/60'
+            isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200/80'
           }`}>
-            <span className="text-xs font-semibold text-slate-400">Key Areas of Concern</span>
+            <span className="text-xs font-semibold text-slate-400">Clinical Safety Benchmark</span>
             <div className="grid grid-cols-3 gap-2 mt-2">
               <div>
-                <span className="text-[10px] text-slate-400 block">Blood Pressure</span>
-                <div className="text-xs font-bold mt-0.5">110/80</div>
-                <span className="text-[9px] text-emerald-500 font-semibold">Normal</span>
+                <span className="text-[10px] text-slate-400 block">Infection Rate</span>
+                <div className="text-xs font-bold mt-0.5 text-emerald-500">0.12%</div>
+                <span className="text-[9px] text-slate-400">Benchmark &lt; 0.5%</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 block">HbA1c</span>
-                <div className="text-xs font-bold mt-0.5">5.1%</div>
-                <span className="text-[9px] text-teal-500 font-semibold">Optimal</span>
+                <span className="text-[10px] text-slate-400 block">Med. Errors</span>
+                <div className="text-xs font-bold mt-0.5 text-teal-600">0.00%</div>
+                <span className="text-[9px] text-emerald-500 font-semibold">Zero Target</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 block">Cholesterol</span>
-                <div className="text-xs font-bold mt-0.5">190 mg/dL</div>
-                <span className="text-[9px] text-amber-500 font-semibold">Borderline High</span>
+                <span className="text-[10px] text-slate-400 block">Readmissions</span>
+                <div className="text-xs font-bold mt-0.5 text-blue-500">2.4%</div>
+                <span className="text-[9px] text-slate-400">Optimal Range</span>
               </div>
             </div>
           </div>
 
-          {/* Pulse Rate Circular Gauge */}
+          {/* Patient Satisfaction */}
           <div className={`p-4 rounded-2xl border flex items-center justify-between ${
-            isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-teal-50/40 border-teal-100/60'
+            isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200/80'
           }`}>
             <div>
-              <span className="text-xs font-semibold text-slate-400 block">Pulse Rate</span>
+              <span className="text-xs font-semibold text-slate-400 block">Patient Satisfaction (NPS)</span>
               <div className="text-3xl font-black mt-1 text-teal-600 dark:text-teal-400">
-                54 <span className="text-xs font-normal text-slate-400">bpm</span>
+                +78 <span className="text-xs font-normal text-slate-400">NPS</span>
               </div>
-              <span className="text-[10px] text-slate-400">08:12 AM Telemetry</span>
+              <span className="text-[10px] text-emerald-500 font-semibold">96.2% Positive Feedback</span>
             </div>
 
             <div className="space-y-1 text-right">
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 block">
-                Stress: Mild
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600 block">
+                Discharge: 42m
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 block">
-                Sleep: Good
+                Quality: Excellent
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* BOTTOM CONTRASTING DIAGNOSTIC PANEL (DIRECT RECREATION OF VIDEO 1 DARK BOTTOM BAR) */}
+      {/* BOTTOM CONTRASTING DIAGNOSTIC PANEL */}
       <div className="rounded-3xl p-6 bg-[#07111E] text-white border border-slate-800 shadow-2xl space-y-6">
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">

@@ -1541,7 +1541,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
-                Physician Orders Execution Queue
+                Doctor Orders Execution Queue
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Doctor instructions awaiting nursing execution (STAT blood draws, IV lines, wound care).
@@ -2003,7 +2003,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
       {orderModalOpen && selectedOrderToExecute && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
           <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800">
-            <h3 className="font-extrabold text-base mb-1">Execute Physician Order</h3>
+            <h3 className="font-extrabold text-base mb-1">Execute Doctor Order</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
               Order: &ldquo;{selectedOrderToExecute.orderText}&rdquo; ({selectedOrderToExecute.patientName})
             </p>

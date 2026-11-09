@@ -170,10 +170,10 @@ export const BillingManager: React.FC<BillingManagerProps> = ({ theme }) => {
 
                 {/* Totals */}
                 <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 space-y-1.5 text-xs text-right">
-                  <div className="text-slate-400">Subtotal: <strong className="text-slate-700 dark:text-slate-200 font-mono">${selectedInvoice.subtotal.toFixed(2)}</strong></div>
-                  <div className="text-slate-400">Sales Tax / Facility Surcharge: <strong className="text-slate-700 dark:text-slate-200 font-mono">${selectedInvoice.tax.toFixed(2)}</strong></div>
+                  <div className="text-slate-400">Subtotal: <strong className="text-slate-700 dark:text-slate-200 font-mono">₹{selectedInvoice.subtotal.toFixed(2)}</strong></div>
+                  <div className="text-slate-400">Sales Tax / Facility Surcharge: <strong className="text-slate-700 dark:text-slate-200 font-mono">₹{selectedInvoice.tax.toFixed(2)}</strong></div>
                   {selectedInvoice.discount > 0 && (
-                    <div className="text-emerald-500 font-semibold">Insurance Coverage Discount: -${selectedInvoice.discount.toFixed(2)}</div>
+                    <div className="text-emerald-500 font-semibold">Insurance Coverage Discount: -₹{selectedInvoice.discount.toFixed(2)}</div>
                   )}
                   <div className="text-base font-extrabold text-teal-600 dark:text-teal-400 pt-2 border-t border-slate-100 dark:border-slate-800">
                     Grand Total: ₹{selectedInvoice.grandTotal.toFixed(2)}

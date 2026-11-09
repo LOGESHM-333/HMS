@@ -46,7 +46,7 @@ export const DoctorDirectory: React.FC<DoctorDirectoryProps> = ({ theme }) => {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black tracking-tight">Medical Staff & Attending Physicians</h2>
+          <h2 className="text-2xl font-black tracking-tight">Medical Staff & Attending Doctors</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Certified consultants, department heads, and surgical specialists
           </p>

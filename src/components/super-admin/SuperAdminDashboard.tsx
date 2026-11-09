@@ -378,7 +378,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
               isDark ? 'bg-slate-900/70 border-slate-800' : 'bg-white/90 border-slate-200 shadow-xs'
             }`}>
               <div className="flex items-center justify-between text-slate-400 mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider">Active Physicians On Duty</span>
+                <span className="text-xs font-bold uppercase tracking-wider">Active Doctors On Duty</span>
                 <Stethoscope className="w-4 h-4 text-teal-500" />
               </div>
               <div className="flex items-baseline gap-2">
@@ -463,7 +463,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                       </div>
 
                       <div className="text-right shrink-0">
-                        <span className="text-xs font-bold text-slate-500 block">Physicians</span>
+                        <span className="text-xs font-bold text-slate-500 block">Doctors</span>
                         <span className="text-base font-black text-teal-600 dark:text-teal-400">{fac.dutyPhysicians} On Duty</span>
                       </div>
                     </div>
@@ -941,7 +941,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                   >
                     <option value="HOSPITAL_ADMIN">Hospital Admin</option>
                     <option value="SUPER_ADMIN">Super Admin</option>
-                    <option value="DOCTOR">Attending Physician</option>
+                    <option value="DOCTOR">Attending Doctor</option>
                     <option value="NURSE">Head Charge Nurse</option>
                     <option value="PHARMACIST">Pharmacist</option>
                     <option value="LAB_TECH">Lab Technologist</option>

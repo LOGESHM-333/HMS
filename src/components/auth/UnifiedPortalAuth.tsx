@@ -63,7 +63,7 @@ const PORTAL_CONFIG: Record<AuthPortalCategory, {
     badge: 'Self Service',
   },
   doctor: {
-    label: 'Physician Portal',
+    label: 'Doctor Portal',
     desc: 'Clinical consultation desk, prescriptions, and SOAP notes',
     icon: Stethoscope,
     color: '#3B82F6',

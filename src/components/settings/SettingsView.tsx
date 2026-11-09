@@ -901,7 +901,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
               <div className="space-y-4">
                 <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Patient account credentials and session access logs are centrally maintained by the Hospital Administration & Medical Records Department (MRD) to guarantee continuity of care, attending physician access, and HIPAA/NABH compliance.
+                  Patient account credentials and session access logs are centrally maintained by the Hospital Administration & Medical Records Department (MRD) to guarantee continuity of care, attending doctor access, and HIPAA/NABH compliance.
                 </p>
 
                 <div className={`p-4 rounded-2xl border space-y-2.5 text-xs ${
@@ -1058,7 +1058,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <ShieldCheck className="w-5 h-5 text-teal-600" />
               </div>
               <p className="text-xs text-slate-400 mb-4">
-                Require OTP challenge verification during physician or nurse login from unrecognized hospital terminals.
+                Require OTP challenge verification during doctor or nurse login from unrecognized hospital terminals.
               </p>
 
               <div className={`p-3.5 rounded-2xl border flex items-center justify-between ${

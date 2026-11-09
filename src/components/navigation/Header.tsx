@@ -88,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
   const roles: { role: UserRole; label: string; desc: string }[] = [
     { role: 'SUPER_ADMIN', label: 'Super Admin', desc: 'Hospital Chief & Full Access' },
     { role: 'HOSPITAL_ADMIN', label: 'Hospital Admin', desc: 'Operations & Bed Resources' },
-    { role: 'DOCTOR', label: 'Attending Physician', desc: 'Clinical Orders & SOAP Notes' },
+    { role: 'DOCTOR', label: 'Attending Doctor', desc: 'Clinical Orders & SOAP Notes' },
     { role: 'NURSE', label: 'Head Nurse', desc: 'Ward Vitals & Patient Bed Flow' },
     { role: 'PATIENT', label: 'Patient View', desc: 'Essential Personal Health Records' },
   ];
@@ -116,7 +116,7 @@ export const Header: React.FC<HeaderProps> = ({
               : (portalMode === 'admin' || portalMode === 'management')
                 ? 'Hospital Enterprise Operations' 
                 : portalMode === 'doctor'
-                  ? 'Physician Consultation & Tele-Chat'
+                  ? 'Doctor Consultation & Tele-Chat'
                   : portalMode === 'nurse'
                     ? 'Head Nurse Clinical Station'
                     : 'Patient Self-Service'}
@@ -278,7 +278,7 @@ export const Header: React.FC<HeaderProps> = ({
         {portalMode === 'doctor' && (
           <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold text-cyan-600 dark:text-cyan-400">
             <Stethoscope className="w-4 h-4 text-cyan-500" />
-            <span>Physician Clinical Station • Dr. Roger S., MD</span>
+            <span>Doctor Clinical Station • Dr. Roger S., MD</span>
           </div>
         )}
 
@@ -410,7 +410,7 @@ export const Header: React.FC<HeaderProps> = ({
                       : portalMode === 'patient' 
                         ? 'Verified Patient #PT-88412' 
                         : portalMode === 'doctor' 
-                          ? 'Attending Physician #DOC-402' 
+                          ? 'Attending Doctor #DOC-402' 
                           : portalMode === 'nurse'
                             ? 'Head Charge Nurse • ICU Station'
                             : 'Hospital Operations Administrator'}
