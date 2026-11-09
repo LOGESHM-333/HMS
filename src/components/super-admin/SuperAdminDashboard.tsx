@@ -256,18 +256,18 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
       }`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-600 to-[#0F52BA] flex items-center justify-center text-white font-bold shadow-xs shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-[#142C43] dark:bg-slate-800 border border-slate-700/60 flex items-center justify-center text-teal-400 font-bold shadow-xs shrink-0">
               <ShieldCheck className="w-6 h-6" />
             </div>
 
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-lg font-bold tracking-tight">Dr. Eleanor Vance, MD, CISSP</h1>
-                <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 font-semibold border border-purple-500/20 flex items-center gap-1">
+                <span className="font-mono text-xs px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border border-slate-200 dark:border-slate-700 flex items-center gap-1">
                   <Sparkles className="w-3 h-3" />
                   SUPER ADMIN • ROOT TIER 0
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20">
                   HIPAA Security Enforced
                 </span>
               </div>
@@ -287,7 +287,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 sound.playClick();
                 setNewUserModalOpen(true);
               }}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#0F52BA] hover:bg-[#0D47A8] text-white transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5" />
               <span>+ Provision Admin</span>
@@ -298,17 +298,17 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 sound.playClick();
                 setBroadcastModalOpen(true);
               }}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-rose-500/30 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-300 hover:bg-rose-100 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-rose-400/60 hover:text-rose-600 transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <Radio className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
+              <Radio className="w-3.5 h-3.5 text-rose-500" />
               <span>STAT Broadcast</span>
             </button>
 
             <button
               onClick={handleTriggerBackup}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-sky-500/30 bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 hover:bg-sky-100 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750 transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <Database className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+              <Database className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
               <span>Backup Snapshot</span>
             </button>
           </div>
@@ -338,7 +338,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 }}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-amber-500 text-white shadow-md shadow-amber-500/25'
+                    ? 'bg-slate-900 text-white dark:bg-teal-600 dark:text-white shadow-xs'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
                 }`}
               >
@@ -360,14 +360,14 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             }`}>
               <div className="flex items-center justify-between text-slate-400 mb-2">
                 <span className="text-xs font-bold uppercase tracking-wider">Enterprise Inpatient Census</span>
-                <Building2 className="w-4 h-4 text-amber-500" />
+                <Building2 className="w-4 h-4 text-teal-600 dark:text-teal-400" />
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-black text-slate-900 dark:text-white">{totalOccupiedBeds}</span>
                 <span className="text-xs text-slate-400 font-bold">/ {totalNetworkBeds} Beds</span>
               </div>
               <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
-                <div style={{ width: `${networkOccupancyRate}%` }} className="h-full bg-amber-500 rounded-full" />
+                <div style={{ width: `${networkOccupancyRate}%` }} className="h-full bg-teal-600 dark:bg-teal-500 rounded-full" />
               </div>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 block">
                 {networkOccupancyRate}% Total Capacity Utilization
@@ -382,7 +382,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 <Stethoscope className="w-4 h-4 text-teal-500" />
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-teal-600 dark:text-teal-400">{totalPhysicians}</span>
+                <span className="text-3xl font-black text-slate-900 dark:text-white">{totalPhysicians}</span>
                 <span className="text-xs text-slate-400 font-bold">Doctors across 4 branches</span>
               </div>
               <span className="text-[11px] text-emerald-500 font-bold mt-4 block flex items-center gap-1">
@@ -395,10 +395,10 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             }`}>
               <div className="flex items-center justify-between text-slate-400 mb-2">
                 <span className="text-xs font-bold uppercase tracking-wider">System High-Availability</span>
-                <Server className="w-4 h-4 text-cyan-500" />
+                <Server className="w-4 h-4 text-teal-600 dark:text-teal-400" />
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-cyan-600 dark:text-cyan-400">99.98%</span>
+                <span className="text-3xl font-black text-slate-900 dark:text-white">99.98%</span>
                 <span className="text-xs text-slate-400 font-bold">Uptime (30d)</span>
               </div>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-4 block">
@@ -411,10 +411,10 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             }`}>
               <div className="flex items-center justify-between text-slate-400 mb-2">
                 <span className="text-xs font-bold uppercase tracking-wider">Enterprise Revenue (YTD)</span>
-                <IndianRupee className="w-4 h-4 text-emerald-500" />
+                <IndianRupee className="w-4 h-4 text-teal-600 dark:text-teal-400" />
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400">₹14.8 Cr</span>
+                <span className="text-3xl font-black text-slate-900 dark:text-white">₹14.8 Cr</span>
                 <span className="text-xs font-bold text-emerald-500">+12.4% vs LY</span>
               </div>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-4 block">
@@ -427,7 +427,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-amber-500" />
+                <Building2 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
                 <span>Connected Multi-Facility Hospital Nodes</span>
               </h3>
               <span className="text-xs font-bold text-slate-400">Live Telemetry Synchronized</span>
@@ -449,12 +449,12 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                       <div>
                         <div className="flex items-center gap-2">
                           <h4 className="font-extrabold text-base text-slate-900 dark:text-white">{fac.name}</h4>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                             fac.status === 'Optimal' 
-                              ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/30'
+                              ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
                               : fac.status === 'High Load'
-                                ? 'bg-amber-500/10 text-amber-600 border border-amber-500/30'
-                                : 'bg-rose-500/10 text-rose-600 border border-rose-500/30 animate-pulse'
+                                ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                                : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
                           }`}>
                             {fac.status}
                           </span>
@@ -464,7 +464,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
 
                       <div className="text-right shrink-0">
                         <span className="text-xs font-bold text-slate-500 block">Doctors</span>
-                        <span className="text-base font-black text-teal-600 dark:text-teal-400">{fac.dutyPhysicians} On Duty</span>
+                        <span className="text-base font-bold text-slate-900 dark:text-white">{fac.dutyPhysicians} On Duty</span>
                       </div>
                     </div>
 
@@ -485,7 +485,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                           <strong className="text-slate-900 dark:text-white">{fac.icusOccupied} / {fac.icusTotal} ({icuRate}%)</strong>
                         </div>
                         <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                          <div style={{ width: `${icuRate}%` }} className={`h-full rounded-full ${icuRate > 90 ? 'bg-rose-500' : 'bg-amber-500'}`} />
+                          <div style={{ width: `${icuRate}%` }} className={`h-full rounded-full ${icuRate > 90 ? 'bg-rose-500' : 'bg-slate-600 dark:bg-slate-400'}`} />
                         </div>
                       </div>
                     </div>
@@ -494,7 +494,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                       <span>Medical Director: <strong className="text-slate-700 dark:text-slate-300">{fac.director}</strong></span>
                       <button
                         onClick={() => showToast(`Synchronized with ${fac.name} telemetry node.`)}
-                        className="px-2.5 py-1 rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 font-bold transition-all"
+                        className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 hover:underline transition-all"
                       >
                         Node Telemetry →
                       </button>
@@ -657,7 +657,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                <FileText className="w-5 h-5 text-amber-500" />
+                <FileText className="w-5 h-5 text-teal-600 dark:text-teal-400" />
                 <span>Immutable HIPAA Security Rule (§ 164.312) Audit Trail</span>
               </h3>
               <p className="text-xs text-slate-400">
@@ -681,7 +681,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
 
               <button
                 onClick={handleExportAuditDossier}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold border border-amber-500/40 bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 flex items-center gap-1.5 shadow-xs transition-all"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center gap-1.5 shadow-xs transition-all"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Export Dossier (CSV)</span>
@@ -712,7 +712,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                       <td className="p-4 text-slate-400 whitespace-nowrap">{log.timestamp}</td>
                       <td className="p-4 font-sans font-bold text-slate-900 dark:text-white">
                         <div>{log.userName}</div>
-                        <span className="text-[10px] text-amber-500 font-mono font-normal">{log.userRole}</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-normal">{log.userRole}</span>
                       </td>
                       <td className="p-4">
                         <span className="px-2 py-0.5 rounded font-black text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
@@ -765,7 +765,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             }`}>
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold text-slate-400 uppercase">Database & Storage Engine</span>
-                <span className="px-2 py-0.5 rounded text-[10px] font-black bg-cyan-500/15 text-cyan-500 border border-cyan-500/30">
+                <span className="px-2 py-0.5 rounded text-[10px] font-black bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
                   HEALTHY
                 </span>
               </div>
@@ -780,7 +780,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Last Cold Snapshot:</span>
-                  <strong className="text-amber-500">{securityConfig.lastBackupTime}</strong>
+                  <strong className="text-slate-700 dark:text-slate-300">{securityConfig.lastBackupTime}</strong>
                 </div>
               </div>
             </div>
@@ -804,7 +804,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 </button>
                 <button
                   onClick={handleTriggerBackup}
-                  className="w-full py-2 px-3 rounded-xl border border-teal-500/40 bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <HardDrive className="w-3.5 h-3.5" />
                   <span>Trigger Cold Vault Snapshot</span>
@@ -837,20 +837,20 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 <div>
                   <div className="flex justify-between mb-1 font-semibold">
                     <span>Medicare / Medicaid CMS</span>
-                    <strong className="text-amber-500">42% (₹6.2 Cr)</strong>
+                    <strong className="text-slate-700 dark:text-slate-300">42% (₹6.2 Cr)</strong>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                    <div className="h-full bg-amber-500 rounded-full w-[42%]" />
+                    <div className="h-full bg-slate-700 dark:bg-slate-400 rounded-full w-[42%]" />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between mb-1 font-semibold">
                     <span>Private & Self-Pay</span>
-                    <strong className="text-cyan-500">12% (₹1.8 Cr)</strong>
+                    <strong className="text-slate-500 dark:text-slate-400">12% (₹1.8 Cr)</strong>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                    <div className="h-full bg-cyan-500 rounded-full w-[12%]" />
+                    <div className="h-full bg-slate-400 dark:bg-slate-600 rounded-full w-[12%]" />
                   </div>
                 </div>
               </div>
