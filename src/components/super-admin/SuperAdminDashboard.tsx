@@ -287,7 +287,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 sound.playClick();
                 setNewUserModalOpen(true);
               }}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-bold glass-btn-teal flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <UserPlus className="w-3.5 h-3.5" />
               <span>+ Provision Admin</span>
@@ -298,15 +298,15 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 sound.playClick();
                 setBroadcastModalOpen(true);
               }}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-rose-400/60 hover:text-rose-600 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-extrabold glass-btn-ruby flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
-              <Radio className="w-3.5 h-3.5 text-rose-500" />
+              <Radio className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
               <span>STAT Broadcast</span>
             </button>
 
             <button
               onClick={handleTriggerBackup}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-semibold glass-btn-neutral flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <Database className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
               <span>Backup Snapshot</span>

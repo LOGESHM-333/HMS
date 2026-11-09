@@ -656,7 +656,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                 sound.playClick();
                 setVitalsModalOpen(true);
               }}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-teal-500/30 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 hover:bg-teal-100 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 rounded-2xl text-xs font-semibold glass-btn-neutral flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <Activity className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
               <span>Log Vitals</span>

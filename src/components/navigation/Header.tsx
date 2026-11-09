@@ -306,12 +306,12 @@ export const Header: React.FC<HeaderProps> = ({
                   sound.playClick();
                   onOpenSearch();
                 }}
-                className="hidden md:flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-xs text-slate-400 hover:border-teal-500/50 hover:text-slate-600 dark:hover:text-slate-200 shadow-xs transition-all cursor-pointer"
+                className="hidden md:flex items-center gap-2.5 px-4 py-2 rounded-full glass-btn-neutral text-xs cursor-pointer shadow-xs transition-all"
                 title="Global Search (Ctrl+K / Cmd+K)"
               >
                 <Search className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                <span className="text-[11px] font-medium">Search patients, beds, doctors...</span>
-                <kbd className="ml-1.5 px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">Ctrl+K</kbd>
+                <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300">Search patients, beds, doctors...</span>
+                <kbd className="ml-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-white/80 dark:bg-slate-800 text-teal-700 dark:text-teal-300 border border-teal-500/20 shadow-2xs">Ctrl+K</kbd>
               </button>
 
               <button
@@ -319,7 +319,7 @@ export const Header: React.FC<HeaderProps> = ({
                   sound.playClick();
                   onOpenSearch();
                 }}
-                className="md:hidden w-10 h-10 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-all shadow-xs cursor-pointer"
+                className="md:hidden w-10 h-10 rounded-full glass-btn-neutral flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all shadow-xs cursor-pointer"
                 title="Global Search (Ctrl+K / Cmd+K)"
               >
                 <Search className="w-4 h-4 text-teal-600 dark:text-teal-400" />

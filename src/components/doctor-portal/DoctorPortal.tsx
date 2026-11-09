@@ -1302,7 +1302,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
               </span>
               <button
                 onClick={() => setSoapModalOpen(true)}
-                className="px-4 py-2 rounded-full text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 transition-all flex items-center gap-1.5 shadow-sm"
+                className="px-5 py-2.5 rounded-2xl text-xs font-bold glass-btn-teal flex items-center gap-2 shadow-xs cursor-pointer"
               >
                 <ClipboardList className="w-3.5 h-3.5" />
                 <span>Document Rounding SOAP</span>

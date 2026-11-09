@@ -392,3 +392,4 @@ export const PrintableInvoiceModal: React.FC<PrintableInvoiceModalProps> = ({
     </div>
   );
 };
+
