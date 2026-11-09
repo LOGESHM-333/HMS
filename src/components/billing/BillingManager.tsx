@@ -10,7 +10,7 @@ import { sound } from '../../services/audioService';
 import { 
   Receipt, 
   CreditCard, 
-  DollarSign, 
+  IndianRupee, 
   TrendingUp, 
   CheckCircle2, 
   Clock, 

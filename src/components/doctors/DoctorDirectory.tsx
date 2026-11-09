@@ -16,8 +16,7 @@ import {
   Award, 
   Filter, 
   Search, 
-  CheckCircle2,
-  DollarSign
+  CheckCircle2
 } from 'lucide-react';
 
 interface DoctorDirectoryProps {

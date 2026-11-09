@@ -16,8 +16,7 @@ import {
   Search, 
   Filter, 
   Clock, 
-  CheckCircle2, 
-  DollarSign 
+  CheckCircle2 
 } from 'lucide-react';
 
 interface PharmacyManagerProps {

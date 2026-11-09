@@ -23,7 +23,7 @@ import {
   CheckCircle2,
   Radio,
   Sliders,
-  DollarSign,
+  IndianRupee,
   TrendingUp,
   Cpu,
   Database,
@@ -325,7 +325,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             { id: 'rbac', label: 'Role-Based Access (RBAC) Governance', icon: Users },
             { id: 'audit', label: 'HIPAA & Compliance Audit Trail', icon: FileText },
             { id: 'infrastructure', label: 'API & Server Infrastructure', icon: Server },
-            { id: 'financials', label: 'Enterprise Financial Intelligence', icon: DollarSign },
+            { id: 'financials', label: 'Enterprise Financial Intelligence', icon: IndianRupee },
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -411,7 +411,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
             }`}>
               <div className="flex items-center justify-between text-slate-400 mb-2">
                 <span className="text-xs font-bold uppercase tracking-wider">Enterprise Revenue (YTD)</span>
-                <DollarSign className="w-4 h-4 text-emerald-500" />
+                <IndianRupee className="w-4 h-4 text-emerald-500" />
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400">₹14.8 Cr</span>
