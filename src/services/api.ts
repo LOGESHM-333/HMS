@@ -70,6 +70,20 @@ export const api = {
   deletePatient: (id: string) => 
     request<{ message: string; patient: Patient }>(`/patients/${id}`, { method: 'DELETE' }),
 
+  // Discharge patient → PostgreSQL/MySQL admission_status = 'Discharged', bed released
+  dischargePatient: (id: string, opts?: { reason?: string; dischargedBy?: string; notes?: string }) =>
+    request<{ success: boolean; patient: Patient; dischargeDate: string; dischargeTime: string; message: string }>(
+      `/patients/${id}/discharge`,
+      { method: 'POST', body: JSON.stringify(opts || {}) }
+    ),
+
+  // Admit patient → PostgreSQL/MySQL admission_status = 'Admitted'/'ICU', bed assigned
+  admitPatient: (id: string, opts?: { ward?: string; bedNumber?: string; admissionStatus?: string; admittingDoctor?: string; notes?: string }) =>
+    request<{ success: boolean; patient: Patient; admitDate: string; admitTime: string; message: string }>(
+      `/patients/${id}/admit`,
+      { method: 'POST', body: JSON.stringify(opts || {}) }
+    ),
+
   // Doctors
   getDoctors: () => request<Doctor[]>('/doctors'),
 

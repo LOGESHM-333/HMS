@@ -174,6 +174,109 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS alerts (
+    id VARCHAR(64) PRIMARY KEY,
+    title VARCHAR(500) NOT NULL,
+    department VARCHAR(255) NOT NULL,
+    severity VARCHAR(32) NOT NULL DEFAULT 'low',
+    time VARCHAR(64) NOT NULL,
+    action_required TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS claims (
+    id VARCHAR(64) PRIMARY KEY,
+    invoice_id VARCHAR(64),
+    patient_id VARCHAR(64) REFERENCES patients(id) ON DELETE CASCADE,
+    policy_number VARCHAR(128),
+    provider VARCHAR(255),
+    claim_amount NUMERIC(12, 2) NOT NULL DEFAULT 0.00,
+    diagnosis_code VARCHAR(64),
+    status VARCHAR(64) NOT NULL DEFAULT 'Submitted',
+    date DATE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+    id VARCHAR(64) PRIMARY KEY,
+    patient_id VARCHAR(64) REFERENCES patients(id) ON DELETE CASCADE,
+    patient_name VARCHAR(255),
+    doctor_id VARCHAR(64),
+    doctor_name VARCHAR(255),
+    sender VARCHAR(16) NOT NULL DEFAULT 'patient',
+    sender_name VARCHAR(255),
+    text TEXT NOT NULL,
+    timestamp VARCHAR(32) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS meals (
+    id VARCHAR(64) PRIMARY KEY,
+    patient_id VARCHAR(64) REFERENCES patients(id) ON DELETE CASCADE,
+    meal_type VARCHAR(32) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    calories INT NOT NULL DEFAULT 0,
+    sodium_mg INT NOT NULL DEFAULT 0,
+    carbs_g INT NOT NULL DEFAULT 0,
+    timestamp VARCHAR(32) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS immunizations (
+    id VARCHAR(64) PRIMARY KEY,
+    patient_id VARCHAR(64) REFERENCES patients(id) ON DELETE CASCADE,
+    vaccine_name VARCHAR(255) NOT NULL,
+    dose VARCHAR(64) NOT NULL,
+    date DATE NOT NULL,
+    facility VARCHAR(255),
+    lot_number VARCHAR(64),
+    verified BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS mar_records (
+    id VARCHAR(64) PRIMARY KEY,
+    patient_id VARCHAR(64) REFERENCES patients(id) ON DELETE CASCADE,
+    patient_name VARCHAR(255) NOT NULL,
+    bed_number VARCHAR(32) NOT NULL,
+    medication VARCHAR(255) NOT NULL,
+    dosage VARCHAR(128) NOT NULL,
+    route VARCHAR(64) NOT NULL DEFAULT 'Oral',
+    scheduled_time VARCHAR(32) NOT NULL,
+    status VARCHAR(16) NOT NULL DEFAULT 'Due',
+    admin_time VARCHAR(32),
+    administered_by VARCHAR(255),
+    hold_reason TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS sbar_notes (
+    id VARCHAR(64) PRIMARY KEY,
+    patient_id VARCHAR(64) REFERENCES patients(id) ON DELETE CASCADE,
+    patient_name VARCHAR(255) NOT NULL,
+    bed_number VARCHAR(32) NOT NULL,
+    time VARCHAR(32) NOT NULL,
+    date DATE NOT NULL,
+    situation TEXT,
+    background TEXT,
+    assessment TEXT,
+    recommendation TEXT,
+    nurse_name VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS doctor_orders (
+    id VARCHAR(64) PRIMARY KEY,
+    patient_name VARCHAR(255) NOT NULL,
+    bed VARCHAR(32) NOT NULL,
+    order_type VARCHAR(64) NOT NULL,
+    order_text TEXT NOT NULL,
+    ordered_by VARCHAR(255) NOT NULL,
+    priority VARCHAR(16) NOT NULL DEFAULT 'Routine',
+    status VARCHAR(32) NOT NULL DEFAULT 'Pending',
+    created_at VARCHAR(32) NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_patients_code ON patients(patient_code);
 CREATE INDEX IF NOT EXISTS idx_patients_status ON patients(admission_status);
 CREATE INDEX IF NOT EXISTS idx_doctors_dept ON doctors(department);

@@ -12,9 +12,13 @@ import pg from 'pg';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { config } from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Load .env file from project root
+config({ path: path.resolve(__dirname, '..', '.env') });
 
 export type DbDialect = 'postgres' | 'mysql' | 'fallback';
 
@@ -341,6 +345,16 @@ function toLabOrderRow(o: any) {
 }
 
 export function getPool(): any {
+  if (activeDialect === 'postgres' && pgPool) {
+    return {
+      query: async (sql: string, params: any[] = []) => {
+        let pIndex = 1;
+        const pgSql = sql.replace(/\?/g, () => `$${pIndex++}`);
+        const res = await pgPool!.query(pgSql, params);
+        return [res.rows, res.fields];
+      }
+    };
+  }
   if (mysqlPool) return mysqlPool;
   if (pgPool) {
     return {
@@ -821,6 +835,46 @@ async function seedPostgresData() {
           order.specimenType || 'Serum', order.resultValue || null, order.referenceRange || null,
           order.unit || null, order.interpretation || 'Normal', order.technicianNotes || null, order.reportUrl || null
         ]
+      );
+    }
+
+    // Seed beds into PostgreSQL
+    for (const bed of (fallbackStore.beds || [])) {
+      await pgPool.query(
+        `INSERT INTO beds (id, bed_number, ward_id, ward, ward_name, type, status, patient_id, patient_name, admitted_date)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+         ON CONFLICT (id) DO NOTHING`,
+        [bed.id, bed.bedNumber, bed.wardId || 'w-gen', bed.wardName || bed.ward || 'General Ward', bed.wardName || bed.ward || 'General Ward', bed.type || 'General', bed.status || 'Available', bed.patientId || null, bed.patientName || null, bed.admittedDate || null]
+      );
+    }
+
+    // Seed medicines into PostgreSQL
+    for (const med of (fallbackStore.medicines || [])) {
+      await pgPool.query(
+        `INSERT INTO medicines (id, name, generic_name, category, dosage_form, strength, batch_number, stock, min_threshold, unit_price, expiry_date, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+         ON CONFLICT (id) DO NOTHING`,
+        [med.id, med.name, med.genericName || med.name, med.category || 'General', med.dosageForm || 'Tablet', med.strength || '500mg', med.batchNumber || 'BCH-2026', med.stock || 0, med.minThreshold || 20, med.unitPrice || 0, med.expiryDate || '2027-12-31', med.status || 'In Stock']
+      );
+    }
+
+    // Seed appointments into PostgreSQL
+    for (const apt of (fallbackStore.appointments || [])) {
+      await pgPool.query(
+        `INSERT INTO appointments (id, patient_id, patient_name, doctor_id, doctor_name, department, date, time, status, type, notes)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+         ON CONFLICT (id) DO NOTHING`,
+        [apt.id, apt.patientId, apt.patientName, apt.doctorId || 'doc-1', apt.doctorName || 'Dr. Roger S.', apt.department || 'General Medicine', apt.date, apt.time || '09:00', apt.status || 'Scheduled', apt.visitType || apt.type || 'Consultation', apt.notes || '']
+      );
+    }
+
+    // Seed invoices into PostgreSQL
+    for (const inv of (fallbackStore.invoices || [])) {
+      await pgPool.query(
+        `INSERT INTO invoices (id, invoice_number, patient_id, patient_name, issue_date, due_date, status, payment_method, items, subtotal, tax, discount, grand_total)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+         ON CONFLICT (id) DO NOTHING`,
+        [inv.id, inv.invoiceNumber || `INV-${Date.now()}`, inv.patientId, inv.patientName, inv.date || inv.issueDate || new Date().toISOString().split('T')[0], inv.dueDate || new Date().toISOString().split('T')[0], inv.status || 'Pending', inv.paymentMethod || null, JSON.stringify(inv.items || []), inv.subtotal || 0, inv.tax || 0, inv.discount || 0, inv.grandTotal || 0]
       );
     }
 

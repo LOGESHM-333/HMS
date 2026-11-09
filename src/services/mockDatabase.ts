@@ -979,34 +979,54 @@ class MockDatabase {
     return undefined;
   }
 
-  public dischargePatient(id: string): Patient | undefined {
+  public dischargePatient(id: string, reason?: string): Patient | undefined {
     const patient = this.patients.find(p => p.id === id);
     if (!patient) return undefined;
 
-    patient.admissionStatus = 'Discharged';
     const previousBed = patient.bedNumber;
+    patient.admissionStatus = 'Discharged';
     patient.bedNumber = undefined;
     patient.ward = undefined;
 
-    // Release any associated bed in this.beds
+    // Add discharge history entry locally
+    const dischargeEntry = {
+      date: new Date().toISOString().split('T')[0],
+      event: `Patient Discharged — ${reason || 'Recovered & Released to Home Care'}`,
+      doctor: patient.primaryDoctorName || 'Dr. Roger S.',
+      facility: 'MediCore Discharge Unit',
+      notes: `Discharged at ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}. Follow-up in 7 days.`
+    };
+    patient.medicalHistory = [dischargeEntry, ...(patient.medicalHistory || [])];
+
+    // Release the bed locally
     if (previousBed) {
       const bed = this.beds.find(b => b.bedNumber === previousBed || b.patientId === id);
       if (bed) {
         bed.status = 'Cleaning';
         bed.patientId = undefined;
         bed.patientName = undefined;
-        api.updateBed(bed.id, { status: 'Cleaning', patientId: undefined, patientName: undefined }).catch(() => {});
       }
     }
 
-    this.logAudit('Patient Discharge', 'Patients', `Discharged ${patient.name} (${patient.patientCode}) to home care`);
+    this.logAudit('Patient Discharged', 'Patients', `Discharged ${patient.name} (${patient.patientCode}) to home care`);
     this.saveToStorage();
     this.notifyListeners();
-    api.updatePatient(id, {
-      admissionStatus: 'Discharged',
-      roomNumber: 'Discharged - Home Care',
-      bedNumber: 'Discharged - Home Care'
-    }).catch(() => {});
+
+    // Call real backend discharge endpoint (PostgreSQL / MySQL)
+    api.dischargePatient(id, { reason, dischargedBy: patient.primaryDoctorName }).then(res => {
+      if (res?.patient) {
+        const idx = this.patients.findIndex(p => p.id === id);
+        if (idx !== -1) {
+          this.patients[idx] = { ...this.patients[idx], ...res.patient };
+          this.notifyListeners();
+        }
+      }
+    }).catch(() => {
+      api.updatePatient(id, {
+        admissionStatus: 'Discharged',
+        bedNumber: undefined,
+      }).catch(() => {});
+    });
 
     return patient;
   }

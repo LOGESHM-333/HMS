@@ -9,6 +9,11 @@ import express, { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { config as dotenvConfig } from 'dotenv';
+
+// Load environment variables first (before db.ts imports process.env values)
+dotenvConfig({ path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.env') });
+
 import { 
   initializeDatabase, 
   getDbStatus, 
@@ -483,6 +488,137 @@ app.put('/api/patients/:id', async (req: Request, res: Response) => {
 
     await logAudit('Patient Update', 'Patients', `Updated clinical chart for ${updated.name}`);
     res.json(updated);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===================== DISCHARGE PATIENT =====================
+// POST /api/patients/:id/discharge
+// Sets admission_status = 'Discharged', clears room_bed, releases bed, adds history entry
+app.post('/api/patients/:id/discharge', async (req: Request, res: Response) => {
+  try {
+    const p = getPool();
+    const [existing]: any = await p.query('SELECT * FROM patients WHERE id = ?', [req.params.id]);
+    if (!existing || existing.length === 0) return res.status(404).json({ error: 'Patient not found' });
+
+    const patient = mapPatientRow(existing[0]);
+    const prevBed = patient.bedNumber;
+    const dischargeDate = new Date().toISOString().split('T')[0];
+    const dischargeTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+    // 1. Update patient: set Discharged status, clear bed
+    await p.query(
+      `UPDATE patients SET admission_status = 'Discharged', room_bed = NULL, attending_doctor = ? WHERE id = ?`,
+      [patient.primaryDoctorName || null, req.params.id]
+    );
+
+    // 2. Add discharge entry to medical_history
+    const newHistEntry = {
+      date: dischargeDate,
+      event: `Patient Discharged — ${req.body.reason || 'Recovered & Released to Home Care'}`,
+      doctor: req.body.dischargedBy || patient.primaryDoctorName || 'Dr. Roger S.',
+      facility: 'MediCore Discharge Unit',
+      notes: req.body.notes || `Discharged at ${dischargeTime}. Follow-up in 7 days.`
+    };
+    const updatedHistory = [newHistEntry, ...patient.medicalHistory];
+    await p.query('UPDATE patients SET medical_history = ? WHERE id = ?', [JSON.stringify(updatedHistory), req.params.id]);
+
+    // 3. Release the occupied bed (set to Cleaning -> Available)
+    if (prevBed) {
+      const [bedRows]: any = await p.query(
+        'SELECT * FROM beds WHERE bed_number = ? OR patient_id = ?',
+        [prevBed, req.params.id]
+      );
+      if (bedRows && bedRows.length > 0) {
+        await p.query(
+          `UPDATE beds SET status = 'Cleaning', patient_id = NULL, patient_name = NULL, admission_time = NULL WHERE id = ?`,
+          [bedRows[0].id]
+        );
+      }
+    }
+
+    // 4. Fetch and return the updated patient record
+    const [updatedRows]: any = await p.query('SELECT * FROM patients WHERE id = ?', [req.params.id]);
+    const updatedPatient = mapPatientRow(updatedRows[0]);
+    updatedPatient.medicalHistory = updatedHistory;
+
+    await logAudit(
+      'Patient Discharged',
+      'Patients',
+      `Discharged ${patient.name} (${patient.patientCode}) on ${dischargeDate}. ${prevBed ? 'Bed ' + prevBed + ' released for sanitization.' : ''}`
+    );
+
+    res.json({
+      success: true,
+      patient: updatedPatient,
+      dischargeDate,
+      dischargeTime,
+      message: `${patient.name} has been successfully discharged and their bed has been released.`
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===================== ADMIT PATIENT =====================
+// POST /api/patients/:id/admit
+// Sets admission_status = 'Admitted' (or 'ICU'), sets room_bed, adds history entry
+app.post('/api/patients/:id/admit', async (req: Request, res: Response) => {
+  try {
+    const p = getPool();
+    const [existing]: any = await p.query('SELECT * FROM patients WHERE id = ?', [req.params.id]);
+    if (!existing || existing.length === 0) return res.status(404).json({ error: 'Patient not found' });
+
+    const patient = mapPatientRow(existing[0]);
+    const ward = req.body.ward || 'General Medicine Ward';
+    const bedNumber = req.body.bedNumber || null;
+    const admitStatus: 'Admitted' | 'ICU' = req.body.admissionStatus || 'Admitted';
+    const admitDate = new Date().toISOString().split('T')[0];
+    const admitTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+    // 1. Update patient admission status and bed
+    await p.query(
+      `UPDATE patients SET admission_status = ?, room_bed = ?, attending_doctor = ? WHERE id = ?`,
+      [admitStatus, bedNumber, req.body.admittingDoctor || patient.primaryDoctorName || null, req.params.id]
+    );
+
+    // 2. Add admission entry to medical_history
+    const newHistEntry = {
+      date: admitDate,
+      event: `Patient Admitted — ${ward}${bedNumber ? ' (Bed: ' + bedNumber + ')' : ''}`,
+      doctor: req.body.admittingDoctor || patient.primaryDoctorName || 'Dr. Roger S.',
+      facility: 'MediCore Admissions',
+      notes: req.body.notes || `Admitted at ${admitTime}. Status: ${admitStatus}.`
+    };
+    const updatedHistory = [newHistEntry, ...patient.medicalHistory];
+    await p.query('UPDATE patients SET medical_history = ? WHERE id = ?', [JSON.stringify(updatedHistory), req.params.id]);
+
+    // 3. If a specific bed was assigned, mark it Occupied
+    if (bedNumber) {
+      await p.query(
+        `UPDATE beds SET status = 'Occupied', patient_id = ?, patient_name = ?, admission_time = NOW() WHERE bed_number = ?`,
+        [req.params.id, patient.name, bedNumber]
+      );
+    }
+
+    const [updatedRows]: any = await p.query('SELECT * FROM patients WHERE id = ?', [req.params.id]);
+    const updatedPatient = mapPatientRow(updatedRows[0]);
+    updatedPatient.medicalHistory = updatedHistory;
+
+    await logAudit(
+      'Patient Admitted',
+      'Patients',
+      `Admitted ${patient.name} (${patient.patientCode}) to ${ward}${bedNumber ? ', Bed ' + bedNumber : ''}. Status: ${admitStatus}`
+    );
+
+    res.json({
+      success: true,
+      patient: updatedPatient,
+      admitDate,
+      admitTime,
+      message: `${patient.name} has been admitted to ${ward}.`
+    });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -1070,7 +1206,7 @@ app.post('/api/alerts', async (req: Request, res: Response) => {
 app.post('/api/alerts/:id/acknowledge', async (req: Request, res: Response) => {
   try {
     const p = getPool();
-    await p.query('UPDATE alerts SET severity = "low" WHERE id = ?', [req.params.id]);
+    await p.query("UPDATE alerts SET severity = 'low' WHERE id = ?", [req.params.id]);
     const [rows]: any = await p.query('SELECT * FROM alerts WHERE id = ?', [req.params.id]);
     const alert = rows.length > 0 ? mapAlertRow(rows[0]) : undefined;
 

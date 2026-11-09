@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediCore HMS — MySQL Database Live Viewer</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+  
+  header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #334155;
+  }
+  header h1 { font-size: 1.4rem; font-weight: 700; color: #38bdf8; }
+  header p { font-size: 0.8rem; color: #94a3b8; margin-top: 2px; }
+  
+  .db-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: #0d2137; border: 1px solid #22c55e;
+    padding: 8px 16px; border-radius: 999px; font-size: 0.8rem;
+  }
+  .db-badge .dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    padding: 24px 32px 0;
+  }
+  .stat-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .stat-card:hover, .stat-card.active { border-color: #38bdf8; background: #1a3045; }
+  .stat-card .num { font-size: 2rem; font-weight: 700; color: #38bdf8; }
+  .stat-card .label { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+  
+  .section {
+    padding: 24px 32px;
+  }
+  .section h2 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  
+  .search-bar {
+    display: flex; gap: 10px; margin-bottom: 16px;
+  }
+  .search-bar input {
+    flex: 1;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #f1f5f9;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    outline: none;
+  }
+  .search-bar input:focus { border-color: #38bdf8; }
+  .btn {
+    background: #0ea5e9;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: #0284c7; }
+  .btn.secondary { background: #334155; }
+  .btn.secondary:hover { background: #475569; }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid #334155;
+    border-radius: 10px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  thead th {
+    background: #1e3a5f;
+    padding: 10px 14px;
+    text-align: left;
+    color: #94a3b8;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid #334155;
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid #1e293b; transition: background 0.15s; }
+  tbody tr:hover { background: #1e293b; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 10px 14px; color: #cbd5e1; vertical-align: middle; }
+  td.mono { font-family: monospace; font-size: 0.75rem; color: #64748b; }
+  
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .badge.green { background: #14532d; color: #4ade80; }
+  .badge.yellow { background: #422006; color: #fbbf24; }
+  .badge.red { background: #450a0a; color: #f87171; }
+  .badge.blue { background: #0c2a4a; color: #60a5fa; }
+  .badge.gray { background: #1e293b; color: #94a3b8; }
+
+  .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #334155; }
+  .loading { text-align: center; padding: 48px; color: #64748b; }
+  .error { background: #450a0a; border: 1px solid #7f1d1d; padding: 12px 16px; border-radius: 8px; color: #fca5a5; margin: 8px 0; }
+  .pagination { display: flex; align-items: center; gap: 8px; margin-top: 12px; justify-content: flex-end; font-size: 0.8rem; color: #94a3b8; }
+  
+  .tab-row { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab {
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #94a3b8;
+    transition: all 0.2s;
+  }
+  .tab:hover { border-color: #38bdf8; color: #38bdf8; }
+  .tab.active { background: #0c2a4a; border-color: #38bdf8; color: #38bdf8; }
+  
+  .info-row { background: #0d1f33; border: 1px solid #1e3a5f; border-radius: 8px; padding: 10px 16px; margin-bottom: 20px; font-size: 0.8rem; color: #64748b; display: flex; gap: 24px; flex-wrap: wrap; }
+  .info-row span { color: #94a3b8; } .info-row strong { color: #38bdf8; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1 id="header-title">🏥 MediCore HMS — Database Live Viewer</h1>
+    <p id="header-subtitle">Real-time data from <strong id="header-dbname">medicore_db</strong> • <span id="header-engine">PostgreSQL / MySQL</span> • Port <span id="header-port">5432</span></p>
+  </div>
+  <div class="db-badge">
+    <div class="dot"></div>
+    <span id="db-status">Connecting...</span>
+  </div>
+</header>
+
+<div class="stats-grid" id="stats-grid">
+  <div class="stat-card loading">Loading stats...</div>
+</div>
+
+<div class="section">
+  <div class="tab-row" id="tab-row">
+    <div class="tab active" onclick="switchTab('patients')">👤 Patients</div>
+    <div class="tab" onclick="switchTab('doctors')">🩺 Doctors</div>
+    <div class="tab" onclick="switchTab('appointments')">📅 Appointments</div>
+    <div class="tab" onclick="switchTab('beds')">🛏️ Beds</div>
+    <div class="tab" onclick="switchTab('medicines')">💊 Medicines</div>
+    <div class="tab" onclick="switchTab('lab')">🔬 Lab Tests</div>
+    <div class="tab" onclick="switchTab('laborders')">🧪 Lab Orders</div>
+    <div class="tab" onclick="switchTab('invoices')">💰 Invoices</div>
+    <div class="tab" onclick="switchTab('staff')">👷 Staff</div>
+  </div>
+
+  <div class="info-row" id="info-row">
+    <span>Table: <strong id="info-table">patients</strong></span>
+    <span>Records: <strong id="info-count">-</strong></span>
+    <span>Database: <strong id="info-db">medicore_db</strong></span>
+    <span>Dialect: <strong id="info-dialect">PostgreSQL</strong></span>
+    <span>Last Refresh: <strong id="info-refresh">-</strong></span>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Search..." oninput="filterTable()">
+    <button class="btn secondary" onclick="refresh()">🔄 Refresh</button>
+  </div>
+
+  <div class="table-wrap">
+    <div id="table-container" class="loading">Loading data from MySQL...</div>
+  </div>
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<script>
+const API = '';
+let currentTab = 'patients';
+let allData = [];
+let page = 1;
+const PER_PAGE = 20;
+
+const COLUMNS = {
+  patients: ['patientCode','name','age','gender','bloodGroup','admissionStatus','diagnosis','primaryDoctorName'],
+  doctors: ['name','specialization','department','qualification','consultationFee','rating','availability'],
+  appointments: ['patientName','doctorName','department','date','time','status','visitType'],
+  beds: ['bedNumber','wardName','type','status','patientName','admittedDate'],
+  medicines: ['name','genericName','category','dosageForm','strength','stock','status','expiryDate'],
+  lab: ['testName','category','specimenType','price','durationHours','normalRange','unit'],
+  laborders: ['patientName','doctorName','testName','orderedDate','status','priority','resultValue','interpretation'],
+  invoices: ['invoiceNumber','patientName','date','dueDate','status','grandTotal','paymentMethod'],
+  staff: ['name','role','department','shift','contact','status'],
+};
+
+const ENDPOINTS = {
+  patients: '/api/patients',
+  doctors: '/api/doctors',
+  appointments: '/api/appointments',
+  beds: '/api/beds',
+  medicines: '/api/pharmacy/medicines',
+  lab: '/api/lab/tests',
+  laborders: '/api/lab/orders',
+  invoices: '/api/billing/invoices',
+  staff: '/api/staff',
+};
+
+const STATUS_COLORS = {
+  'Available':'green', 'On Duty':'green', 'Active':'green', 'Paid':'green', 'Completed':'green', 'Given':'green', 'In Stock':'green',
+  'Scheduled':'blue', 'Ordered':'blue', 'Outpatient':'blue', 'Prescribed':'blue',
+  'Occupied':'yellow', 'Due':'yellow', 'Pending':'yellow', 'Low Stock':'yellow',
+  'ICU':'red', 'Critical':'red', 'Cancelled':'red', 'Held':'red', 'Overdue':'red',
+  'Dispensed':'green', 'Inpatient':'yellow',
+};
+
+async function fetchHealth() {
+  try {
+    const r = await fetch('/api/health');
+    const d = await r.json();
+    const engineName = d.database.engine || (d.database.activeDialect === 'postgres' ? 'PostgreSQL' : 'MySQL');
+    document.getElementById('db-status').textContent = `${engineName} ✓ Connected (Port ${d.database.activePort})`;
+    if (document.getElementById('header-title')) {
+      document.getElementById('header-title').textContent = `🏥 MediCore HMS — ${engineName} Live Database Viewer`;
+    }
+    if (document.getElementById('header-engine')) {
+      document.getElementById('header-engine').textContent = engineName;
+    }
+    if (document.getElementById('header-port')) {
+      document.getElementById('header-port').textContent = d.database.activePort;
+    }
+    if (document.getElementById('header-dbname')) {
+      document.getElementById('header-dbname').textContent = d.database.databaseName || 'medicore_db';
+    }
+    if (document.getElementById('info-db')) {
+      document.getElementById('info-db').textContent = `${d.database.databaseName || 'medicore_db'} (Port ${d.database.activePort})`;
+    }
+    if (document.getElementById('info-dialect')) {
+      document.getElementById('info-dialect').textContent = engineName;
+    }
+    
+    const stats = [
+      { label: 'Patients', num: d.records.patients, tab: 'patients' },
+      { label: 'Doctors', num: d.records.doctors, tab: 'doctors' },
+      { label: 'Staff', num: d.records.staff, tab: 'staff' },
+      { label: 'Beds', num: d.records.beds, tab: 'beds' },
+      { label: 'Medicines', num: d.records.medicines, tab: 'medicines' },
+      { label: 'Invoices', num: d.records.invoices, tab: 'invoices' },
+      { label: 'Appointments', num: d.records.appointments, tab: 'appointments' },
+    ];
+    document.getElementById('stats-grid').innerHTML = stats.map(s => `
+      <div class="stat-card ${currentTab===s.tab?'active':''}" onclick="switchTab('${s.tab}')">
+        <div class="num">${s.num}</div>
+        <div class="label">${s.label}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('db-status').textContent = '⚠️ Backend Offline';
+  }
+}
+
+async function loadData(tab) {
+  document.getElementById('table-container').innerHTML = '<div class="loading">⏳ Fetching from Database...</div>';
+  try {
+    const r = await fetch(ENDPOINTS[tab]);
+    if (!r.ok) throw new Error(r.statusText);
+    allData = await r.json();
+    page = 1;
+    document.getElementById('info-count').textContent = allData.length;
+    document.getElementById('info-table').textContent = tab;
+    document.getElementById('info-refresh').textContent = new Date().toLocaleTimeString();
+    renderTable();
+  } catch(e) {
+    document.getElementById('table-container').innerHTML = `<div class="error">❌ Error: ${e.message} — Make sure backend is running on port 5000</div>`;
+  }
+}
+
+function renderTable() {
+  const cols = COLUMNS[currentTab];
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const filtered = allData.filter(row =>
+    cols.some(c => String(row[c]||'').toLowerCase().includes(q))
+  );
+  const total = filtered.length;
+  const start = (page-1)*PER_PAGE;
+  const rows = filtered.slice(start, start+PER_PAGE);
+
+  if (!rows.length) {
+    document.getElementById('table-container').innerHTML = '<div class="loading">No records found</div>';
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  const headers = cols.map(c => `<th>${c.replace(/([A-Z])/g,' $1').trim()}</th>`).join('');
+  const trs = rows.map(row => {
+    const tds = cols.map(c => {
+      const v = row[c];
+      if (c === 'avatar' || c === 'photo') return `<td><img class="avatar" src="${v||'https://ui-avatars.com/api/?name='+encodeURIComponent(row.name||'U')}&size=32" onerror="this.src='https://ui-avatars.com/api/?name=U&size=32'"></td>`;
+      if (c === 'status' || c === 'admissionStatus' || c === 'availability') {
+        const color = STATUS_COLORS[v] || 'gray';
+        return `<td><span class="badge ${color}">${v||'—'}</span></td>`;
+      }
+      if (c === 'consultationFee' || c === 'price' || c === 'unitPrice' || c === 'grandTotal') return `<td>₹${Number(v||0).toLocaleString()}</td>`;
+      if (c === 'patientCode' || c === 'id') return `<td class="mono">${v||'—'}</td>`;
+      return `<td>${v!=null&&v!==''?v:'<span style="color:#475569">—</span>'}</td>`;
+    }).join('');
+    return `<tr>${tds}</tr>`;
+  }).join('');
+
+  document.getElementById('table-container').innerHTML = `
+    <table>
+      <thead><tr>${headers}</tr></thead>
+      <tbody>${trs}</tbody>
+    </table>
+  `;
+
+  const totalPages = Math.ceil(total/PER_PAGE);
+  document.getElementById('pagination').innerHTML = total > PER_PAGE ? `
+    <span>${total} records • Page ${page} of ${totalPages}</span>
+    <button class="btn secondary" onclick="changePage(-1)" ${page<=1?'disabled':''}>← Prev</button>
+    <button class="btn secondary" onclick="changePage(1)" ${page>=totalPages?'disabled':''}>Next →</button>
+  ` : `<span>${total} records total</span>`;
+}
+
+function filterTable() { page = 1; renderTable(); }
+function changePage(d) { page += d; renderTable(); }
+
+function switchTab(tab) {
+  currentTab = tab;
+  page = 1;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => { if(t.textContent.toLowerCase().includes(tab.replace('lab','lab').replace('laborders','lab orders'))) t.classList.add('active'); });
+  document.getElementById('search-input').value = '';
+  loadData(tab);
+  fetchHealth();
+}
+
+function refresh() { loadData(currentTab); fetchHealth(); }
+
+// Init
+fetchHealth();
+loadData('patients');
+setInterval(fetchHealth, 15000);
+</script>
+</body>
+</html>
+
