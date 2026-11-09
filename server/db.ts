@@ -6,6 +6,7 @@
  * Unified adapter supporting PostgreSQL, MySQL / MariaDB, and Workable Fallback.
  */
 
+import 'dotenv/config';
 import mysql from 'mysql2/promise';
 import pg from 'pg';
 import fs from 'fs';
@@ -40,9 +41,9 @@ export const PG_CONFIG = {
 
 export const MYSQL_CONFIG = {
   host: process.env.DB_HOST || process.env.MYSQL_HOST || '127.0.0.1',
-  port: Number(process.env.DB_PORT || process.env.MYSQL_PORT) || 3307,
+  port: Number(process.env.DB_PORT || process.env.MYSQL_PORT) || 3306,
   user: process.env.DB_USER || process.env.MYSQL_USER || 'root',
-  password: process.env.DB_PASSWORD || process.env.MYSQL_PASSWORD || '',
+  password: process.env.DB_PASSWORD || process.env.MYSQL_PASSWORD || 'logesh@2007',
   database: process.env.DB_NAME || process.env.MYSQL_DATABASE || 'medicore_db',
   connectionLimit: 15,
 };

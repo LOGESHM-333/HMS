@@ -4,6 +4,7 @@
  * Real-time database persistence synchronized with phpMyAdmin.
  */
 
+import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import path from 'path';
