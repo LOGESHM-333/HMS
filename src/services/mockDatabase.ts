@@ -24,6 +24,7 @@ import {
   EnterpriseSecurityConfig
 } from '../types';
 import { api } from './api';
+import { dataset1000 } from '../data/dataset1000';
 
 const INITIAL_PATIENTS: Patient[] = [
   {
@@ -855,8 +856,8 @@ const INITIAL_SECURITY_CONFIG: EnterpriseSecurityConfig = {
 class MockDatabase {
   private currentRole: UserRole = 'HOSPITAL_ADMIN';
   private currentTheme: ThemeMode = 'mint';
-  private patients: Patient[] = INITIAL_PATIENTS;
-  private doctors: Doctor[] = INITIAL_DOCTORS;
+  private patients: Patient[] = (dataset1000.patients as any) || INITIAL_PATIENTS;
+  private doctors: Doctor[] = (dataset1000.doctors as any) || INITIAL_DOCTORS;
   private appointments: Appointment[] = INITIAL_APPOINTMENTS;
   private medicines: Medicine[] = INITIAL_MEDICINES;
   private prescriptions: Prescription[] = INITIAL_PRESCRIPTIONS;
@@ -864,7 +865,7 @@ class MockDatabase {
   private labOrders: LabOrder[] = INITIAL_LAB_ORDERS;
   private beds: Bed[] = INITIAL_BEDS;
   private invoices: Invoice[] = INITIAL_INVOICES;
-  private staff: Staff[] = INITIAL_STAFF;
+  private staff: Staff[] = (dataset1000.staff as any) || INITIAL_STAFF;
   private alerts: CriticalAlert[] = INITIAL_ALERTS;
   private auditLogs: AuditLog[] = [];
   private selectedPatientId: string = 'pat-1';

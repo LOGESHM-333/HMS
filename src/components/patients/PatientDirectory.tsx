@@ -49,6 +49,8 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | '3d_anatomy' | 'history'>('overview');
   const [isHealthCardOpen, setIsHealthCardOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PATIENTS_PER_PAGE = 10;
 
   // New patient form state
   const [newPatient, setNewPatient] = useState({
@@ -156,7 +158,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
             type="text"
             placeholder="Search by patient name, MRN code, diagnosis..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
             className={`w-full pl-10 pr-4 py-2 rounded-2xl text-xs border outline-none transition-all ${
               isDark 
                 ? 'bg-slate-900 border-slate-700 text-white focus:border-teal-400' 

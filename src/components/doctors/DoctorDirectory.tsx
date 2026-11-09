@@ -28,8 +28,10 @@ export const DoctorDirectory: React.FC<DoctorDirectoryProps> = ({ theme }) => {
   const doctors = db.getDoctors();
   const [selectedDept, setSelectedDept] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const DOCS_PER_PAGE = 8;
 
-  const departments = ['All', 'Pulmonology', 'Cardiology', 'Orthopedics', 'Critical Care', 'Pediatrics'];
+  const departments = ['All', ...Array.from(new Set(doctors.map(d => d.department))).slice(0, 7)];
 
   const filteredDoctors = doctors.filter((doc) => {
     const matchesDept = selectedDept === 'All' || doc.department === selectedDept;
@@ -39,6 +41,9 @@ export const DoctorDirectory: React.FC<DoctorDirectoryProps> = ({ theme }) => {
       doc.qualification.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesDept && matchesSearch;
   });
+
+  const totalPages = Math.ceil(filteredDoctors.length / DOCS_PER_PAGE) || 1;
+  const paginatedDoctors = filteredDoctors.slice((currentPage - 1) * DOCS_PER_PAGE, currentPage * DOCS_PER_PAGE);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -56,7 +61,7 @@ export const DoctorDirectory: React.FC<DoctorDirectoryProps> = ({ theme }) => {
           isDark ? 'bg-slate-900 border-slate-800 text-teal-400' : 'bg-white border-slate-200 text-teal-700 shadow-xs'
         }`}>
           <Stethoscope className="w-4 h-4" />
-          <span>74 Specialists Active On-Shift</span>
+          <span>{doctors.length} Specialists Active On-Shift</span>
         </div>
       </div>
 
@@ -70,7 +75,7 @@ export const DoctorDirectory: React.FC<DoctorDirectoryProps> = ({ theme }) => {
             type="text"
             placeholder="Search by specialist name, sub-specialty, fellowship..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
             className={`w-full pl-10 pr-4 py-2 rounded-2xl text-xs border outline-none ${
               isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-[#142C43]'
             }`}
@@ -100,7 +105,7 @@ export const DoctorDirectory: React.FC<DoctorDirectoryProps> = ({ theme }) => {
 
       {/* DOCTORS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredDoctors.map((doc) => (
+        {paginatedDoctors.map((doc) => (
           <div
             key={doc.id}
             className={`p-6 rounded-3xl border transition-all hover:scale-[1.02] shadow-sm flex flex-col justify-between ${

@@ -26,6 +26,8 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ theme }) => {
   const isDark = theme === 'dark';
   const [staffList, setStaffList] = useState<Staff[]>(db.getStaff());
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const STAFF_PER_PAGE = 9;
 
   const toggleStatus = (id: string) => {
     sound.playClick();
@@ -41,6 +43,9 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ theme }) => {
     s.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.department.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const totalPages = Math.ceil(filteredStaff.length / STAFF_PER_PAGE) || 1;
+  const paginatedStaff = filteredStaff.slice((currentPage - 1) * STAFF_PER_PAGE, currentPage * STAFF_PER_PAGE);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -62,7 +67,7 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ theme }) => {
 
       {/* STAFF LIST */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredStaff.map(member => (
+        {paginatedStaff.map(member => (
           <div
             key={member.id}
             className={`p-6 rounded-3xl border transition-all flex flex-col justify-between ${
