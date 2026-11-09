@@ -1,7 +1,4 @@
 {
-  "version": "3.0.0",
-  "generatedAt": "2026-11-09T05:26:38.003Z",
-  "totalMembers": 1000,
   "patients": [
     {
       "id": "pat-1",
@@ -10,12 +7,12 @@
       "age": 44,
       "gender": "Male",
       "bloodGroup": "O+",
-      "phone": "+91 98234 89012",
+      "phone": null,
       "email": "magnus.stephenson@healthmail.com",
       "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-      "admissionStatus": "Outpatient",
+      "admissionStatus": "Discharged",
       "primaryDoctorId": "doc-1",
-      "primaryDoctorName": "Dr. Roger S., MD, FCCP",
+      "primaryDoctorName": "Dr. Roger S.",
       "diagnosis": "Cavitas Thoracis Atypical Infiltration & Bronchial Spasm",
       "heartAge": 48,
       "chronologicalAge": 40,
@@ -44,6 +41,27 @@
       ],
       "medicalHistory": [
         {
+          "date": "2026-11-09",
+          "event": "Virtual Telehealth Consultation (Duration: 00:02)",
+          "doctor": "Dr. Roger S., MD",
+          "facility": "MediCore Telehealth Cloud Gateway",
+          "notes": "Consultation with Magnus Stephenson regarding: Ad-hoc Clinical Telehealth consultation with Magnus Stephenson. Patient alert and responsive."
+        },
+        {
+          "date": "2026-11-09",
+          "event": "Doctor SOAP Note: Cavitas Thoracis Infiltration resolving ...",
+          "doctor": "Dr. Roger S., MD",
+          "facility": "MediCore Specialist Pavilion 402",
+          "notes": "ICD-10: [J45.909 - Chronic Bronchial Asthma, Unspecified]\n• SUBJECTIVE: Patient reports decreased morning dyspnea, no wheezing episodes. Compliance with morning inhaler is 100%.\n• OBJECTIVE: BP 128/82, HR 74 regular, SpO2 99% on room air. Lungs clear to auscultation bilaterally. No peripheral edema.\n• ASSESSMENT: Cavitas Thoracis Infiltration resolving well under maintenance bronchodilators. Hemodynamics stable.\n• PLAN: Continue Atorvastatin 40mg and Fluticasone inhaler. Order follow-up high-resolution CT volumetry in 6 months.\n[Digitally signed by Dr. Roger S., MD at 2:35:17 PM]"
+        },
+        {
+          "date": "2026-11-09",
+          "event": "Doctor SOAP Note: Cavitas Thoracis Infiltration resolving ...",
+          "doctor": "Dr. Roger S., MD",
+          "facility": "MediCore Specialist Pavilion 402",
+          "notes": "ICD-10: [J45.909 - Chronic Bronchial Asthma, Unspecified]\n• SUBJECTIVE: Patient reports decreased morning dyspnea, no wheezing episodes. Compliance with morning inhaler is 100%.\n• OBJECTIVE: BP 128/82, HR 74 regular, SpO2 99% on room air. Lungs clear to auscultation bilaterally. No peripheral edema.\n• ASSESSMENT: Cavitas Thoracis Infiltration resolving well under maintenance bronchodilators. Hemodynamics stable.\n• PLAN: Continue Atorvastatin 40mg and Fluticasone inhaler. Order follow-up high-resolution CT volumetry in 6 months.\n[Digitally signed by Dr. Roger S., MD at 2:35:17 PM]"
+        },
+        {
           "id": "mh-1",
           "date": "2026-03-28",
           "diagnosis": "Thoracic 3D High-Res CT Scan",
@@ -51,7 +69,10 @@
           "treatment": "Prescribed maintenance clinical pharmacotherapy and outpatient vitals review",
           "notes": "Mild interstitial density observed in lower left lobe (pulmo sinister)."
         }
-      ]
+      ],
+      "admissionDate": null,
+      "bedNumber": "Discharged - Home Care",
+      "insuranceProvider": null
     },
     {
       "id": "pat-2",

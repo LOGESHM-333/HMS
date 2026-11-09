@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Medicine, Prescription, ThemeMode } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
@@ -29,6 +29,14 @@ export const PharmacyManager: React.FC<PharmacyManagerProps> = ({ theme }) => {
   const isDark = theme === 'dark';
   const [medicines, setMedicines] = useState<Medicine[]>(db.getMedicines());
   const [prescriptions, setPrescriptions] = useState<Prescription[]>(db.getPrescriptions());
+
+  useEffect(() => {
+    const unsub = db.subscribe(() => {
+      setMedicines([...db.getMedicines()]);
+      setPrescriptions([...db.getPrescriptions()]);
+    });
+    return unsub;
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'inventory' | 'prescriptions'>('inventory');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);

@@ -193,11 +193,17 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
 }) => {
   const isDark = theme === 'dark';
 
+  const [, setDbVersion] = useState(0);
+  useEffect(() => {
+    const unsub = db.subscribe(() => setDbVersion(v => v + 1));
+    return unsub;
+  }, []);
+
   // Safe data getters
   const rawPatients = db.getPatients();
   const patients: Patient[] = useMemo(() => {
     return Array.isArray(rawPatients) && rawPatients.length > 0 ? rawPatients : [DEFAULT_PATIENT];
-  }, [rawPatients]);
+  }, [rawPatients, db]);
 
   const rawBeds = db.getBeds();
   const beds: Bed[] = useMemo(() => {
@@ -209,7 +215,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
       { id: 'b-cw-304', bedNumber: 'CW-304', wardId: 'w-card', wardName: 'Cardiac Care Pavilion', type: 'Cardiac', status: 'Available' },
       { id: 'b-er-102', bedNumber: 'ER-102', wardId: 'w-er', wardName: 'Emergency Trauma', type: 'Emergency', status: 'Cleaning' },
     ];
-  }, [rawBeds]);
+  }, [rawBeds, db]);
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<

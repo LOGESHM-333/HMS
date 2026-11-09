@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Patient, 
   ThemeMode, 
@@ -49,6 +49,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onSelectPatient
 }) => {
   const isDark = theme === 'dark';
+  const [, setDbVersion] = useState(0);
+
+  useEffect(() => {
+    const unsub = db.subscribe(() => setDbVersion(v => v + 1));
+    return unsub;
+  }, []);
+
   const alerts = db.getAlerts();
 
   // Interactive symptoms selector state

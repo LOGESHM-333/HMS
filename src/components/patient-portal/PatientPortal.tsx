@@ -121,6 +121,13 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
     setInvoices(db.getInvoices().filter(i => i.patientId === updatedPat.id));
   };
 
+  useEffect(() => {
+    const unsub = db.subscribe(() => {
+      refreshCollections();
+    });
+    return unsub;
+  }, [patient.id]);
+
   // Toast feedback
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const showToast = (msg: string) => {

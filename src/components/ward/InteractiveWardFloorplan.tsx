@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Bed as BedIcon, 
   Users, 
@@ -51,6 +51,13 @@ export const InteractiveWardFloorplan: React.FC<InteractiveWardFloorplanProps> =
   // Live state
   const [beds, setBeds] = useState<Bed[]>(() => db.getBeds());
   const patients = useMemo(() => db.getPatients(), [beds]);
+
+  useEffect(() => {
+    const unsub = db.subscribe(() => {
+      setBeds([...db.getBeds()]);
+    });
+    return unsub;
+  }, []);
 
   // View mode: 'floorplan' (architectural spatial map) vs 'grid' (acuity matrix)
   const [viewMode, setViewMode] = useState<'floorplan' | 'grid'>('floorplan');

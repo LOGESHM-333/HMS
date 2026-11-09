@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Appointment, Doctor, Patient, ThemeMode } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
@@ -32,6 +32,13 @@ export const AppointmentManager: React.FC<AppointmentManagerProps> = ({ theme })
   const [appointments, setAppointments] = useState<Appointment[]>(db.getAppointments());
   const patients = db.getPatients();
   const doctors = db.getDoctors();
+
+  useEffect(() => {
+    const unsub = db.subscribe(() => {
+      setAppointments([...db.getAppointments()]);
+    });
+    return unsub;
+  }, []);
   
   const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('All');

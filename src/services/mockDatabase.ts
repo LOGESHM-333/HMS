@@ -797,6 +797,21 @@ class MockDatabase {
   private facilities: FacilityNode[] = INITIAL_FACILITIES;
   private securityConfig: EnterpriseSecurityConfig = INITIAL_SECURITY_CONFIG;
 
+  private listeners: (() => void)[] = [];
+
+  public subscribe(listener: () => void): () => void {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter(l => l !== listener);
+    };
+  }
+
+  public notifyListeners() {
+    this.listeners.forEach(fn => {
+      try { fn(); } catch (e) {}
+    });
+  }
+
   constructor() {
     this.loadFromStorage();
     if (this.auditLogs.length === 0) {
@@ -826,6 +841,7 @@ class MockDatabase {
           this.auditLogs = data.auditLogs;
         }
         this.saveToStorage();
+        this.notifyListeners();
         console.log('[MediCore] Live connected with Express REST Backend');
       }
     } catch {
@@ -945,6 +961,7 @@ class MockDatabase {
     this.patients.unshift(newPat);
     this.logAudit('Patient Registration', 'Patients', `Registered new patient ${newPat.name}`);
     this.saveToStorage();
+    this.notifyListeners();
     api.createPatient(newPat).catch(() => {});
     return newPat;
   }
@@ -955,10 +972,77 @@ class MockDatabase {
       this.patients[index] = { ...this.patients[index], ...updates };
       this.logAudit('Patient Update', 'Patients', `Updated chart for ${this.patients[index].name}`);
       this.saveToStorage();
+      this.notifyListeners();
       api.updatePatient(id, updates).catch(() => {});
       return this.patients[index];
     }
     return undefined;
+  }
+
+  public dischargePatient(id: string): Patient | undefined {
+    const patient = this.patients.find(p => p.id === id);
+    if (!patient) return undefined;
+
+    patient.admissionStatus = 'Discharged';
+    const previousBed = patient.bedNumber;
+    patient.bedNumber = undefined;
+    patient.ward = undefined;
+
+    // Release any associated bed in this.beds
+    if (previousBed) {
+      const bed = this.beds.find(b => b.bedNumber === previousBed || b.patientId === id);
+      if (bed) {
+        bed.status = 'Cleaning';
+        bed.patientId = undefined;
+        bed.patientName = undefined;
+        api.updateBed(bed.id, { status: 'Cleaning', patientId: undefined, patientName: undefined }).catch(() => {});
+      }
+    }
+
+    this.logAudit('Patient Discharge', 'Patients', `Discharged ${patient.name} (${patient.patientCode}) to home care`);
+    this.saveToStorage();
+    this.notifyListeners();
+    api.updatePatient(id, {
+      admissionStatus: 'Discharged',
+      roomNumber: 'Discharged - Home Care',
+      bedNumber: 'Discharged - Home Care'
+    }).catch(() => {});
+
+    return patient;
+  }
+
+  public admitPatient(id: string, ward: string = 'General Medicine Ward', bedNumber?: string): Patient | undefined {
+    const patient = this.patients.find(p => p.id === id);
+    if (!patient) return undefined;
+
+    patient.admissionStatus = 'Admitted';
+    patient.ward = ward;
+    if (bedNumber) patient.bedNumber = bedNumber;
+
+    this.logAudit('Patient Admission', 'Patients', `Admitted ${patient.name} (${patient.patientCode}) to ${ward}`);
+    this.saveToStorage();
+    this.notifyListeners();
+    api.updatePatient(id, {
+      admissionStatus: 'Admitted',
+      ward: ward,
+      bedNumber: bedNumber
+    }).catch(() => {});
+
+    return patient;
+  }
+
+  public deletePatient(id: string): boolean {
+    const idx = this.patients.findIndex(p => p.id === id);
+    if (idx !== -1) {
+      const removed = this.patients[idx];
+      this.patients.splice(idx, 1);
+      this.logAudit('Patient Record Archived', 'Patients', `Archived chart for ${removed.name} (${removed.patientCode})`);
+      this.saveToStorage();
+      this.notifyListeners();
+      api.deletePatient(id).catch(() => {});
+      return true;
+    }
+    return false;
   }
 
   // Doctors
@@ -1090,28 +1174,26 @@ class MockDatabase {
 
       this.logAudit('Bed Allocated', 'Inpatient', `Admitted ${patientName} to ${bed.bedNumber} (${bed.wardName})`);
       this.saveToStorage();
+      this.notifyListeners();
       api.updateBed(bedId, { status: 'Occupied', patientId, patientName, admittedDate: bed.admittedDate }).catch(() => {});
     }
   }
 
   public dischargeBed(bedId: string) {
     const bed = this.beds.find(b => b.id === bedId);
-    if (bed && bed.status === 'Occupied') {
+    if (bed && (bed.status === 'Occupied' || bed.patientId)) {
       const patientId = bed.patientId;
       bed.status = 'Cleaning';
       bed.patientId = undefined;
       bed.patientName = undefined;
 
       if (patientId) {
-        this.updatePatient(patientId, {
-          admissionStatus: 'Discharged',
-          ward: undefined,
-          bedNumber: undefined,
-        });
+        this.dischargePatient(patientId);
       }
 
       this.logAudit('Bed Discharged', 'Inpatient', `Discharged patient from ${bed.bedNumber}; queued for sanitation`);
       this.saveToStorage();
+      this.notifyListeners();
       api.updateBed(bedId, { status: 'Cleaning', patientId: undefined, patientName: undefined }).catch(() => {});
     }
   }
@@ -1126,6 +1208,7 @@ class MockDatabase {
       }
       this.logAudit('Bed Status Updated', 'Inpatient', `Bed ${bed.bedNumber} status updated to ${status}`);
       this.saveToStorage();
+      this.notifyListeners();
       api.updateBed(bedId, { status, patientId: bed.patientId, patientName: bed.patientName }).catch(() => {});
     }
   }

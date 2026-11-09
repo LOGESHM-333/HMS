@@ -538,3 +538,4 @@ export const WORKING_LAB_ORDERS: (LabOrder & {
     technicianNotes: 'Order received from outpatient clinic.'
   }
 ];
+

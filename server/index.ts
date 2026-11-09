@@ -441,7 +441,9 @@ app.put('/api/patients/:id', async (req: Request, res: Response) => {
     if (!existing || existing.length === 0) return res.status(404).json({ error: 'Patient not found' });
 
     const current = mapPatientRow(existing[0]);
-    const updated = { ...current, ...req.body };
+    const updated: any = { ...current, ...req.body };
+    updated.roomBed = req.body.roomBed || req.body.bedNumber || req.body.roomNumber || current.bedNumber || null;
+    updated.attendingDoctor = req.body.attendingDoctor || req.body.primaryDoctorName || current.primaryDoctorName || null;
 
     await p.query(
       `UPDATE patients SET 

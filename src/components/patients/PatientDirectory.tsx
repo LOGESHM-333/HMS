@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Patient, ThemeMode } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
@@ -28,7 +28,12 @@ import {
   Mail,
   Droplet,
   CreditCard,
-  Printer
+  Printer,
+  Edit3,
+  Trash2,
+  CheckCircle2,
+  UserCheck,
+  LogOut
 } from 'lucide-react';
 import { DigitalHealthCardModal } from '../export';
 
@@ -42,15 +47,126 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
   onSelectPatientFor3D
 }) => {
   const isDark = theme === 'dark';
-  const [patients, setPatients] = useState<Patient[]>(db.getPatients());
+  const [patients, setPatients] = useState<Patient[]>(() => db.getPatients());
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(patients[0]);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(() => db.getPatients()[0] || null);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | '3d_anatomy' | 'history'>('overview');
   const [isHealthCardOpen, setIsHealthCardOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const PATIENTS_PER_PAGE = 10;
+
+  // Subscribe to live database updates across all portals
+  useEffect(() => {
+    const unsubscribe = db.subscribe(() => {
+      const all = db.getPatients();
+      setPatients(all);
+      if (selectedPatient) {
+        const refreshed = all.find(p => p.id === selectedPatient.id);
+        if (refreshed) setSelectedPatient(refreshed);
+      }
+    });
+    return unsubscribe;
+  }, [selectedPatient?.id]);
+
+  const showToast = (msg: string) => {
+    sound.playSuccess();
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3800);
+  };
+
+  // Edit patient form state
+  const [editForm, setEditForm] = useState({
+    name: '',
+    age: 0,
+    gender: 'Male' as 'Male' | 'Female' | 'Other',
+    bloodGroup: 'O+',
+    phone: '',
+    diagnosis: '',
+    admissionStatus: 'Outpatient' as Patient['admissionStatus'],
+    bloodPressure: '120/80',
+    pulseRate: 72,
+    oxygenSaturation: 98,
+  });
+
+  const handleOpenEdit = (p: Patient) => {
+    sound.playClick();
+    setEditForm({
+      name: p.name,
+      age: p.age,
+      gender: p.gender,
+      bloodGroup: p.bloodGroup,
+      phone: p.phone,
+      diagnosis: p.diagnosis,
+      admissionStatus: p.admissionStatus,
+      bloodPressure: p.vitals?.bloodPressure || '120/80',
+      pulseRate: p.vitals?.pulseRate || 72,
+      oxygenSaturation: p.vitals?.oxygenSaturation || 98,
+    });
+    setIsEditOpen(true);
+  };
+
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPatient) return;
+    sound.playSuccess();
+
+    const updated = db.updatePatient(selectedPatient.id, {
+      name: editForm.name,
+      age: Number(editForm.age),
+      gender: editForm.gender,
+      bloodGroup: editForm.bloodGroup,
+      phone: editForm.phone,
+      diagnosis: editForm.diagnosis,
+      admissionStatus: editForm.admissionStatus,
+      vitals: {
+        ...selectedPatient.vitals,
+        bloodPressure: editForm.bloodPressure,
+        pulseRate: Number(editForm.pulseRate),
+        oxygenSaturation: Number(editForm.oxygenSaturation),
+        lastUpdated: 'Just now'
+      }
+    });
+
+    if (updated) setSelectedPatient(updated);
+    setPatients(db.getPatients());
+    setIsEditOpen(false);
+    showToast(`Updated clinical record for ${editForm.name}. Saved to SQL.`);
+  };
+
+  const handleDischargeSelected = () => {
+    if (!selectedPatient) return;
+    sound.playClick();
+    const updated = db.dischargePatient(selectedPatient.id);
+    if (updated) setSelectedPatient(updated);
+    setPatients(db.getPatients());
+    showToast(`Discharged ${selectedPatient.name} to Home Care.`);
+  };
+
+  const handleAdmitSelected = () => {
+    if (!selectedPatient) return;
+    sound.playClick();
+    const updated = db.admitPatient(selectedPatient.id, 'General Medicine Ward');
+    if (updated) setSelectedPatient(updated);
+    setPatients(db.getPatients());
+    showToast(`Admitted ${selectedPatient.name} to General Inpatient Ward.`);
+  };
+
+  const handleDeleteSelected = () => {
+    if (!selectedPatient) return;
+    const confirm = window.confirm(`Permanently archive and delete chart for ${selectedPatient.name} (${selectedPatient.patientCode})?`);
+    if (!confirm) return;
+    sound.playClick();
+    const id = selectedPatient.id;
+    db.deletePatient(id);
+    const remaining = db.getPatients();
+    setPatients(remaining);
+    setSelectedPatient(remaining[0] || null);
+    showToast(`Patient chart archived and deleted from database.`);
+  };
 
   // New patient form state
   const [newPatient, setNewPatient] = useState({
@@ -113,6 +229,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
     setPatients(db.getPatients());
     setSelectedPatient(created);
     setIsRegisterOpen(false);
+    showToast(`Registered new patient ${created.name} (${created.patientCode}).`);
   };
 
   const filteredPatients = patients.filter((pat) => {
@@ -127,6 +244,14 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Toast Notification Banner */}
+      {toastMessage && (
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2.5 px-5 py-3.5 rounded-2xl bg-teal-600 text-white shadow-2xl animate-in slide-in-from-top-4 duration-200 text-xs font-bold border border-teal-400/40">
+          <CheckCircle2 className="w-4 h-4 text-teal-200" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* DIRECTORY HEADER & CONTROLS */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -344,6 +469,68 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                   </button>
                 </div>
               </div>
+              </div>
+
+              {/* Executive Clinical Actions Bar: Status, Discharge & Edit */}
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400 font-semibold text-[11px]">Admission Status:</span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${
+                    selectedPatient.admissionStatus === 'ICU'
+                      ? 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
+                      : selectedPatient.admissionStatus === 'Admitted'
+                      ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
+                      : selectedPatient.admissionStatus === 'Discharged'
+                      ? 'bg-purple-500/10 text-purple-600 border border-purple-500/20'
+                      : 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                  }`}>
+                    {selectedPatient.admissionStatus}
+                  </span>
+                  {selectedPatient.bedNumber && (
+                    <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">
+                      • Bed: {selectedPatient.bedNumber}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {selectedPatient.admissionStatus === 'Admitted' || selectedPatient.admissionStatus === 'ICU' ? (
+                    <button
+                      onClick={handleDischargeSelected}
+                      className="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-rose-500/10 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-500/30 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+                      title="Discharge Patient & Release Inpatient Bed"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Discharge Patient</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleAdmitSelected}
+                      className="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-teal-500/10 text-teal-600 hover:bg-teal-600 hover:text-white border border-teal-500/30 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+                      title="Admit Patient to Ward"
+                    >
+                      <UserCheck className="w-3.5 h-3.5" />
+                      <span>Admit to Inpatient</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => handleOpenEdit(selectedPatient)}
+                    className="px-3.5 py-1.5 rounded-xl font-bold text-xs glass-btn-neutral flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    title="Edit Patient Clinical Profile & Vitals"
+                  >
+                    <Edit3 className="w-3.5 h-3.5 text-teal-500" />
+                    <span>Edit Chart</span>
+                  </button>
+
+                  <button
+                    onClick={handleDeleteSelected}
+                    className="p-1.5 rounded-xl text-rose-500 hover:bg-rose-500/10 transition-all cursor-pointer"
+                    title="Archive / Delete Patient"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               {/* TAB 1: OVERVIEW & VITALS */}
@@ -602,6 +789,155 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                   className="px-5 py-2 rounded-xl text-xs font-bold bg-teal-500 hover:bg-teal-600 text-white shadow-md active:scale-95 transition-all"
                 >
                   Confirm & Generate MRN
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* EDIT PATIENT MODAL */}
+      {isEditOpen && selectedPatient && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`w-full max-w-lg rounded-3xl p-6 shadow-2xl border transition-all ${
+            isDark ? 'bg-[#0E2035] border-slate-700 text-white' : 'bg-white border-slate-200 text-[#142C43]'
+          }`}>
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Edit3 className="w-5 h-5 text-teal-500" />
+                <h3 className="font-extrabold text-base">Edit Patient Profile & Vitals</h3>
+              </div>
+              <button
+                onClick={() => setIsEditOpen(false)}
+                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-4 mt-4 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Full Legal Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className={`w-full px-3 py-2 rounded-xl text-xs border outline-none ${
+                      isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-[#142C43]'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Age</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="120"
+                    value={editForm.age}
+                    onChange={(e) => setEditForm({ ...editForm, age: parseInt(e.target.value) || 30 })}
+                    className={`w-full px-3 py-2 rounded-xl text-xs border outline-none ${
+                      isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-[#142C43]'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Admission Status</label>
+                  <select
+                    value={editForm.admissionStatus}
+                    onChange={(e) => setEditForm({ ...editForm, admissionStatus: e.target.value as any })}
+                    className={`w-full px-3 py-2 rounded-xl text-xs border outline-none font-bold ${
+                      isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-[#142C43]'
+                    }`}
+                  >
+                    <option value="Outpatient">Outpatient</option>
+                    <option value="Admitted">Admitted</option>
+                    <option value="ICU">ICU Critical</option>
+                    <option value="Discharged">Discharged</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Blood Group</label>
+                  <select
+                    value={editForm.bloodGroup}
+                    onChange={(e) => setEditForm({ ...editForm, bloodGroup: e.target.value })}
+                    className={`w-full px-3 py-2 rounded-xl text-xs border outline-none ${
+                      isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-[#142C43]'
+                    }`}
+                  >
+                    {['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map(bg => (
+                      <option key={bg} value={bg}>{bg}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-400 block mb-1">Primary Clinical Diagnosis</label>
+                <input
+                  type="text"
+                  required
+                  value={editForm.diagnosis}
+                  onChange={(e) => setEditForm({ ...editForm, diagnosis: e.target.value })}
+                  className={`w-full px-3 py-2 rounded-xl text-xs border outline-none ${
+                    isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-[#142C43]'
+                  }`}
+                />
+              </div>
+
+              {/* Vitals Grid */}
+              <div className="grid grid-cols-3 gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 block mb-1">Blood Pressure</label>
+                  <input
+                    type="text"
+                    value={editForm.bloodPressure}
+                    onChange={(e) => setEditForm({ ...editForm, bloodPressure: e.target.value })}
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-mono border outline-none ${
+                      isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 block mb-1">Heart Rate (bpm)</label>
+                  <input
+                    type="number"
+                    value={editForm.pulseRate}
+                    onChange={(e) => setEditForm({ ...editForm, pulseRate: parseInt(e.target.value) || 72 })}
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-mono border outline-none ${
+                      isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-400 block mb-1">SpO2 (%)</label>
+                  <input
+                    type="number"
+                    value={editForm.oxygenSaturation}
+                    onChange={(e) => setEditForm({ ...editForm, oxygenSaturation: parseInt(e.target.value) || 98 })}
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-mono border outline-none ${
+                      isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsEditOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl text-xs font-bold glass-btn-teal shadow-md cursor-pointer"
+                >
+                  Save Changes to Database
                 </button>
               </div>
             </form>

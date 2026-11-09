@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemeMode, UserRole, Patient } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
@@ -79,6 +79,12 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [alertDismissed, setAlertDismissed] = useState(false);
   const [exportNotice, setExportNotice] = useState<string | null>(null);
+  const [, setDbVersion] = useState(0);
+
+  useEffect(() => {
+    const unsub = db.subscribe(() => setDbVersion(v => v + 1));
+    return unsub;
+  }, []);
 
   // Dynamic real counts from live database
   const patientsCount = db.getPatients().length;

@@ -158,6 +158,15 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
 
   useEffect(() => {
     refreshFullData();
+    const unsubscribe = db.subscribe(() => {
+      setPatients(db.getPatients());
+      setAppointments(db.getAppointments());
+      setPrescriptions(db.getPrescriptions());
+      setLabOrders(db.getLabOrders());
+      setAlerts(db.getAlerts());
+      setBeds(db.getBeds());
+    });
+    return unsubscribe;
   }, []);
 
   // ================= MODULE 1: PATIENT TELE-CHAT STATES & REAL-TIME POLLING =================
@@ -305,6 +314,13 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
     if (!transferPatient) return;
 
     sound.playClick();
+    db.updatePatient(transferPatient.id, {
+      admissionStatus: newAdmissionStatus,
+      bedNumber: newRoomNumber,
+      roomNumber: newRoomNumber
+    });
+    setPatients([...db.getPatients()]);
+
     try {
       await api.updatePatient(transferPatient.id, {
         admissionStatus: newAdmissionStatus,
@@ -315,6 +331,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
       refreshFullData();
     } catch {
       showToast(`Updated ward status for ${transferPatient.name}.`);
+      refreshFullData();
     }
     setTransferModalOpen(false);
   };
@@ -323,6 +340,9 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
     sound.playClick();
     const confirm = window.confirm(`Confirm clinical discharge sign-off for ${patient.name}? This will archive their inpatient bed assignment.`);
     if (!confirm) return;
+
+    db.dischargePatient(patient.id);
+    setPatients([...db.getPatients()]);
 
     try {
       await api.updatePatient(patient.id, {
@@ -334,6 +354,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
       refreshFullData();
     } catch {
       showToast(`Discharged ${patient.name}.`);
+      refreshFullData();
     }
   };
 

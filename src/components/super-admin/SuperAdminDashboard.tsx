@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemeMode, ManagedUser, FacilityNode, EnterpriseSecurityConfig, AuditLog } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
@@ -67,6 +67,16 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
   const [users, setUsers] = useState<ManagedUser[]>(() => db.getSystemUsers());
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => db.getAuditLogs());
   const [securityConfig, setSecurityConfig] = useState<EnterpriseSecurityConfig>(() => db.getSecurityConfig());
+
+  useEffect(() => {
+    const unsub = db.subscribe(() => {
+      setFacilities(db.getFacilities());
+      setUsers(db.getSystemUsers());
+      setAuditLogs(db.getAuditLogs());
+      setSecurityConfig(db.getSecurityConfig());
+    });
+    return unsub;
+  }, []);
 
   // Search & Filter state
   const [userSearch, setUserSearch] = useState('');

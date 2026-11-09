@@ -127,6 +127,16 @@ export function persistFallbackStore() {
     const dataDir = path.dirname(FALLBACK_DB_PATH);
     if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
     fs.writeFileSync(FALLBACK_DB_PATH, JSON.stringify(fallbackStore, null, 2), 'utf8');
+
+    // Also persist updated members to dataset_1000.json
+    if (fs.existsSync(DATASET_PATH)) {
+      const dataset = {
+        patients: fallbackStore.patients,
+        doctors: fallbackStore.doctors,
+        staff: fallbackStore.staff
+      };
+      fs.writeFileSync(DATASET_PATH, JSON.stringify(dataset, null, 2), 'utf8');
+    }
   } catch (e: any) {
     console.warn('[MediCore DB] Could not persist database.json:', e.message);
   }
@@ -400,6 +410,191 @@ export function getPool(): any {
           return [{ affectedRows: 1 }];
         }
         return [{ affectedRows: 0 }];
+      }
+
+      // INSERT INTO patients
+      if (lower.startsWith('insert into patients')) {
+        const newRecord = {
+          id: params[0],
+          patientCode: params[1],
+          name: params[2],
+          age: Number(params[3]) || 40,
+          gender: params[4] || 'Other',
+          bloodGroup: params[5] || 'O+',
+          admissionDate: params[6] || null,
+          admissionStatus: params[7] || 'Outpatient',
+          diagnosis: params[8] || 'Clinical Evaluation',
+          primaryDoctorName: params[9] || 'Dr. Roger Sterling, MD',
+          bedNumber: params[10] || undefined,
+          insuranceProvider: params[11] || null,
+          phone: params[12] || '+1 (555) 000-0000',
+          vitals: typeof params[13] === 'string' ? JSON.parse(params[13] || '{}') : (params[13] || {}),
+          medicalHistory: typeof params[14] === 'string' ? JSON.parse(params[14] || '[]') : (params[14] || []),
+          allergies: typeof params[15] === 'string' ? JSON.parse(params[15] || '[]') : (params[15] || []),
+          avatar: params[16] || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+        };
+        fallbackStore.patients.unshift(newRecord);
+        persistFallbackStore();
+        return [{ affectedRows: 1, insertId: newRecord.id }];
+      }
+
+      // UPDATE patients
+      if (lower.startsWith('update patients')) {
+        const id = params[params.length - 1];
+        const existing = fallbackStore.patients.find((p: any) => p.id === id || p.patientCode === id);
+        if (existing) {
+          if (lower.includes('set vitals =')) {
+            existing.vitals = typeof params[0] === 'string' ? JSON.parse(params[0]) : params[0];
+          } else if (lower.includes('set medical_history =')) {
+            existing.medicalHistory = typeof params[0] === 'string' ? JSON.parse(params[0]) : params[0];
+          } else if (lower.includes('set allergies =')) {
+            existing.allergies = typeof params[0] === 'string' ? JSON.parse(params[0]) : params[0];
+          } else {
+            // Full update: name, age, gender, blood_group, admission_date, admission_status, diagnosis, attending_doctor, room_bed, insurance_provider, emergency_contact, vitals, medical_history, allergies, avatar
+            if (params[0] !== undefined) existing.name = params[0];
+            if (params[1] !== undefined) existing.age = Number(params[1]) || existing.age;
+            if (params[2] !== undefined) existing.gender = params[2];
+            if (params[3] !== undefined) existing.bloodGroup = params[3];
+            if (params[4] !== undefined) existing.admissionDate = params[4];
+            if (params[5] !== undefined) existing.admissionStatus = params[5];
+            if (params[6] !== undefined) existing.diagnosis = params[6];
+            if (params[7] !== undefined) existing.primaryDoctorName = params[7];
+            if (params[8] !== undefined) existing.bedNumber = params[8];
+            if (params[9] !== undefined) existing.insuranceProvider = params[9];
+            if (params[10] !== undefined) existing.phone = params[10];
+            if (params[11] !== undefined) existing.vitals = typeof params[11] === 'string' ? JSON.parse(params[11]) : params[11];
+            if (params[12] !== undefined) existing.medicalHistory = typeof params[12] === 'string' ? JSON.parse(params[12]) : params[12];
+            if (params[13] !== undefined) existing.allergies = typeof params[13] === 'string' ? JSON.parse(params[13]) : params[13];
+            if (params[14] !== undefined && params[14] !== null) existing.avatar = params[14];
+          }
+          persistFallbackStore();
+        }
+        return [{ affectedRows: existing ? 1 : 0 }];
+      }
+
+      // UPDATE beds
+      if (lower.startsWith('update beds')) {
+        const id = params[params.length - 1];
+        const bed = fallbackStore.beds.find((b: any) => b.id === id || b.bedNumber === id);
+        if (bed) {
+          if (params[0] !== undefined) bed.status = params[0];
+          if (params[1] !== undefined) bed.patientId = params[1] || undefined;
+          if (params[2] !== undefined) bed.patientName = params[2] || undefined;
+          if (params[3] !== undefined) bed.admittedDate = params[3] || undefined;
+          persistFallbackStore();
+        }
+        return [{ affectedRows: bed ? 1 : 0 }];
+      }
+
+      // INSERT INTO appointments
+      if (lower.startsWith('insert into appointments')) {
+        const newApt = {
+          id: params[0],
+          patientId: params[1],
+          patientName: params[2],
+          doctorId: params[3],
+          doctorName: params[4],
+          department: params[5],
+          date: params[6],
+          time: params[7],
+          status: params[8] || 'Scheduled',
+          type: params[9] || 'Consultation',
+          notes: params[10] || ''
+        };
+        fallbackStore.appointments.unshift(newApt);
+        persistFallbackStore();
+        return [{ affectedRows: 1, insertId: newApt.id }];
+      }
+
+      // UPDATE appointments
+      if (lower.startsWith('update appointments')) {
+        const id = params[params.length - 1];
+        const apt = fallbackStore.appointments.find((a: any) => a.id === id);
+        if (apt) {
+          if (params[0] !== undefined) apt.status = params[0];
+          if (params[1] !== undefined) apt.date = params[1];
+          if (params[2] !== undefined) apt.time = params[2];
+          if (params[3] !== undefined) apt.notes = params[3];
+          persistFallbackStore();
+        }
+        return [{ affectedRows: apt ? 1 : 0 }];
+      }
+
+      // UPDATE medicines
+      if (lower.startsWith('update medicines')) {
+        const id = params[params.length - 1];
+        const med = fallbackStore.medicines.find((m: any) => m.id === id);
+        if (med) {
+          if (params[0] !== undefined) med.stock = Number(params[0]);
+          if (med.stock <= med.minThreshold) med.status = 'Low Stock';
+          persistFallbackStore();
+        }
+        return [{ affectedRows: med ? 1 : 0 }];
+      }
+
+      // INSERT INTO prescriptions
+      if (lower.startsWith('insert into prescriptions')) {
+        const newRx = {
+          id: params[0],
+          patientId: params[1],
+          patientName: params[2],
+          doctorId: params[3],
+          doctorName: params[4],
+          date: params[5] || new Date().toISOString().split('T')[0],
+          status: params[6] || 'Prescribed',
+          items: typeof params[7] === 'string' ? JSON.parse(params[7]) : (params[7] || [])
+        };
+        fallbackStore.prescriptions.unshift(newRx);
+        persistFallbackStore();
+        return [{ affectedRows: 1, insertId: newRx.id }];
+      }
+
+      // UPDATE prescriptions
+      if (lower.startsWith('update prescriptions')) {
+        const id = params[params.length - 1];
+        const rx = fallbackStore.prescriptions.find((r: any) => r.id === id);
+        if (rx) {
+          if (params[0] !== undefined) rx.status = params[0];
+          if (params[1] !== undefined && typeof params[1] === 'string' && params[1].startsWith('[')) {
+            rx.items = JSON.parse(params[1]);
+          }
+          persistFallbackStore();
+        }
+        return [{ affectedRows: rx ? 1 : 0 }];
+      }
+
+      // INSERT INTO invoices
+      if (lower.startsWith('insert into invoices')) {
+        const newInv = {
+          id: params[0],
+          invoiceNumber: params[1],
+          patientId: params[2],
+          patientName: params[3],
+          issueDate: params[4],
+          dueDate: params[5],
+          status: params[6] || 'Pending',
+          paymentMethod: params[7] || null,
+          items: typeof params[8] === 'string' ? JSON.parse(params[8]) : (params[8] || []),
+          subtotal: Number(params[9]) || 0,
+          tax: Number(params[10]) || 0,
+          discount: Number(params[11]) || 0,
+          grandTotal: Number(params[12]) || 0
+        };
+        fallbackStore.invoices.unshift(newInv);
+        persistFallbackStore();
+        return [{ affectedRows: 1, insertId: newInv.id }];
+      }
+
+      // UPDATE invoices
+      if (lower.startsWith('update invoices')) {
+        const id = params[params.length - 1];
+        const inv = fallbackStore.invoices.find((i: any) => i.id === id || i.invoiceNumber === id);
+        if (inv) {
+          if (params[0] !== undefined) inv.status = params[0];
+          if (params[1] !== undefined) inv.paymentMethod = params[1];
+          persistFallbackStore();
+        }
+        return [{ affectedRows: inv ? 1 : 0 }];
       }
 
       // INSERT INTO lab_orders

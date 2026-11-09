@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Invoice, ThemeMode } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
@@ -30,6 +30,13 @@ export const BillingManager: React.FC<BillingManagerProps> = ({ theme }) => {
   const isDark = theme === 'dark';
   const [invoices, setInvoices] = useState<Invoice[]>(db.getInvoices());
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(invoices[0] || null);
+
+  useEffect(() => {
+    const unsub = db.subscribe(() => {
+      setInvoices([...db.getInvoices()]);
+    });
+    return unsub;
+  }, []);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [printInvoiceModalOpen, setPrintInvoiceModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('Medical Insurance (Aetna Health)');
