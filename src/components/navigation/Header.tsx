@@ -298,18 +298,33 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* RIGHT CIRCULAR BUTTONS (BELL, SETTINGS, AVATAR - MATCHING SCREENSHOT) */}
         <div className="flex items-center gap-2.5 shrink-0">
-          {/* Quick Search Icon Button */}
+          {/* Quick Command Palette (Ctrl+K) */}
           {onOpenSearch && (
-            <button
-              onClick={() => {
-                sound.playClick();
-                onOpenSearch();
-              }}
-              className="w-10 h-10 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-all shadow-xs"
-              title="Global Search (Cmd+K)"
-            >
-              <Search className="w-4 h-4" />
-            </button>
+            <>
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onOpenSearch();
+                }}
+                className="hidden md:flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-xs text-slate-400 hover:border-teal-500/50 hover:text-slate-600 dark:hover:text-slate-200 shadow-xs transition-all cursor-pointer"
+                title="Global Search (Ctrl+K / Cmd+K)"
+              >
+                <Search className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <span className="text-[11px] font-medium">Search patients, beds, doctors...</span>
+                <kbd className="ml-1.5 px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">Ctrl+K</kbd>
+              </button>
+
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onOpenSearch();
+                }}
+                className="md:hidden w-10 h-10 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 transition-all shadow-xs cursor-pointer"
+                title="Global Search (Ctrl+K / Cmd+K)"
+              >
+                <Search className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              </button>
+            </>
           )}
 
           {/* Notifications Bell */}

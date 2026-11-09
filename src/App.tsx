@@ -32,6 +32,7 @@ import { PatientPortal } from './components/patient-portal/PatientPortal';
 import { DoctorPortal } from './components/doctor-portal/DoctorPortal';
 import { HeadNursePortal } from './components/nurse-portal/HeadNursePortal';
 import { SettingsView } from './components/settings/SettingsView';
+import { CommandPalette } from './components/navigation/CommandPalette';
 import {
   Search,
   X,
@@ -54,28 +55,6 @@ import {
 } from 'lucide-react';
 
 export type HeaderPortalMode = 'super-admin' | 'admin' | 'management' | 'doctor' | 'nurse' | 'patient';
-
-// ============================================================
-// GLOBAL SEARCH ACTIONS
-// ============================================================
-const SEARCH_ACTIONS = [
-  { label: 'Dashboard', tab: 'dashboard', icon: LayoutDashboard, mode: 'admin', keywords: ['home', 'overview', 'dashboard'] },
-  { label: 'Ward Overview', tab: 'ward', icon: Layers, mode: 'admin', keywords: ['ward', 'beds', 'floor'] },
-  { label: 'Patient Directory', tab: 'patients', icon: Users, mode: 'admin', keywords: ['patients', 'directory'] },
-  { label: 'Doctors', tab: 'doctors', icon: Stethoscope, mode: 'admin', keywords: ['doctors', 'physicians', 'staff'] },
-  { label: 'Appointments', tab: 'appointments', icon: Calendar, mode: 'admin', keywords: ['appointments', 'schedule', 'booking'] },
-  { label: 'Bed Management', tab: 'beds', icon: BedIcon, mode: 'admin', keywords: ['beds', 'icu', 'ward'] },
-  { label: 'Pharmacy', tab: 'pharmacy', icon: Pill, mode: 'admin', keywords: ['pharmacy', 'medicines', 'drugs'] },
-  { label: 'Laboratory', tab: 'lab', icon: FlaskConical, mode: 'admin', keywords: ['lab', 'tests', 'reports'] },
-  { label: 'Billing & Finance', tab: 'billing', icon: CreditCard, mode: 'admin', keywords: ['billing', 'invoice', 'payment'] },
-  { label: 'Medical Records (EMR)', tab: 'emr', icon: FileText, mode: 'admin', keywords: ['emr', 'records', 'notes'] },
-  { label: 'Staff Management', tab: 'staff', icon: UserCog, mode: 'admin', keywords: ['staff', 'employees', 'hr'] },
-  { label: 'Analytics & Reports', tab: 'analytics', icon: BarChart3, mode: 'admin', keywords: ['analytics', 'reports', 'charts'] },
-  { label: 'Patient Health Dashboard', tab: 'patient-health', icon: Heart, mode: 'patient', keywords: ['health', 'vitals', 'patient'] },
-  { label: 'Doctor Consultation', tab: 'doctor-consult', icon: Stethoscope, mode: 'doctor', keywords: ['consult', 'doctor', 'physician'] },
-  { label: 'Nursing Station', tab: 'nurse-rounds', icon: Activity, mode: 'nurse', keywords: ['nurse', 'rounds', 'ward'] },
-  { label: 'Enterprise Overview', tab: 'overview', icon: ShieldCheck, mode: 'super-admin', keywords: ['enterprise', 'governance', 'admin'] },
-];
 
 // ============================================================
 // PAGE TITLE MAP
@@ -151,7 +130,6 @@ export default function App() {
 
   const [theme, setTheme] = useState<ThemeMode>(db.getTheme());
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(db.getSelectedPatient());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -285,16 +263,6 @@ export default function App() {
     if (portalMode === 'nurse') return 'https://images.unsplash.com/photo-1594824813571-638f02614d3f?w=150&auto=format&fit=crop&q=80';
     return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
   };
-
-  // Filtered search results
-  const filteredSearch = useMemo(() => {
-    if (!searchQuery.trim()) return SEARCH_ACTIONS.slice(0, 8);
-    const q = searchQuery.toLowerCase();
-    return SEARCH_ACTIONS.filter(a =>
-      a.label.toLowerCase().includes(q) ||
-      a.keywords.some(k => k.includes(q))
-    );
-  }, [searchQuery]);
 
   const isDark = theme === 'dark';
 
@@ -613,120 +581,23 @@ export default function App() {
         </footer>
       </div>
 
-      {/* ===== GLOBAL SEARCH DIALOG (CMD+K) ===== */}
-      {isSearchOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-start justify-center pt-24 p-4"
-          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
-          onClick={e => { if (e.target === e.currentTarget) setIsSearchOpen(false); }}
-        >
-          <div
-            className="w-full max-w-lg rounded-3xl shadow-2xl border overflow-hidden animate-fade-up"
-            style={{ background: 'var(--color-surface)', borderColor: 'var(--color-border)', boxShadow: 'var(--shadow-xl)' }}
-          >
-            {/* Search Input */}
-            <div className="flex items-center gap-3 px-5 py-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
-              <Search size={18} style={{ color: 'var(--color-brand-accent)', flexShrink: 0 }} />
-              <input
-                type="text"
-                autoFocus
-                placeholder="Search modules, patients, clinical tools..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent outline-none text-sm font-medium"
-                style={{ color: 'var(--color-text-primary)' }}
-              />
-              <button
-                onClick={() => setIsSearchOpen(false)}
-                className="p-1.5 rounded-lg transition-colors"
-                style={{ background: 'var(--color-surface-2)', color: 'var(--color-text-muted)' }}
-              >
-                <X size={15} />
-              </button>
-            </div>
-
-            {/* Results */}
-            <div className="py-2 max-h-80 overflow-y-auto">
-              {filteredSearch.length === 0 ? (
-                <div className="py-8 text-center text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                  No results for "{searchQuery}"
-                </div>
-              ) : (
-                filteredSearch.map((action, i) => {
-                  const IconComponent = action.icon;
-                  return (
-                    <button
-                      key={i}
-                      onClick={() => {
-                        sound.playClick();
-                        // Switch portal mode if needed
-                        if (action.mode === 'patient' && portalMode !== 'patient') {
-                          handleSwitchPortal('patient');
-                        } else if (action.mode === 'nurse' && portalMode !== 'nurse') {
-                          handleSwitchPortal('nurse');
-                        } else if (action.mode === 'doctor' && portalMode !== 'doctor') {
-                          handleSwitchPortal('doctor');
-                        } else if (action.mode === 'super-admin' && portalMode !== 'super-admin') {
-                          handleSwitchPortal('super-admin');
-                        } else {
-                          setCurrentTab(action.tab);
-                        }
-                        setIsSearchOpen(false);
-                        setSearchQuery('');
-                      }}
-                      className="w-full flex items-center justify-between px-5 py-3 text-sm text-left transition-all"
-                      style={{ color: 'var(--color-text-primary)' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-2)'; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="p-2 rounded-xl"
-                          style={{ background: 'var(--color-surface-2)', color: 'var(--color-brand-accent)' }}
-                        >
-                          <IconComponent size={15} />
-                        </div>
-                        <span className="font-500">{action.label}</span>
-                      </div>
-                      <span
-                        className="badge badge-neutral text-[10px]"
-                        style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}
-                      >
-                        {action.mode}
-                      </span>
-                    </button>
-                  );
-                })
-              )}
-            </div>
-
-            {/* Footer hint */}
-            <div
-              className="px-5 py-3 border-t flex items-center justify-between"
-              style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface-2)' }}
-            >
-              <div className="flex items-center gap-3 text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
-                <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>↑↓</kbd>
-                  Navigate
-                </span>
-                <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>↵</kbd>
-                  Select
-                </span>
-                <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded font-mono text-[10px]" style={{ background: 'var(--color-border)' }}>Esc</kbd>
-                  Close
-                </span>
-              </div>
-              <div className="flex items-center gap-1 text-[11px]" style={{ color: 'var(--color-brand-accent)' }}>
-                <Sparkles size={12} />
-                <span>MediCore Search</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ===== GLOBAL COMMAND PALETTE (CTRL+K / CMD+K) ===== */}
+      <CommandPalette
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        theme={theme}
+        portalMode={portalMode}
+        onSwitchPortal={handleSwitchPortal}
+        onNavigateTab={(tab) => {
+          setCurrentTab(tab);
+          const title = PAGE_TITLES[tab];
+          if (title) document.title = `${title} | MediCore Healthcare`;
+        }}
+        onSelectPatient={(pat) => {
+          setSelectedPatient(pat);
+          db.setSelectedPatient(pat.id);
+        }}
+      />
     </div>
   );
 }
