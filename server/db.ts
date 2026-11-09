@@ -159,7 +159,11 @@ export async function initializeDatabase(): Promise<DbStatus> {
   if (requestedType === 'postgres' || requestedType === 'postgresql' || requestedType === 'auto') {
     try {
       console.log(`[MediCore DB] Testing PostgreSQL engine connection on ${PG_CONFIG.host}:${PG_CONFIG.port}...`);
-      const testPool = new pg.Pool(PG_CONFIG.connectionString ? { connectionString: PG_CONFIG.connectionString } : PG_CONFIG);
+      const testPool = new pg.Pool(
+        PG_CONFIG.connectionString
+          ? { connectionString: PG_CONFIG.connectionString, ssl: { rejectUnauthorized: false } }
+          : PG_CONFIG
+      );
       const client = await testPool.connect();
       await client.query('SELECT 1');
       client.release();

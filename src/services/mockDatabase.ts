@@ -1067,6 +1067,32 @@ class MockDatabase {
 
   // Doctors
   public getDoctors(): Doctor[] { return [...this.doctors]; }
+  public addDoctor(doc: Omit<Doctor, 'id'>): Doctor {
+    const newDoc: Doctor = {
+      ...doc,
+      id: `doc-${Date.now()}`,
+    };
+    this.doctors.unshift(newDoc);
+    this.logAudit('Doctor Registered', 'Staff', `Registered attending doctor ${newDoc.name} (${newDoc.department})`);
+    this.saveToStorage();
+    this.notifyListeners();
+    api.createDoctor(newDoc).catch(() => {});
+    return newDoc;
+  }
+
+  public deleteDoctor(id: string): boolean {
+    const idx = this.doctors.findIndex(d => d.id === id);
+    if (idx !== -1) {
+      const removed = this.doctors[idx];
+      this.doctors.splice(idx, 1);
+      this.logAudit('Doctor Removed', 'Staff', `Archived specialist ${removed.name}`);
+      this.saveToStorage();
+      this.notifyListeners();
+      api.deleteDoctor(id).catch(() => {});
+      return true;
+    }
+    return false;
+  }
 
   // Appointments
   public getAppointments(): Appointment[] { return [...this.appointments]; }

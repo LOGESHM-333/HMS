@@ -18,14 +18,48 @@ import {
   AuditLog
 } from '../types';
 
-const API_BASE = typeof window !== 'undefined' ? '/api' : 'http://localhost:5000/api';
+export const CLOUD_TUNNEL_URL = 'https://mod-socks-barriers-argument.trycloudflare.com';
+
+export function resolveApiBase(): string {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('medicore_api_url');
+    if (saved) return saved.replace(/\/$/, '') + '/api';
+
+    if ((window as any).__MEDICORE_API_URL__) return (window as any).__MEDICORE_API_URL__;
+
+    if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL.replace(/\/$/, '') + '/api';
+
+    const host = window.location.hostname;
+    // Local development (localhost / 127.0.0.1)
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return '/api';
+    }
+
+    // Remote deployments (Vercel, friend's device, public internet)
+    return `${CLOUD_TUNNEL_URL}/api`;
+  }
+  return 'http://localhost:5000/api';
+}
+
+export function setCustomBackendUrl(url: string) {
+  if (typeof window !== 'undefined') {
+    if (url) localStorage.setItem('medicore_api_url', url);
+    else localStorage.removeItem('medicore_api_url');
+  }
+}
+
+export function getActiveBackendUrl(): string {
+  return resolveApiBase();
+}
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const url = `${API_BASE}${endpoint}`;
+  const base = resolveApiBase();
+  const url = `${base}${endpoint}`;
   try {
     const res = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
+        'Bypass-Tunnel-Reminder': 'true',
         ...options?.headers,
       },
       ...options,
@@ -86,6 +120,8 @@ export const api = {
 
   // Doctors
   getDoctors: () => request<Doctor[]>('/doctors'),
+  createDoctor: (doctor: Omit<Doctor, 'id'>) => request<Doctor>('/doctors', { method: 'POST', body: JSON.stringify(doctor) }),
+  deleteDoctor: (id: string) => request<{ message: string; doctor: Doctor }>(`/doctors/${id}`, { method: 'DELETE' }),
 
   // Appointments
   getAppointments: () => request<Appointment[]>('/appointments'),

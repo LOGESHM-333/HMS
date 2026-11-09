@@ -696,8 +696,55 @@ app.delete('/api/patients/:id', async (req: Request, res: Response) => {
 app.get('/api/doctors', async (_req: Request, res: Response) => {
   try {
     const p = getPool();
-    const [rows]: any = await p.query('SELECT * FROM doctors');
+    const [rows]: any = await p.query('SELECT * FROM doctors ORDER BY name ASC');
     res.json(rows.map(mapDoctorRow));
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/doctors', async (req: Request, res: Response) => {
+  try {
+    const p = getPool();
+    const doc = req.body;
+    const id = doc.id || `doc-${Date.now()}`;
+    const name = doc.name || 'Dr. Consultant';
+    const specialty = doc.specialization || doc.specialty || 'General Medicine';
+    const dept = doc.department || 'General Medicine';
+    const qualification = doc.qualification || 'MBBS, MD';
+    const title = doc.title || 'Attending Specialist';
+    const avatar = doc.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150';
+    const fee = doc.consultationFee || 250;
+    const exp = doc.experienceYears || 5;
+    const rating = doc.rating || 4.9;
+    const patientsCount = doc.patientsCount || 0;
+    const status = doc.availability || 'Available';
+    const schedule = JSON.stringify(doc.schedule || [{ day: 'Mon - Fri', hours: '09:00 - 17:00' }]);
+
+    await p.query(
+      `INSERT INTO doctors (id, name, title, specialty, department, qualification, avatar, consultation_fee, experience_years, rating, current_patient_count, status, schedule)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, name, title, specialty, dept, qualification, avatar, fee, exp, rating, patientsCount, status, schedule]
+    );
+
+    const [rows]: any = await p.query('SELECT * FROM doctors WHERE id = ?', [id]);
+    const createdDoc = mapDoctorRow(rows[0]);
+    await logAudit('Doctor Registered', 'Staff', `Registered new attending doctor ${name} (${dept})`);
+    res.status(201).json(createdDoc);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/doctors/:id', async (req: Request, res: Response) => {
+  try {
+    const p = getPool();
+    const [existing]: any = await p.query('SELECT * FROM doctors WHERE id = ?', [req.params.id]);
+    if (!existing || existing.length === 0) return res.status(404).json({ error: 'Doctor not found' });
+    const doc = mapDoctorRow(existing[0]);
+    await p.query('DELETE FROM doctors WHERE id = ?', [req.params.id]);
+    await logAudit('Doctor Archived', 'Staff', `Removed specialist ${doc.name}`);
+    res.json({ message: 'Doctor removed', doctor: doc });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -1766,8 +1813,12 @@ initializeDatabase()
   })
   .catch((e) => console.error('Database init failed:', e));
 
-app.listen(PORT, () => {
-  console.log(`[MediCore] Express REST Backend Server running on http://localhost:${PORT}`);
-  console.log(`[MediCore] MySQL Database connected: medicore_db on port 3307`);
-  console.log(`[MediCore] phpMyAdmin accessible at: http://localhost/phpmyadmin`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`[MediCore] Express REST Backend Server running on http://localhost:${PORT}`);
+    console.log(`[MediCore] PostgreSQL/MySQL Database connected: medicore_db on port 5432/3306`);
+  });
+}
+
+export default app;
+export { app };

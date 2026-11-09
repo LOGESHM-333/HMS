@@ -57,6 +57,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   }, []);
 
   const alerts = db.getAlerts();
+  const allPatients = db.getPatients();
+  const totalPatientsCount = allPatients.length;
+  const activeInpatientsCount = allPatients.filter(p => p.admissionStatus === 'Admitted' || p.admissionStatus === 'ICU').length;
+  const dischargedCount = allPatients.filter(p => p.admissionStatus === 'Discharged').length;
+  const allBeds = db.getBeds();
+  const availableBeds = allBeds.filter(b => b.status === 'Available').length;
+  const allDoctors = db.getDoctors();
 
   // Interactive symptoms selector state
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([
@@ -304,12 +311,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <Users className="w-4 h-4 text-teal-500" />
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-extrabold tracking-tight">1,223</span>
-                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/10 text-emerald-600 flex items-center gap-0.5">
-                  ▲ 4.3%
+                <span className="text-2xl font-extrabold tracking-tight">{totalPatientsCount}</span>
+                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-teal-500/10 text-teal-600 flex items-center gap-0.5">
+                  {activeInpatientsCount} Active
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 mt-2">Active clinic & in-patient census</p>
+              <p className="text-[10px] text-slate-400 mt-2">{activeInpatientsCount} Inpatients • {dischargedCount} Discharged</p>
             </div>
 
             {/* Available Beds */}
@@ -324,11 +331,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <Bed className="w-4 h-4 text-cyan-500" />
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-extrabold tracking-tight">128</span>
-                <span className="text-[10px] text-slate-400">/ 240 Total</span>
+                <span className="text-2xl font-extrabold tracking-tight">{availableBeds}</span>
+                <span className="text-[10px] text-slate-400">/ {allBeds.length || 240} Total</span>
               </div>
               <div className="mt-2 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div className="bg-cyan-500 h-full w-[53%]" />
+                <div className="bg-cyan-500 h-full" style={{ width: `${Math.round((availableBeds / (allBeds.length || 1)) * 100)}%` }} />
               </div>
             </div>
 
@@ -344,10 +351,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <Activity className="w-4 h-4 text-amber-500" />
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-extrabold tracking-tight">74</span>
+                <span className="text-2xl font-extrabold tracking-tight">{allDoctors.length}</span>
                 <span className="text-[10px] text-emerald-500 font-semibold">● 100% Shift</span>
               </div>
-              <p className="text-[10px] text-slate-400 mt-2">12 surgical suites active</p>
+              <p className="text-[10px] text-slate-400 mt-2">Active Clinical Specialists</p>
             </div>
 
             {/* Appointments */}

@@ -33,6 +33,7 @@ import {
   Trash2,
   CheckCircle2,
   UserCheck,
+  Users,
   LogOut
 } from 'lucide-react';
 import { DigitalHealthCardModal } from '../export';
@@ -141,23 +142,27 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
     if (!selectedPatient) return;
     sound.playClick();
     const updated = db.dischargePatient(selectedPatient.id);
+    const refreshed = db.getPatients();
+    setPatients(refreshed);
     if (updated) setSelectedPatient(updated);
-    setPatients(db.getPatients());
-    showToast(`Discharged ${selectedPatient.name} to Home Care.`);
+    const remainingActive = refreshed.filter(p => p.admissionStatus === 'Admitted' || p.admissionStatus === 'ICU').length;
+    showToast(`Discharged ${selectedPatient.name} to Home Care. Active inpatients census updated to ${remainingActive}. Bed released.`);
   };
 
   const handleAdmitSelected = () => {
     if (!selectedPatient) return;
     sound.playClick();
     const updated = db.admitPatient(selectedPatient.id, 'General Medicine Ward');
+    const refreshed = db.getPatients();
+    setPatients(refreshed);
     if (updated) setSelectedPatient(updated);
-    setPatients(db.getPatients());
-    showToast(`Admitted ${selectedPatient.name} to General Inpatient Ward.`);
+    const newActive = refreshed.filter(p => p.admissionStatus === 'Admitted' || p.admissionStatus === 'ICU').length;
+    showToast(`Admitted ${selectedPatient.name} to Inpatient Ward. Active inpatients census is now ${newActive}.`);
   };
 
   const handleDeleteSelected = () => {
     if (!selectedPatient) return;
-    const confirm = window.confirm(`Permanently archive and delete chart for ${selectedPatient.name} (${selectedPatient.patientCode})?`);
+    const confirm = window.confirm(`Permanently archive and delete record for ${selectedPatient.name} (${selectedPatient.patientCode})? Total patients will decrease from ${patients.length} to ${patients.length - 1}.`);
     if (!confirm) return;
     sound.playClick();
     const id = selectedPatient.id;
@@ -165,7 +170,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
     const remaining = db.getPatients();
     setPatients(remaining);
     setSelectedPatient(remaining[0] || null);
-    showToast(`Patient chart archived and deleted from database.`);
+    showToast(`Archived and removed ${selectedPatient.name}. Total registered records is now ${remaining.length}.`);
   };
 
   // New patient form state
@@ -232,15 +237,28 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
     showToast(`Registered new patient ${created.name} (${created.patientCode}).`);
   };
 
+  const totalCount = patients.length;
+  const admittedCount = patients.filter(p => p.admissionStatus === 'Admitted').length;
+  const icuCount = patients.filter(p => p.admissionStatus === 'ICU').length;
+  const activeInpatientsCount = admittedCount + icuCount;
+  const outpatientCount = patients.filter(p => p.admissionStatus === 'Outpatient').length;
+  const dischargedCount = patients.filter(p => p.admissionStatus === 'Discharged').length;
+
   const filteredPatients = patients.filter((pat) => {
     const matchesSearch = 
       pat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       pat.patientCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
       pat.diagnosis.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus = statusFilter === 'All' || pat.admissionStatus === statusFilter;
+    const matchesStatus = 
+      statusFilter === 'All' ? true :
+      statusFilter === 'Active' ? (pat.admissionStatus === 'Admitted' || pat.admissionStatus === 'ICU') :
+      pat.admissionStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const totalPages = Math.ceil(filteredPatients.length / PATIENTS_PER_PAGE) || 1;
+  const paginatedPatients = filteredPatients.slice((currentPage - 1) * PATIENTS_PER_PAGE, currentPage * PATIENTS_PER_PAGE);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -273,6 +291,85 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
         </button>
       </div>
 
+      {/* EXECUTIVE CLINICAL CENSUS SUMMARY CARDS */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        {/* Total Registered */}
+        <div
+          onClick={() => { sound.playClick(); setStatusFilter('All'); setCurrentPage(1); }}
+          className={`p-4 rounded-2xl border cursor-pointer transition-all hover:scale-[1.01] ${
+            statusFilter === 'All'
+              ? 'ring-2 ring-teal-500 bg-teal-500/10 border-teal-500/40'
+              : isDark ? 'bg-[#0E2035]/70 border-slate-800 hover:bg-slate-800/40' : 'bg-white border-slate-200/80 hover:bg-slate-50 shadow-xs'
+          }`}
+        >
+          <div className="flex items-center justify-between text-slate-400 mb-1">
+            <span className="text-[11px] font-semibold">Total Registered Records</span>
+            <Users className="w-3.5 h-3.5 text-teal-500" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-black">{totalCount}</span>
+            <span className="text-[10px] text-slate-400 font-semibold">All Records</span>
+          </div>
+        </div>
+
+        {/* Active Inpatients */}
+        <div
+          onClick={() => { sound.playClick(); setStatusFilter('Active'); setCurrentPage(1); }}
+          className={`p-4 rounded-2xl border cursor-pointer transition-all hover:scale-[1.01] ${
+            statusFilter === 'Active'
+              ? 'ring-2 ring-amber-500 bg-amber-500/10 border-amber-500/40'
+              : isDark ? 'bg-[#0E2035]/70 border-slate-800 hover:bg-slate-800/40' : 'bg-white border-slate-200/80 hover:bg-slate-50 shadow-xs'
+          }`}
+        >
+          <div className="flex items-center justify-between text-slate-400 mb-1">
+            <span className="text-[11px] font-semibold text-amber-500">Active Inpatient Census</span>
+            <Activity className="w-3.5 h-3.5 text-amber-500" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-black text-amber-500">{activeInpatientsCount}</span>
+            <span className="text-[10px] text-amber-600/80 dark:text-amber-400 font-semibold">Admitted + ICU</span>
+          </div>
+        </div>
+
+        {/* Discharged to Home Care */}
+        <div
+          onClick={() => { sound.playClick(); setStatusFilter('Discharged'); setCurrentPage(1); }}
+          className={`p-4 rounded-2xl border cursor-pointer transition-all hover:scale-[1.01] ${
+            statusFilter === 'Discharged'
+              ? 'ring-2 ring-purple-500 bg-purple-500/10 border-purple-500/40'
+              : isDark ? 'bg-[#0E2035]/70 border-slate-800 hover:bg-slate-800/40' : 'bg-white border-slate-200/80 hover:bg-slate-50 shadow-xs'
+          }`}
+        >
+          <div className="flex items-center justify-between text-slate-400 mb-1">
+            <span className="text-[11px] font-semibold text-purple-400">Discharged Patients</span>
+            <LogOut className="w-3.5 h-3.5 text-purple-400" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-black text-purple-400">{dischargedCount}</span>
+            <span className="text-[10px] text-purple-500/80 dark:text-purple-300 font-semibold">Home Care</span>
+          </div>
+        </div>
+
+        {/* Outpatients */}
+        <div
+          onClick={() => { sound.playClick(); setStatusFilter('Outpatient'); setCurrentPage(1); }}
+          className={`p-4 rounded-2xl border cursor-pointer transition-all hover:scale-[1.01] ${
+            statusFilter === 'Outpatient'
+              ? 'ring-2 ring-emerald-500 bg-emerald-500/10 border-emerald-500/40'
+              : isDark ? 'bg-[#0E2035]/70 border-slate-800 hover:bg-slate-800/40' : 'bg-white border-slate-200/80 hover:bg-slate-50 shadow-xs'
+          }`}
+        >
+          <div className="flex items-center justify-between text-slate-400 mb-1">
+            <span className="text-[11px] font-semibold text-emerald-500">Outpatient Consults</span>
+            <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-black text-emerald-500">{outpatientCount}</span>
+            <span className="text-[10px] text-emerald-600/80 dark:text-emerald-400 font-semibold">Clinic Visits</span>
+          </div>
+        </div>
+      </div>
+
       {/* FILTER & SEARCH BAR */}
       <div className={`p-4 rounded-3xl border flex flex-col md:flex-row items-center justify-between gap-4 ${
         isDark ? 'bg-[#0E2035]/80 border-slate-800' : 'bg-white border-slate-200/80 shadow-xs'
@@ -294,22 +391,37 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
 
         {/* Status Filters */}
         <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto">
-          {['All', 'Outpatient', 'Admitted', 'ICU', 'Discharged'].map((status) => (
+          {[
+            { key: 'All', label: 'All Records', count: totalCount },
+            { key: 'Active', label: 'Active Inpatients', count: activeInpatientsCount },
+            { key: 'Admitted', label: 'Admitted', count: admittedCount },
+            { key: 'ICU', label: 'ICU', count: icuCount },
+            { key: 'Discharged', label: 'Discharged', count: dischargedCount },
+            { key: 'Outpatient', label: 'Outpatient', count: outpatientCount }
+          ].map((tab) => (
             <button
-              key={status}
+              key={tab.key}
               onClick={() => {
                 sound.playClick();
-                setStatusFilter(status);
+                setStatusFilter(tab.key);
+                setCurrentPage(1);
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                statusFilter === status
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                statusFilter === tab.key
                   ? 'bg-teal-500 text-white shadow-xs'
                   : isDark
                   ? 'text-slate-400 hover:text-white hover:bg-slate-800'
                   : 'text-slate-600 hover:text-teal-700 hover:bg-teal-50'
               }`}
             >
-              {status}
+              <span>{tab.label}</span>
+              <span className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono font-bold ${
+                statusFilter === tab.key
+                  ? 'bg-white/20 text-white'
+                  : 'bg-slate-200/60 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+              }`}>
+                {tab.count}
+              </span>
             </button>
           ))}
         </div>
@@ -319,7 +431,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left List Column (5 cols) */}
         <div className="lg:col-span-5 space-y-3">
-          {filteredPatients.map((pat) => {
+          {paginatedPatients.map((pat) => {
             const isSelected = selectedPatient?.id === pat.id;
             return (
               <div
@@ -355,6 +467,8 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                             ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20'
                             : pat.admissionStatus === 'Admitted'
                             ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                            : pat.admissionStatus === 'Discharged'
+                            ? 'bg-purple-500/10 text-purple-500 border border-purple-500/20'
                             : 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
                         }`}>
                           {pat.admissionStatus}
@@ -384,6 +498,33 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
               </div>
             );
           })}
+
+          {/* Pagination Controls */}
+          {filteredPatients.length > PATIENTS_PER_PAGE && (
+            <div className={`p-3 rounded-2xl border flex items-center justify-between text-xs ${
+              isDark ? 'bg-[#0E2035]/60 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+            }`}>
+              <span className="text-[11px] text-slate-400">
+                Page {currentPage} of {totalPages} ({filteredPatients.length} records)
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  disabled={currentPage <= 1}
+                  onClick={() => { sound.playClick(); setCurrentPage(p => Math.max(1, p - 1)); }}
+                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-teal-50 dark:hover:bg-slate-800 transition-all font-semibold"
+                >
+                  Prev
+                </button>
+                <button
+                  disabled={currentPage >= totalPages}
+                  onClick={() => { sound.playClick(); setCurrentPage(p => Math.min(totalPages, p + 1)); }}
+                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-teal-50 dark:hover:bg-slate-800 transition-all font-semibold"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Details Column (7 cols): Full EHR Dossier */}

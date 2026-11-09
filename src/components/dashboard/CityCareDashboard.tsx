@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Patient, ThemeMode, UserRole } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
@@ -33,6 +33,20 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
   onSwitchToMediFlex
 }) => {
   const isDark = theme === 'dark';
+  const [, setDbVersion] = useState(0);
+
+  useEffect(() => {
+    const unsub = db.subscribe(() => setDbVersion(v => v + 1));
+    return unsub;
+  }, []);
+
+  const allPatients = db.getPatients();
+  const totalPatientsCount = allPatients.length;
+  const activeInpatientsCount = allPatients.filter(p => p.admissionStatus === 'Admitted' || p.admissionStatus === 'ICU').length;
+  const dischargedCount = allPatients.filter(p => p.admissionStatus === 'Discharged').length;
+  const allBeds = db.getBeds();
+  const availableBeds = allBeds.filter(b => b.status === 'Available').length;
+
   const selectedPatient = db.getSelectedPatient();
   const alerts = db.getAlerts();
 
@@ -296,29 +310,35 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
             {/* 4 KPI CARDS IN 2X2 GRID */}
             <div className="grid grid-cols-2 gap-4">
               {/* Card 1: Total Patients */}
-              <div className={`p-5 rounded-3xl border transition-all hover:shadow-md ${
-                isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
-              }`}>
+              <div 
+                onClick={() => { sound.playClick(); onNavigateTab('patients'); }}
+                className={`p-5 rounded-3xl border transition-all hover:shadow-md cursor-pointer ${
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
+                }`}
+              >
                 <div className="flex items-center justify-between text-slate-400 mb-2">
                   <span className="text-xs font-semibold">Total Patients</span>
-                  <button className="text-slate-400 hover:text-black dark:hover:text-white p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </button>
+                  <span className="text-[10px] font-mono font-bold text-teal-600 dark:text-teal-400">
+                    {activeInpatientsCount} Active
+                  </span>
                 </div>
                 <div className="flex items-baseline gap-2 mt-2">
                   <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                    1223
+                    {totalPatientsCount}
                   </span>
-                  <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-black text-white dark:bg-white dark:text-black">
-                    ▲ 4.3%
+                  <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-teal-500/10 text-teal-600">
+                    {dischargedCount} Discharged
                   </span>
                 </div>
               </div>
 
               {/* Card 2: Available Beds */}
-              <div className={`p-5 rounded-3xl border transition-all hover:shadow-md ${
-                isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
-              }`}>
+              <div 
+                onClick={() => { sound.playClick(); onNavigateTab('beds'); }}
+                className={`p-5 rounded-3xl border transition-all hover:shadow-md cursor-pointer ${
+                  isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-xs' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-xs'
+                }`}
+              >
                 <div className="flex items-center justify-between text-slate-400 mb-2">
                   <span className="text-xs font-semibold">Available Beds</span>
                   <button className="text-slate-400 hover:text-black dark:hover:text-white p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
@@ -327,7 +347,7 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
                 </div>
                 <div className="flex items-center justify-between mt-2">
                   <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                    128
+                    {availableBeds}
                   </span>
                   {/* Subtle curved waveform with 3 dots */}
                   <svg width="64" height="24" viewBox="0 0 64 24" fill="none">

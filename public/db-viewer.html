@@ -221,6 +221,13 @@ const ENDPOINTS = {
   staff: '/api/staff',
 };
 
+const CLOUD_TUNNEL_URL = 'https://mod-socks-barriers-argument.trycloudflare.com';
+function getApiUrl(path) {
+  const host = window.location.hostname;
+  const isLocal = host === 'localhost' || host === '127.0.0.1';
+  return isLocal ? path : `${CLOUD_TUNNEL_URL}${path}`;
+}
+
 const STATUS_COLORS = {
   'Available':'green', 'On Duty':'green', 'Active':'green', 'Paid':'green', 'Completed':'green', 'Given':'green', 'In Stock':'green',
   'Scheduled':'blue', 'Ordered':'blue', 'Outpatient':'blue', 'Prescribed':'blue',
@@ -231,7 +238,7 @@ const STATUS_COLORS = {
 
 async function fetchHealth() {
   try {
-    const r = await fetch('/api/health');
+    const r = await fetch(getApiUrl('/api/health'), { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
     const d = await r.json();
     const engineName = d.database.engine || (d.database.activeDialect === 'postgres' ? 'PostgreSQL' : 'MySQL');
     document.getElementById('db-status').textContent = `${engineName} ✓ Connected (Port ${d.database.activePort})`;
@@ -277,7 +284,7 @@ async function fetchHealth() {
 async function loadData(tab) {
   document.getElementById('table-container').innerHTML = '<div class="loading">⏳ Fetching from Database...</div>';
   try {
-    const r = await fetch(ENDPOINTS[tab]);
+    const r = await fetch(getApiUrl(ENDPOINTS[tab]), { headers: { 'Bypass-Tunnel-Reminder': 'true' } });
     if (!r.ok) throw new Error(r.statusText);
     allData = await r.json();
     page = 1;

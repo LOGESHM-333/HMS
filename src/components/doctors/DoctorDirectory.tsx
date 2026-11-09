@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Doctor, ThemeMode } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
@@ -16,7 +16,9 @@ import {
   Award, 
   Filter, 
   Search, 
-  CheckCircle2
+  CheckCircle2,
+  UserPlus,
+  X
 } from 'lucide-react';
 
 interface DoctorDirectoryProps {
@@ -25,11 +27,71 @@ interface DoctorDirectoryProps {
 
 export const DoctorDirectory: React.FC<DoctorDirectoryProps> = ({ theme }) => {
   const isDark = theme === 'dark';
-  const doctors = db.getDoctors();
+  const [doctors, setDoctors] = useState<Doctor[]>(() => db.getDoctors());
   const [selectedDept, setSelectedDept] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const DOCS_PER_PAGE = 8;
+
+  // New doctor form
+  const [newDoc, setNewDoc] = useState({
+    name: '',
+    title: 'Senior Consultant',
+    department: 'Cardiology',
+    specialization: '',
+    qualification: 'MBBS, MD',
+    consultationFee: 500,
+    experienceYears: 8,
+  });
+
+  useEffect(() => {
+    const unsub = db.subscribe(() => {
+      setDoctors(db.getDoctors());
+    });
+    return unsub;
+  }, []);
+
+  const showToast = (msg: string) => {
+    sound.playSuccess();
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3800);
+  };
+
+  const handleAddDoctor = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDoc.name.trim()) return;
+    sound.playSuccess();
+
+    const created = db.addDoctor({
+      name: newDoc.name.startsWith('Dr.') ? newDoc.name : `Dr. ${newDoc.name}`,
+      title: newDoc.title,
+      department: newDoc.department,
+      specialization: newDoc.specialization || `${newDoc.department} Specialist`,
+      qualification: newDoc.qualification,
+      avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80',
+      consultationFee: Number(newDoc.consultationFee) || 500,
+      experienceYears: Number(newDoc.experienceYears) || 5,
+      rating: 4.9,
+      patientsCount: 0,
+      availability: 'Available',
+      schedule: [{ day: 'Mon - Fri', hours: '09:00 - 17:00' }],
+    });
+
+    setDoctors(db.getDoctors());
+    setIsAddOpen(false);
+    setNewDoc({
+      name: '',
+      title: 'Senior Consultant',
+      department: 'Cardiology',
+      specialization: '',
+      qualification: 'MBBS, MD',
+      consultationFee: 500,
+      experienceYears: 8,
+    });
+    showToast(`Added ${created.name} (${created.department}) to clinical roster. Stored in SQL.`);
+  };
 
   const departments = ['All', ...Array.from(new Set(doctors.map(d => d.department))).slice(0, 7)];
 
@@ -47,6 +109,14 @@ export const DoctorDirectory: React.FC<DoctorDirectoryProps> = ({ theme }) => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Toast Notification Banner */}
+      {toastMessage && (
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2.5 px-5 py-3.5 rounded-2xl bg-teal-600 text-white shadow-2xl animate-in slide-in-from-top-4 duration-200 text-xs font-bold border border-teal-400/40">
+          <CheckCircle2 className="w-4 h-4 text-teal-200" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -56,12 +126,22 @@ export const DoctorDirectory: React.FC<DoctorDirectoryProps> = ({ theme }) => {
           </p>
         </div>
 
-        {/* Total Active count pill */}
-        <div className={`px-4 py-2 rounded-2xl border text-xs font-bold flex items-center gap-2 ${
-          isDark ? 'bg-slate-900 border-slate-800 text-teal-400' : 'bg-white border-slate-200 text-teal-700 shadow-xs'
-        }`}>
-          <Stethoscope className="w-4 h-4" />
-          <span>{doctors.length} Specialists Active On-Shift</span>
+        <div className="flex items-center gap-3">
+          {/* Total Active count pill */}
+          <div className={`px-4 py-2 rounded-2xl border text-xs font-bold flex items-center gap-2 ${
+            isDark ? 'bg-slate-900 border-slate-800 text-teal-400' : 'bg-white border-slate-200 text-teal-700 shadow-xs'
+          }`}>
+            <Stethoscope className="w-4 h-4" />
+            <span>{doctors.length} Specialists Active</span>
+          </div>
+
+          <button
+            onClick={() => { sound.playClick(); setIsAddOpen(true); }}
+            className="px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white shadow-md shadow-teal-500/20 active:scale-95 transition-all cursor-pointer"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Register Doctor</span>
+          </button>
         </div>
       </div>
 
@@ -175,6 +255,119 @@ export const DoctorDirectory: React.FC<DoctorDirectoryProps> = ({ theme }) => {
           </div>
         ))}
       </div>
+
+      {/* ADD DOCTOR MODAL */}
+      {isAddOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className={`w-full max-w-lg rounded-3xl p-6 border shadow-2xl ${
+            isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-slate-900'
+          }`}>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Stethoscope className="w-5 h-5 text-teal-500" />
+                <h3 className="font-extrabold text-base">Register Attending Specialist / Doctor</h3>
+              </div>
+              <button onClick={() => setIsAddOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddDoctor} className="space-y-4 mt-4">
+              <div>
+                <label className="text-[11px] font-semibold text-slate-400 block mb-1">Doctor Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Dr. Ramesh Kumar"
+                  value={newDoc.name}
+                  onChange={(e) => setNewDoc({ ...newDoc, name: e.target.value })}
+                  className="w-full px-3.5 py-2 rounded-xl text-xs border outline-none bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700 focus:border-teal-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Department *</label>
+                  <select
+                    value={newDoc.department}
+                    onChange={(e) => setNewDoc({ ...newDoc, department: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl text-xs border outline-none bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700"
+                  >
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Neurology">Neurology</option>
+                    <option value="Pulmonology">Pulmonology</option>
+                    <option value="Orthopedics">Orthopedics</option>
+                    <option value="General Surgery">General Surgery</option>
+                    <option value="Pediatrics">Pediatrics</option>
+                    <option value="Oncology">Oncology</option>
+                    <option value="Dermatology">Dermatology</option>
+                    <option value="Emergency Medicine">Emergency Medicine</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Specialization</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Interventional Cardiology"
+                    value={newDoc.specialization}
+                    onChange={(e) => setNewDoc({ ...newDoc, specialization: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl text-xs border outline-none bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Qualification</label>
+                  <input
+                    type="text"
+                    value={newDoc.qualification}
+                    onChange={(e) => setNewDoc({ ...newDoc, qualification: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl text-xs border outline-none bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Experience (Yrs)</label>
+                  <input
+                    type="number"
+                    value={newDoc.experienceYears}
+                    onChange={(e) => setNewDoc({ ...newDoc, experienceYears: Number(e.target.value) })}
+                    className="w-full px-3.5 py-2 rounded-xl text-xs border outline-none bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Consultation Fee (₹)</label>
+                  <input
+                    type="number"
+                    value={newDoc.consultationFee}
+                    onChange={(e) => setNewDoc({ ...newDoc, consultationFee: Number(e.target.value) })}
+                    className="w-full px-3.5 py-2 rounded-xl text-xs border outline-none bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-700"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsAddOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-teal-500 hover:bg-teal-600 text-white shadow-md active:scale-95 transition-all cursor-pointer"
+                >
+                  Save to Database
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
