@@ -6,30 +6,27 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Search, 
-  X, 
   Users, 
   Stethoscope, 
   Bed as BedIcon, 
   CreditCard, 
   Navigation, 
-  ArrowRight, 
-  CheckCircle2, 
-  Clock, 
-  AlertTriangle,
-  Activity,
-  Layers,
-  Heart,
+  CornerDownLeft,
   Calendar,
   Pill,
   FlaskConical,
+  Activity,
+  Heart,
   FileText,
   ShieldCheck,
   Building2,
-  CornerDownLeft
+  Receipt,
+  ClipboardList,
+  AlertTriangle
 } from 'lucide-react';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
-import { Patient, Doctor, Bed, Invoice, ThemeMode } from '../../types';
+import { Patient, ThemeMode } from '../../types';
 import { HeaderPortalMode } from '../../App';
 
 export interface CommandPaletteProps {
@@ -42,11 +39,9 @@ export interface CommandPaletteProps {
   onSelectPatient?: (patient: Patient) => void;
 }
 
-type SearchCategory = 'all' | 'patients' | 'doctors' | 'beds' | 'billing' | 'navigation';
-
 interface CommandResultItem {
   id: string;
-  category: 'patient' | 'doctor' | 'bed' | 'billing' | 'navigation';
+  category: string;
   title: string;
   subtitle: string;
   tag: string;
@@ -62,25 +57,32 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onClose,
   theme,
   portalMode,
-  onSwitchPortal,
   onNavigateTab,
   onSelectPatient
 }) => {
   const [query, setQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<SearchCategory>('all');
+  const [activeCategory, setActiveCategory] = useState<string>('all');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   const isDark = theme === 'dark';
 
-  // Load all live mock database entities
-  const patients = useMemo(() => db.getPatients(), [isOpen]);
-  const doctors = useMemo(() => db.getDoctors(), [isOpen]);
-  const beds = useMemo(() => db.getBeds(), [isOpen]);
-  const invoices = useMemo(() => db.getInvoices(), [isOpen]);
+  // Live database records
+  const allPatients = useMemo(() => db.getPatients(), [isOpen]);
+  const allDoctors = useMemo(() => db.getDoctors(), [isOpen]);
+  const allBeds = useMemo(() => db.getBeds(), [isOpen]);
+  const allInvoices = useMemo(() => db.getInvoices(), [isOpen]);
+  const allPrescriptions = useMemo(() => db.getPrescriptions(), [isOpen]);
+  const allAppointments = useMemo(() => db.getAppointments(), [isOpen]);
+  const allLabOrders = useMemo(() => db.getLabOrders(), [isOpen]);
 
-  // Focus input on open
+  // Current active patient context for Patient Portal
+  const activePatient = useMemo(() => {
+    return db.getSelectedPatient() || allPatients[0];
+  }, [allPatients, isOpen]);
+
+  // Focus input & reset filters on open
   useEffect(() => {
     if (isOpen) {
       setQuery('');
@@ -88,53 +90,473 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       setSelectedIndex(0);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [isOpen]);
+  }, [isOpen, portalMode]);
 
-  // Navigation Items
-  const navItems = useMemo(() => [
-    { title: 'Hospital Executive Dashboard', subtitle: 'Macro operations & facility census monitor', tab: 'dashboard', mode: 'admin', icon: Building2 },
-    { title: 'Patient Directory & EMR Records', subtitle: 'Comprehensive patient directory and 3D organ volumetry', tab: 'patients', mode: 'admin', icon: Users },
-    { title: 'Inpatient Ward & Bed Flow', subtitle: 'Live census, ward telemetry, and bed allocations', tab: 'ward', mode: 'admin', icon: Layers },
-    { title: 'Bed Management Matrix', subtitle: 'ICU, emergency, and general bed state manager', tab: 'beds', mode: 'admin', icon: BedIcon },
-    { title: 'Doctor Clinical Station', subtitle: 'Doctor overview, SOAP clinical notes, and inpatient rounds', tab: 'doctor-consult', mode: 'doctor', icon: Stethoscope },
-    { title: 'Head Nurse Station & MAR Flow', subtitle: 'Nurse dashboard, vitals rounds, and doctor order execution', tab: 'nurse-rounds', mode: 'nurse', icon: Activity },
-    { title: 'Patient Health Portal', subtitle: 'Self-service health metrics, prescriptions, and billing', tab: 'patient-health', mode: 'patient', icon: Heart },
-    { title: 'Super Admin Multi-Hospital Network', subtitle: 'Multi-hospital telemetry, RBAC, and HIPAA compliance', tab: 'overview', mode: 'super-admin', icon: ShieldCheck },
-    { title: 'Hospital Central Pharmacy', subtitle: 'Formulary management, stock inventory, and dispensation', tab: 'pharmacy', mode: 'admin', icon: Pill },
-    { title: 'Diagnostic Laboratory & Imaging', subtitle: 'STAT pathology tests, blood panels, and imaging orders', tab: 'lab', mode: 'admin', icon: FlaskConical },
-    { title: 'Billing, Invoices & Claims', subtitle: 'GST invoices, insurance remittance, and payment gateway', tab: 'billing', mode: 'admin', icon: CreditCard },
-    { title: 'System Settings & Security', subtitle: 'Personal credentials, active sessions, and audit logs', tab: 'settings', mode: 'admin', icon: FileText }
-  ], []);
+  // Dynamic Categories based strictly on portalMode
+  const availableCategories = useMemo(() => {
+    switch (portalMode) {
+      case 'patient':
+        return [
+          { id: 'all', label: 'All Records' },
+          { id: 'rx', label: 'My Prescriptions', icon: Pill },
+          { id: 'apts', label: 'My Appointments', icon: Calendar },
+          { id: 'labs', label: 'Lab Reports', icon: FlaskConical },
+          { id: 'billing', label: 'Invoices & Receipts', icon: Receipt },
+          { id: 'nav', label: 'Health Modules', icon: Navigation },
+        ];
+      case 'doctor':
+        return [
+          { id: 'all', label: 'All Clinical' },
+          { id: 'inpatients', label: 'My Inpatients', icon: Users },
+          { id: 'schedule', label: "Today's Schedule", icon: Calendar },
+          { id: 'orders', label: 'Clinical Orders', icon: ClipboardList },
+          { id: 'nav', label: 'Doctor Modules', icon: Navigation },
+        ];
+      case 'nurse':
+        return [
+          { id: 'all', label: 'All Nursing' },
+          { id: 'census', label: 'Ward 4 Census', icon: Users },
+          { id: 'beds', label: 'Bed Status', icon: BedIcon },
+          { id: 'mar', label: 'MAR Meds Due', icon: Pill },
+          { id: 'nav', label: 'Nurse Modules', icon: Navigation },
+        ];
+      case 'super-admin':
+        return [
+          { id: 'all', label: 'All Enterprise' },
+          { id: 'nodes', label: 'Hospital Nodes', icon: Building2 },
+          { id: 'rbac', label: 'Staff Accounts', icon: ShieldCheck },
+          { id: 'nav', label: 'Governance', icon: Navigation },
+        ];
+      case 'admin':
+      case 'management':
+      default:
+        return [
+          { id: 'all', label: 'All Hospital' },
+          { id: 'patients', label: 'Patients', icon: Users },
+          { id: 'doctors', label: 'Doctors', icon: Stethoscope },
+          { id: 'beds', label: 'Beds', icon: BedIcon },
+          { id: 'billing', label: 'Billing', icon: CreditCard },
+          { id: 'nav', label: 'Modules', icon: Navigation },
+        ];
+    }
+  }, [portalMode]);
 
-  // Compute matched results
+  // Compute matched results filtered strictly by portal permissions
   const results = useMemo<CommandResultItem[]>(() => {
     const q = query.trim().toLowerCase();
     const items: CommandResultItem[] = [];
 
-    // 1. PATIENTS
+    // ==============================================================
+    // 1. PATIENT PORTAL SCOPE (Only patient's own confidential records)
+    // ==============================================================
+    if (portalMode === 'patient') {
+      const patientId = activePatient?.id || 'pat-1';
+
+      // Patient Prescriptions
+      if (activeCategory === 'all' || activeCategory === 'rx') {
+        const patientRxs = allPrescriptions.filter(p => p.patientId === patientId);
+        patientRxs.forEach(rx => {
+          rx.items.forEach(it => {
+            if (!q || it.medicineName.toLowerCase().includes(q) || it.dosage.toLowerCase().includes(q)) {
+              items.push({
+                id: `rx-${rx.id}-${it.medicineId}`,
+                category: 'Prescription',
+                title: it.medicineName,
+                subtitle: `${it.dosage} • ${it.frequency} (Duration: ${it.duration})`,
+                tag: it.dispensed ? 'Dispensed' : 'Active Regimen',
+                tagType: 'teal',
+                meta: `Prescribing Doctor: ${rx.doctorName}`,
+                icon: Pill,
+                onSelect: () => {
+                  sound.playClick();
+                  onNavigateTab('patient-prescriptions');
+                  onClose();
+                }
+              });
+            }
+          });
+        });
+      }
+
+      // Patient Appointments
+      if (activeCategory === 'all' || activeCategory === 'apts') {
+        const patientApts = allAppointments.filter(a => a.patientId === patientId);
+        patientApts.forEach(apt => {
+          if (!q || apt.doctorName.toLowerCase().includes(q) || apt.department.toLowerCase().includes(q) || apt.visitType.toLowerCase().includes(q)) {
+            items.push({
+              id: `apt-${apt.id}`,
+              category: 'Appointment',
+              title: `${apt.visitType} with ${apt.doctorName}`,
+              subtitle: `${apt.department} • ${apt.date} at ${apt.time}`,
+              tag: apt.status,
+              tagType: apt.status === 'Scheduled' ? 'optimal' : 'neutral',
+              icon: Calendar,
+              onSelect: () => {
+                sound.playClick();
+                onNavigateTab('patient-appointments');
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      // Patient Lab Reports
+      if (activeCategory === 'all' || activeCategory === 'labs') {
+        const patientLabs = allLabOrders.filter(l => l.patientId === patientId);
+        patientLabs.forEach(lab => {
+          if (!q || lab.testName.toLowerCase().includes(q) || lab.status.toLowerCase().includes(q)) {
+            items.push({
+              id: `lab-${lab.id}`,
+              category: 'Lab Report',
+              title: lab.testName,
+              subtitle: `Ordered: ${lab.orderedDate} • Interpretation: ${lab.interpretation || 'Normal'}`,
+              tag: lab.status,
+              tagType: lab.interpretation === 'Normal' ? 'optimal' : 'elevated',
+              icon: FlaskConical,
+              onSelect: () => {
+                sound.playClick();
+                onNavigateTab('patient-labs');
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      // Patient Invoices
+      if (activeCategory === 'all' || activeCategory === 'billing') {
+        const patientInvoices = allInvoices.filter(i => i.patientId === patientId || i.patientName === activePatient?.name);
+        patientInvoices.forEach(inv => {
+          if (!q || inv.invoiceNumber.toLowerCase().includes(q) || inv.status.toLowerCase().includes(q)) {
+            items.push({
+              id: `inv-${inv.id}`,
+              category: 'Invoice',
+              title: `${inv.invoiceNumber} - Hospital Services`,
+              subtitle: `Total: ₹${inv.grandTotal.toFixed(2)} • Billed: ${inv.date}`,
+              tag: inv.status,
+              tagType: inv.status === 'Paid' ? 'optimal' : 'elevated',
+              icon: Receipt,
+              onSelect: () => {
+                sound.playClick();
+                onNavigateTab('patient-billing');
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      // Patient Portal Navigation Modules
+      if (activeCategory === 'all' || activeCategory === 'nav') {
+        const patientModules = [
+          { title: 'Health Summary & 3D Anatomy', subtitle: 'View vital telemetry, cardiac score & biological organs', tab: 'patient-health', icon: Heart },
+          { title: 'My Appointments & Telehealth', subtitle: 'Consultations, video calls & appointment history', tab: 'patient-appointments', icon: Calendar },
+          { title: 'Active Prescriptions & Regimen', subtitle: 'Medication tracking, dosages & refill requests', tab: 'patient-prescriptions', icon: Pill },
+          { title: 'Diagnostic Lab Reports & Scans', subtitle: 'CT imaging, lipid panels & blood work results', tab: 'patient-labs', icon: FlaskConical },
+          { title: 'Medical Records & Clinical History', subtitle: 'Discharge summaries & clinical notes', tab: 'patient-records', icon: FileText },
+          { title: 'Immunization & Vaccine Passport', subtitle: 'Verified vaccination certificates & booster schedules', tab: 'patient-vaccines', icon: ShieldCheck },
+          { title: 'Hospital Billing & Insurance Claims', subtitle: 'Tax receipts, invoices & insurance pre-authorizations', tab: 'patient-billing', icon: CreditCard },
+          { title: 'Direct Doctor Consultation Chat', subtitle: 'Message attending doctor & pulmonary care specialist', tab: 'patient-messages', icon: Stethoscope },
+          { title: 'Nutrition & Dietary Regimen', subtitle: 'Heart-healthy dietary intake, sodium tracking & hydration', tab: 'patient-nutrition', icon: Activity },
+          { title: 'Emergency SOS Ambulance Dispatch', subtitle: 'Instant 911 trauma unit mobile dispatch', tab: 'patient-emergency', icon: AlertTriangle }
+        ];
+
+        patientModules.forEach(m => {
+          if (!q || m.title.toLowerCase().includes(q) || m.subtitle.toLowerCase().includes(q)) {
+            items.push({
+              id: `nav-${m.tab}`,
+              category: 'Module',
+              title: m.title,
+              subtitle: m.subtitle,
+              tag: 'PATIENT VIEW',
+              tagType: 'teal',
+              icon: m.icon,
+              onSelect: () => {
+                sound.playClick();
+                onNavigateTab(m.tab);
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      return items;
+    }
+
+    // ==============================================================
+    // 2. DOCTOR PORTAL SCOPE (Only Doctor's clinical rounds & visits)
+    // ==============================================================
+    if (portalMode === 'doctor') {
+      // Inpatients assigned or monitored by Doctor
+      if (activeCategory === 'all' || activeCategory === 'inpatients') {
+        allPatients.forEach(pat => {
+          if (!q || pat.name.toLowerCase().includes(q) || pat.patientCode.toLowerCase().includes(q) || pat.diagnosis.toLowerCase().includes(q)) {
+            items.push({
+              id: `doc-pat-${pat.id}`,
+              category: 'Inpatient',
+              title: pat.name,
+              subtitle: `${pat.diagnosis} • ${pat.ward || 'Ward 4'} (Bed ${pat.bedNumber || '402'})`,
+              tag: pat.admissionStatus,
+              tagType: pat.admissionStatus === 'ICU' ? 'critical' : 'optimal',
+              meta: `BP: ${pat.vitals.bloodPressure} • HR: ${pat.vitals.pulseRate} bpm • Code: ${pat.patientCode}`,
+              avatar: pat.avatar,
+              onSelect: () => {
+                sound.playClick();
+                db.setSelectedPatient(pat.id);
+                if (onSelectPatient) onSelectPatient(pat);
+                onNavigateTab('doctor-patients');
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      // Today's Doctor Visits
+      if (activeCategory === 'all' || activeCategory === 'schedule') {
+        allAppointments.forEach(apt => {
+          if (!q || apt.patientName.toLowerCase().includes(q) || apt.visitType.toLowerCase().includes(q)) {
+            items.push({
+              id: `doc-apt-${apt.id}`,
+              category: 'Schedule',
+              title: `${apt.patientName} (${apt.visitType})`,
+              subtitle: `${apt.department} • Today at ${apt.time}`,
+              tag: apt.status,
+              tagType: 'teal',
+              icon: Calendar,
+              onSelect: () => {
+                sound.playClick();
+                onNavigateTab('doctor-schedule');
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      // Clinical Orders
+      if (activeCategory === 'all' || activeCategory === 'orders') {
+        allPrescriptions.slice(0, 5).forEach(rx => {
+          if (!q || rx.patientName.toLowerCase().includes(q) || rx.items.some(it => it.medicineName.toLowerCase().includes(q))) {
+            items.push({
+              id: `doc-rx-${rx.id}`,
+              category: 'E-Prescription',
+              title: `Rx #${rx.id} - ${rx.patientName}`,
+              subtitle: `${rx.items.map(it => it.medicineName).join(', ')}`,
+              tag: rx.status,
+              tagType: 'teal',
+              icon: Pill,
+              onSelect: () => {
+                sound.playClick();
+                onNavigateTab('doctor-rx');
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      // Doctor Navigation Modules
+      if (activeCategory === 'all' || activeCategory === 'nav') {
+        const docModules = [
+          { title: 'Doctor Overview Dashboard', subtitle: 'Live telemetry, census, and shift status', tab: 'doctor-overview', icon: Activity },
+          { title: 'Inpatient Rounds & Telemetry', subtitle: 'Patient watchlist, MEWS acuity, and chart reviews', tab: 'doctor-patients', icon: Users },
+          { title: 'Clinical SOAP Chart Notes', subtitle: 'Subjective, Objective, Assessment, Plan notes', tab: 'doctor-soap', icon: ClipboardList },
+          { title: 'E-Prescriptions & Refills', subtitle: 'Digital prescription authoring and pharmacy dispatch', tab: 'doctor-rx', icon: Pill },
+          { title: 'Lab & Diagnostic Imaging Orders', subtitle: 'STAT pathology and volumetric scan orders', tab: 'doctor-labs', icon: FlaskConical },
+          { title: 'Clinic Schedule & Telehealth', subtitle: 'Virtual telehealth consultations and appointments', tab: 'doctor-schedule', icon: Calendar },
+          { title: '3D Organ Anatomy Telemetry', subtitle: 'High-res interactive thoracic & cardiac volumetry', tab: 'doctor-3d', icon: Heart }
+        ];
+
+        docModules.forEach(m => {
+          if (!q || m.title.toLowerCase().includes(q) || m.subtitle.toLowerCase().includes(q)) {
+            items.push({
+              id: `doc-nav-${m.tab}`,
+              category: 'Module',
+              title: m.title,
+              subtitle: m.subtitle,
+              tag: 'DOCTOR STATION',
+              tagType: 'teal',
+              icon: m.icon,
+              onSelect: () => {
+                sound.playClick();
+                onNavigateTab(m.tab);
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      return items;
+    }
+
+    // ==============================================================
+    // 3. NURSE PORTAL SCOPE (Ward 4 Inpatients, Vitals, Beds, MAR)
+    // ==============================================================
+    if (portalMode === 'nurse') {
+      // Census & Inpatients
+      if (activeCategory === 'all' || activeCategory === 'census') {
+        allPatients.filter(p => p.admissionStatus === 'Admitted' || p.admissionStatus === 'ICU').forEach(pat => {
+          if (!q || pat.name.toLowerCase().includes(q) || pat.diagnosis.toLowerCase().includes(q)) {
+            items.push({
+              id: `nurse-pat-${pat.id}`,
+              category: 'Census',
+              title: `${pat.name} (Bed ${pat.bedNumber || '402'})`,
+              subtitle: `${pat.diagnosis} • Vitals: BP ${pat.vitals.bloodPressure}, SpO2 ${pat.vitals.oxygenSaturation}%`,
+              tag: pat.admissionStatus,
+              tagType: pat.admissionStatus === 'ICU' ? 'critical' : 'optimal',
+              avatar: pat.avatar,
+              onSelect: () => {
+                sound.playClick();
+                db.setSelectedPatient(pat.id);
+                if (onSelectPatient) onSelectPatient(pat);
+                onNavigateTab('nurse-rounds');
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      // Beds in Ward 4
+      if (activeCategory === 'all' || activeCategory === 'beds') {
+        allBeds.forEach(bed => {
+          if (!q || bed.bedNumber.toLowerCase().includes(q) || bed.wardName.toLowerCase().includes(q)) {
+            items.push({
+              id: `nurse-bed-${bed.id}`,
+              category: 'Bed',
+              title: `${bed.bedNumber} - ${bed.wardName}`,
+              subtitle: bed.patientName ? `Patient: ${bed.patientName}` : `Bed is clean and sanitizing`,
+              tag: bed.status,
+              tagType: bed.status === 'Available' ? 'optimal' : 'neutral',
+              icon: BedIcon,
+              onSelect: () => {
+                sound.playClick();
+                onNavigateTab('nurse-rounds');
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      // Nurse Navigation
+      if (activeCategory === 'all' || activeCategory === 'nav') {
+        const nurseModules = [
+          { title: 'Nurse Dashboard & Station', subtitle: 'Census, MAR meds due, doctor orders queue', tab: 'nurse-dashboard', icon: Activity },
+          { title: 'Inpatient Vitals & Rounds', subtitle: 'Hourly vitals logging and patient monitoring', tab: 'nurse-rounds', icon: Users },
+          { title: 'Doctor Orders Execution Queue', subtitle: 'STAT blood draws, IV lines, wound dressings', tab: 'nurse-rounds', icon: ClipboardList }
+        ];
+
+        nurseModules.forEach(m => {
+          if (!q || m.title.toLowerCase().includes(q)) {
+            items.push({
+              id: `nurse-nav-${m.tab}`,
+              category: 'Module',
+              title: m.title,
+              subtitle: m.subtitle,
+              tag: 'HEAD NURSE',
+              tagType: 'teal',
+              icon: m.icon,
+              onSelect: () => {
+                sound.playClick();
+                onNavigateTab(m.tab);
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      return items;
+    }
+
+    // ==============================================================
+    // 4. SUPER ADMIN PORTAL SCOPE (Enterprise Infrastructure & RBAC)
+    // ==============================================================
+    if (portalMode === 'super-admin') {
+      if (activeCategory === 'all' || activeCategory === 'nodes') {
+        const nodes = [
+          { name: 'MediCore Central Hospital (Flagship)', city: 'New York, NY', beds: '584 / 620 Beds', status: 'Optimal' },
+          { name: 'CityCare Metropolitan Pavilion', city: 'Brooklyn, NY', beds: '402 / 450 Beds', status: 'High Load' },
+          { name: 'St. Jude Academic Medical Wing', city: 'Queens, NY', beds: '210 / 240 Beds', status: 'Optimal' },
+          { name: 'MediCore Westside Trauma Center', city: 'Jersey City, NJ', beds: '127 / 160 Beds', status: 'Optimal' }
+        ];
+
+        nodes.forEach((node, i) => {
+          if (!q || node.name.toLowerCase().includes(q) || node.city.toLowerCase().includes(q)) {
+            items.push({
+              id: `node-${i}`,
+              category: 'Node',
+              title: node.name,
+              subtitle: `${node.city} • Occupancy: ${node.beds}`,
+              tag: node.status,
+              tagType: node.status === 'Optimal' ? 'optimal' : 'elevated',
+              icon: Building2,
+              onSelect: () => {
+                sound.playClick();
+                onNavigateTab('overview');
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      if (activeCategory === 'all' || activeCategory === 'nav') {
+        const adminModules = [
+          { title: 'Multi-Hospital Network Telemetry', subtitle: '4 facility nodes live capacity & ICU beds', tab: 'overview', icon: Building2 },
+          { title: 'Role-Based Access Control (RBAC)', subtitle: 'User provision, 2FA enforcement, and access tiers', tab: 'overview', icon: ShieldCheck },
+          { title: 'HIPAA & Compliance Audit Trail', subtitle: 'Cryptographic immutable security audit logs', tab: 'overview', icon: FileText },
+          { title: 'API & Server Infrastructure', subtitle: 'Express REST backend and database storage latency', tab: 'overview', icon: Activity }
+        ];
+
+        adminModules.forEach(m => {
+          if (!q || m.title.toLowerCase().includes(q)) {
+            items.push({
+              id: `sa-nav-${m.tab}`,
+              category: 'Governance',
+              title: m.title,
+              subtitle: m.subtitle,
+              tag: 'SUPER ADMIN',
+              tagType: 'teal',
+              icon: m.icon,
+              onSelect: () => {
+                sound.playClick();
+                onNavigateTab(m.tab);
+                onClose();
+              }
+            });
+          }
+        });
+      }
+
+      return items;
+    }
+
+    // ==============================================================
+    // 5. HOSPITAL ADMIN PORTAL SCOPE (Standard Operations & Directory)
+    // ==============================================================
     if (activeCategory === 'all' || activeCategory === 'patients') {
-      patients.forEach(pat => {
-        if (!q || pat.name.toLowerCase().includes(q) || pat.patientCode.toLowerCase().includes(q) || pat.diagnosis.toLowerCase().includes(q) || pat.bloodGroup.toLowerCase().includes(q)) {
+      allPatients.forEach(pat => {
+        if (!q || pat.name.toLowerCase().includes(q) || pat.patientCode.toLowerCase().includes(q) || pat.diagnosis.toLowerCase().includes(q)) {
           items.push({
-            id: `pat-${pat.id}`,
-            category: 'patient',
+            id: `admin-pat-${pat.id}`,
+            category: 'Patient',
             title: pat.name,
-            subtitle: `${pat.diagnosis} • Dr. ${pat.primaryDoctorName}`,
+            subtitle: `${pat.diagnosis} • Attending: Dr. ${pat.primaryDoctorName}`,
             tag: pat.admissionStatus,
-            tagType: pat.admissionStatus === 'ICU' ? 'critical' : pat.admissionStatus === 'Admitted' ? 'elevated' : 'optimal',
-            meta: `${pat.patientCode} • ${pat.gender}, ${pat.age}y • ${pat.ward || 'Outpatient'}`,
+            tagType: pat.admissionStatus === 'ICU' ? 'critical' : 'optimal',
+            meta: `${pat.patientCode} • ${pat.gender}, ${pat.age}y`,
             avatar: pat.avatar,
             onSelect: () => {
               sound.playClick();
               db.setSelectedPatient(pat.id);
               if (onSelectPatient) onSelectPatient(pat);
-              if (portalMode === 'patient') {
-                onNavigateTab('patient-health');
-              } else if (portalMode === 'doctor') {
-                onNavigateTab('doctor-patients');
-              } else {
-                onNavigateTab('patients');
-              }
+              onNavigateTab('patients');
               onClose();
             }
           });
@@ -142,24 +564,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       });
     }
 
-    // 2. DOCTORS
     if (activeCategory === 'all' || activeCategory === 'doctors') {
-      doctors.forEach(doc => {
-        if (!q || doc.name.toLowerCase().includes(q) || doc.department.toLowerCase().includes(q) || doc.specialization.toLowerCase().includes(q)) {
+      allDoctors.forEach(doc => {
+        if (!q || doc.name.toLowerCase().includes(q) || doc.department.toLowerCase().includes(q)) {
           items.push({
-            id: `doc-${doc.id}`,
-            category: 'doctor',
+            id: `admin-doc-${doc.id}`,
+            category: 'Doctor',
             title: doc.name,
             subtitle: `${doc.title} • ${doc.department}`,
             tag: doc.availability,
-            tagType: doc.availability === 'Available' ? 'optimal' : doc.availability === 'In Surgery' ? 'critical' : 'elevated',
-            meta: `${doc.specialization} • ₹${doc.consultationFee} Consult Fee`,
+            tagType: doc.availability === 'Available' ? 'optimal' : 'elevated',
             avatar: doc.avatar,
             onSelect: () => {
               sound.playClick();
-              if (portalMode !== 'admin' && portalMode !== 'management') {
-                onSwitchPortal('admin');
-              }
               onNavigateTab('doctors');
               onClose();
             }
@@ -168,26 +585,20 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       });
     }
 
-    // 3. BEDS
     if (activeCategory === 'all' || activeCategory === 'beds') {
-      beds.forEach(bed => {
-        if (!q || bed.bedNumber.toLowerCase().includes(q) || bed.wardName.toLowerCase().includes(q) || (bed.patientName && bed.patientName.toLowerCase().includes(q))) {
+      allBeds.forEach(bed => {
+        if (!q || bed.bedNumber.toLowerCase().includes(q) || bed.wardName.toLowerCase().includes(q)) {
           items.push({
-            id: `bed-${bed.id}`,
-            category: 'bed',
+            id: `admin-bed-${bed.id}`,
+            category: 'Bed',
             title: `${bed.bedNumber} (${bed.wardName})`,
-            subtitle: bed.patientName ? `Occupied by: ${bed.patientName}` : `Bed is clean and ready for admission`,
+            subtitle: bed.patientName ? `Occupied: ${bed.patientName}` : `Bed is available`,
             tag: bed.status,
-            tagType: bed.status === 'Available' ? 'optimal' : bed.status === 'Occupied' ? 'elevated' : 'neutral',
-            meta: `${bed.type} Unit • Bed ID: #${bed.id}`,
+            tagType: bed.status === 'Available' ? 'optimal' : 'neutral',
             icon: BedIcon,
             onSelect: () => {
               sound.playClick();
-              if (portalMode === 'nurse') {
-                onNavigateTab('beds');
-              } else {
-                onNavigateTab('beds');
-              }
+              onNavigateTab('beds');
               onClose();
             }
           });
@@ -195,26 +606,20 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       });
     }
 
-    // 4. BILLING & INVOICES
     if (activeCategory === 'all' || activeCategory === 'billing') {
-      invoices.forEach(inv => {
-        if (!q || inv.invoiceNumber.toLowerCase().includes(q) || inv.patientName.toLowerCase().includes(q) || inv.status.toLowerCase().includes(q)) {
+      allInvoices.forEach(inv => {
+        if (!q || inv.invoiceNumber.toLowerCase().includes(q) || inv.patientName.toLowerCase().includes(q)) {
           items.push({
-            id: `inv-${inv.id}`,
-            category: 'billing',
+            id: `admin-inv-${inv.id}`,
+            category: 'Billing',
             title: `${inv.invoiceNumber} - ${inv.patientName}`,
-            subtitle: `Total: ₹${inv.grandTotal.toFixed(2)} • Billed: ${inv.date} (Due: ${inv.dueDate})`,
+            subtitle: `Total: ₹${inv.grandTotal.toFixed(2)} • Billed: ${inv.date}`,
             tag: inv.status,
             tagType: inv.status === 'Paid' ? 'optimal' : 'elevated',
-            meta: `${inv.items.length} itemized clinical services`,
             icon: CreditCard,
             onSelect: () => {
               sound.playClick();
-              if (portalMode === 'patient') {
-                onNavigateTab('patient-billing');
-              } else {
-                onNavigateTab('billing');
-              }
+              onNavigateTab('billing');
               onClose();
             }
           });
@@ -222,25 +627,30 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       });
     }
 
-    // 5. NAVIGATION
-    if (activeCategory === 'all' || activeCategory === 'navigation') {
-      navItems.forEach((nav, idx) => {
-        if (!q || nav.title.toLowerCase().includes(q) || nav.subtitle.toLowerCase().includes(q)) {
+    if (activeCategory === 'all' || activeCategory === 'nav') {
+      const adminNavs = [
+        { title: 'Executive Operations Dashboard', subtitle: 'Facility census, capacity, and clinical safety index', tab: 'dashboard', icon: Building2 },
+        { title: 'Patient Directory & EMR Records', subtitle: 'Comprehensive patient directory and 3D organ volumetry', tab: 'patients', icon: Users },
+        { title: 'Inpatient Ward & Bed Flow', subtitle: 'Live census, ward telemetry, and bed allocations', tab: 'ward', icon: BedIcon },
+        { title: 'Hospital Central Pharmacy', subtitle: 'Formulary management, stock inventory, and dispensation', tab: 'pharmacy', icon: Pill },
+        { title: 'Diagnostic Laboratory & Imaging', subtitle: 'STAT pathology tests, blood panels, and imaging orders', tab: 'lab', icon: FlaskConical },
+        { title: 'Billing, Invoices & Claims', subtitle: 'GST invoices, insurance remittance, and payment gateway', tab: 'billing', icon: CreditCard },
+        { title: 'System Settings & Security', subtitle: 'Personal credentials, active sessions, and audit logs', tab: 'settings', icon: FileText }
+      ];
+
+      adminNavs.forEach(m => {
+        if (!q || m.title.toLowerCase().includes(q)) {
           items.push({
-            id: `nav-${idx}`,
-            category: 'navigation',
-            title: nav.title,
-            subtitle: nav.subtitle,
-            tag: nav.mode.toUpperCase(),
+            id: `admin-nav-${m.tab}`,
+            category: 'Module',
+            title: m.title,
+            subtitle: m.subtitle,
+            tag: 'ADMIN',
             tagType: 'teal',
-            meta: `Jump to ${nav.tab}`,
-            icon: nav.icon,
+            icon: m.icon,
             onSelect: () => {
               sound.playClick();
-              if (nav.mode !== portalMode && (nav.mode === 'patient' || nav.mode === 'nurse' || nav.mode === 'doctor' || nav.mode === 'super-admin')) {
-                onSwitchPortal(nav.mode as HeaderPortalMode);
-              }
-              onNavigateTab(nav.tab);
+              onNavigateTab(m.tab);
               onClose();
             }
           });
@@ -249,9 +659,24 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     }
 
     return items;
-  }, [query, activeCategory, patients, doctors, beds, invoices, navItems, portalMode, onNavigateTab, onSwitchPortal, onSelectPatient, onClose]);
+  }, [
+    portalMode, 
+    query, 
+    activeCategory, 
+    activePatient, 
+    allPatients, 
+    allDoctors, 
+    allBeds, 
+    allInvoices, 
+    allPrescriptions, 
+    allAppointments, 
+    allLabOrders, 
+    onNavigateTab, 
+    onSelectPatient, 
+    onClose
+  ]);
 
-  // Keep selectedIndex in bounds
+  // Reset selected index when search changes
   useEffect(() => {
     setSelectedIndex(0);
   }, [query, activeCategory]);
@@ -277,6 +702,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   if (!isOpen) return null;
 
+  // Portal title badge helper
+  const portalNameLabel = {
+    patient: 'Patient Self-Service',
+    doctor: 'Doctor Clinical Station',
+    nurse: 'Head Nurse Station',
+    'super-admin': 'Super Admin Network',
+    admin: 'Hospital Administration',
+    management: 'Hospital Administration'
+  }[portalMode] || 'Hospital Management';
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-20 p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-150"
@@ -284,49 +719,55 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     >
       <div 
         className={`w-full max-w-2xl rounded-3xl border shadow-2xl overflow-hidden flex flex-col max-h-[82vh] transition-all duration-200 ${
-          isDark ? 'bg-[#0E2035] border-slate-700/80 text-white' : 'bg-white border-slate-200 text-[#142C43]'
+          isDark ? 'bg-[#0E2035] border-slate-700/80 text-white' : 'bg-white border-slate-200 text-[#1E293B]'
         }`}
         style={{ boxShadow: '0 25px 60px -15px rgba(0,0,0,0.3), 0 0 0 1px rgba(13,148,136,0.1)' }}
         onKeyDown={handleKeyDown}
       >
-        {/* Top Search Input Box */}
+        {/* Top Search Input Box with Portal Scope Indicator */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200/80 dark:border-slate-800">
-          <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
-            <Search className="w-5 h-5 shrink-0" />
+          <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 shrink-0">
+            <Search className="w-5 h-5" />
           </div>
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search across patients, doctors, beds, invoices, or modules..."
+            placeholder={
+              portalMode === 'patient'
+                ? "Search my prescriptions, appointments, lab reports, receipts..."
+                : portalMode === 'doctor'
+                  ? "Search inpatients, visits today, clinical orders..."
+                  : portalMode === 'nurse'
+                    ? "Search Ward 4 census, beds, MAR meds due..."
+                    : "Search patients, doctors, beds, invoices, modules..."
+            }
             value={query}
             onChange={e => setQuery(e.target.value)}
             className="flex-1 bg-transparent outline-none text-sm sm:text-base font-semibold placeholder:text-slate-400"
           />
-          <button
-            onClick={onClose}
-            className="px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
-          >
-            ESC
-          </button>
+          <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20">
+              {portalNameLabel}
+            </span>
+            <button
+              onClick={onClose}
+              className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              ESC
+            </button>
+          </div>
         </div>
 
-        {/* Category Filter Pills */}
+        {/* Category Filter Pills (Scoped strictly to this portal) */}
         <div className="flex items-center gap-1.5 px-4 py-2 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 overflow-x-auto no-scrollbar text-xs">
-          {[
-            { id: 'all', label: 'All Records', count: results.length },
-            { id: 'patients', label: 'Patients', icon: Users, count: patients.length },
-            { id: 'doctors', label: 'Doctors', icon: Stethoscope, count: doctors.length },
-            { id: 'beds', label: 'Beds & Wards', icon: BedIcon, count: beds.length },
-            { id: 'billing', label: 'Invoices', icon: CreditCard, count: invoices.length },
-            { id: 'navigation', label: 'Navigation', icon: Navigation, count: navItems.length },
-          ].map(cat => {
+          {availableCategories.map(cat => {
             const isActive = activeCategory === cat.id;
             return (
               <button
                 key={cat.id}
                 onClick={() => {
                   sound.playClick();
-                  setActiveCategory(cat.id as SearchCategory);
+                  setActiveCategory(cat.id);
                 }}
                 className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                   isActive
@@ -335,9 +776,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 }`}
               >
                 <span>{cat.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-teal-700 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>
-                  {cat.count}
-                </span>
               </button>
             );
           })}
@@ -348,8 +786,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           {results.length === 0 ? (
             <div className="py-12 text-center text-xs text-slate-400">
               <Search className="w-8 h-8 mx-auto mb-2 opacity-30 text-teal-500" />
-              <p className="font-bold text-sm text-slate-600 dark:text-slate-300">No matching hospital records found</p>
-              <p className="mt-1">Try searching by patient code (P-12563a), doctor name, bed #, or invoice #</p>
+              <p className="font-bold text-sm text-slate-600 dark:text-slate-300">
+                {portalMode === 'patient' ? 'No personal records match your search' : 'No matching records found'}
+              </p>
+              <p className="mt-1">
+                {portalMode === 'patient' 
+                  ? 'Try searching by medicine name, doctor name, or invoice'
+                  : 'Try searching by patient code, room #, or doctor name'}
+              </p>
             </div>
           ) : (
             results.map((item, idx) => {
@@ -403,7 +847,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                         {item.subtitle}
                       </p>
                       {item.meta && (
-                        <span className="text-[10px] font-mono text-slate-400 block mt-0.5">
+                        <span className="text-[10px] font-mono text-slate-400 block mt-0.5 truncate">
                           {item.meta}
                         </span>
                       )}
@@ -441,8 +885,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               <span>to close</span>
             </span>
           </div>
-          <span className="font-semibold text-teal-600 dark:text-teal-400">
-            MediCore Global Search
+          <span className="font-semibold text-teal-600 dark:text-teal-400 text-[10px] uppercase tracking-wider">
+            {portalNameLabel} Search
           </span>
         </div>
       </div>
