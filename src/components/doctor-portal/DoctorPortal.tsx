@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ThemeMode, Patient, Appointment, LabOrder, Prescription, CriticalAlert, Bed } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { api } from '../../services/api';
@@ -174,6 +174,22 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
   const [replyText, setReplyText] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [chatSearchPatient, setChatSearchPatient] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const filteredChatPatients = useMemo(() => {
+    if (!chatSearchPatient.trim()) return patients.slice(0, 60);
+    const q = chatSearchPatient.toLowerCase();
+    return patients.filter(p => 
+      p.name.toLowerCase().includes(q) || 
+      p.patientCode.toLowerCase().includes(q) ||
+      (p.diagnosis && p.diagnosis.toLowerCase().includes(q))
+    ).slice(0, 60);
+  }, [patients, chatSearchPatient]);
 
   const fetchMessages = async (showRefreshIndicator = false) => {
     if (!selectedPatient?.id) return;
@@ -1094,13 +1110,13 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
 
       {/* ================= DOCTOR MODULE 1: REAL-TIME PATIENT TELE-CHAT & CONSULTATION ================= */}
       {activeTab === 'doctor-chat' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[700px] max-h-[calc(100vh-200px)] min-h-[600px]">
           {/* LEFT: PATIENT ROSTER (4 cols) */}
-          <div className={`lg:col-span-4 p-5 rounded-[28px] border transition-all flex flex-col justify-between ${
+          <div className={`lg:col-span-4 p-5 rounded-[28px] border transition-all flex flex-col h-full overflow-hidden ${
             isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-md'
           }`}>
-            <div>
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex flex-col h-full overflow-hidden">
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4 text-teal-500" />
                   <h3 className="font-black text-sm tracking-tight">Active Patient Channels</h3>
@@ -1110,8 +1126,21 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 </span>
               </div>
 
-              <div className="space-y-2">
-                {patients.map(pat => {
+              {/* Instant Search Bar */}
+              <div className="relative mb-3 shrink-0">
+                <input
+                  type="text"
+                  value={chatSearchPatient}
+                  onChange={e => setChatSearchPatient(e.target.value)}
+                  placeholder="Filter patient by name or code..."
+                  className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs focus:outline-none focus:ring-1 focus:ring-teal-500"
+                />
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+              </div>
+
+              {/* Patient List (Scrollable) */}
+              <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-0">
+                {filteredChatPatients.map(pat => {
                   const isSelected = pat.id === selectedPatient?.id;
                   return (
                     <button
@@ -1120,7 +1149,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                         sound.playClick();
                         setSelectedPatient(pat);
                       }}
-                      className={`w-full p-3.5 rounded-2xl border text-left transition-all flex items-start gap-3 ${
+                      className={`w-full p-3 rounded-2xl border text-left transition-all flex items-start gap-3 ${
                         isSelected
                           ? 'border-teal-500 bg-teal-500/10 shadow-xs'
                           : isDark
@@ -1131,7 +1160,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                       <img
                         src={pat.avatar}
                         alt={pat.name}
-                        className="w-10 h-10 rounded-xl object-cover ring-2 ring-teal-500/30 shrink-0"
+                        className="w-9 h-9 rounded-xl object-cover ring-2 ring-teal-500/30 shrink-0"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
@@ -1141,131 +1170,130 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                           {pat.diagnosis}
                         </p>
-                        <div className="flex items-center gap-2 mt-1.5 text-[10px]">
+                        <div className="flex items-center gap-2 mt-1 text-[10px]">
                           <span className="text-emerald-500 font-bold">BP: {pat.vitals?.bloodPressure || '120/80'}</span>
                           <span>•</span>
-                          <span className="text-slate-400">{pat.age} yrs • {pat.bloodGroup}</span>
+                          <span className="text-slate-400">{pat.age} yrs</span>
                         </div>
                       </div>
                     </button>
                   );
                 })}
               </div>
-            </div>
 
-            <div className="mt-4 p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-xs">
-              <span className="font-bold text-teal-600 dark:text-teal-400 block mb-1">⚡ Live Clinical Bridge:</span>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300">
-                Any reply sent here syncs instantly into the Patient Portal. Messages poll automatically every 2.5 seconds.
-              </p>
+              <div className="mt-3 p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-xs shrink-0">
+                <span className="font-bold text-teal-600 dark:text-teal-400 block mb-0.5 text-[11px]">⚡ Live Clinical Bridge</span>
+                <p className="text-[10px] text-slate-600 dark:text-slate-300">
+                  Replies sync directly to patient portal in real time.
+                </p>
+              </div>
             </div>
           </div>
 
           {/* RIGHT: LIVE TELE-CHAT CONSOLE (8 cols) */}
-          <div className={`lg:col-span-8 p-6 rounded-[28px] border transition-all flex flex-col justify-between ${
+          <div className={`lg:col-span-8 p-6 rounded-[28px] border transition-all flex flex-col h-full overflow-hidden ${
             isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-lg'
           }`}>
-            <div>
-              {/* Header with active patient info & action buttons */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-4 gap-3">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={selectedPatient?.avatar}
-                    alt={selectedPatient?.name}
-                    className="w-12 h-12 rounded-2xl object-cover ring-2 ring-teal-500"
-                  />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-extrabold text-base">{selectedPatient?.name}</h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600 font-mono">
-                        {selectedPatient?.patientCode}
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-400">
-                      Diagnosis: {selectedPatient?.diagnosis} • Room: {selectedPatient?.roomNumber || 'Ward 4'} • Attending: Dr. Roger S.
-                    </p>
+            {/* Header with active patient info & action buttons (Shrink 0) */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-slate-100 dark:border-slate-800 mb-2 gap-3 shrink-0">
+              <div className="flex items-center gap-3 min-w-0">
+                <img
+                  src={selectedPatient?.avatar}
+                  alt={selectedPatient?.name}
+                  className="w-11 h-11 rounded-2xl object-cover ring-2 ring-teal-500 shrink-0"
+                />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-extrabold text-sm sm:text-base truncate">{selectedPatient?.name}</h3>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600 font-mono shrink-0">
+                      {selectedPatient?.patientCode}
+                    </span>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      const mockApt: Appointment = {
-                        id: `apt-${Date.now()}`,
-                        patientId: selectedPatient.id,
-                        patientName: selectedPatient.name,
-                        doctorId: 'doc-1',
-                        doctorName: 'Dr. Roger S.',
-                        department: 'Pulmonology',
-                        date: new Date().toISOString().split('T')[0],
-                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                        status: 'In-Progress',
-                        visitType: 'Consultation',
-                        notes: `Ad-hoc Clinical Telehealth consultation with ${selectedPatient.name}`
-                      };
-                      launchTelehealthRoom(mockApt);
-                    }}
-                    className="px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm"
-                  >
-                    <Video className="w-3.5 h-3.5" />
-                    <span>Launch Telehealth Call</span>
-                  </button>
-
-                  <button
-                    onClick={() => fetchMessages(true)}
-                    disabled={isRefreshing}
-                    className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-400 hover:text-teal-500"
-                    title="Force Refresh Messages"
-                  >
-                    <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-teal-500' : ''}`} />
-                  </button>
+                  <p className="text-[11px] text-slate-400 truncate">
+                    Diagnosis: {selectedPatient?.diagnosis} • Room: {selectedPatient?.roomNumber || 'Ward 4'} • Attending: Dr. Roger S.
+                  </p>
                 </div>
               </div>
 
-              {/* Message History Feed */}
-              <div className="space-y-3 max-h-[380px] overflow-y-auto pr-2 no-scrollbar">
-                {messages.length === 0 ? (
-                  <div className="text-center py-12 text-slate-400">
-                    <Stethoscope className="w-10 h-10 mx-auto text-teal-500/40 mb-2" />
-                    <p className="text-xs">No active consultation transcripts yet with {selectedPatient?.name}.</p>
-                    <span className="text-[11px] text-slate-500">Send an initial instruction or clinical update below.</span>
-                  </div>
-                ) : (
-                  messages.map((msg, i) => {
-                    const isDoctor = msg.sender === 'doctor';
-                    return (
-                      <div
-                        key={msg.id || i}
-                        className={`flex flex-col ${isDoctor ? 'items-end' : 'items-start'}`}
-                      >
-                        <div className="flex items-center gap-1.5 mb-1 text-[11px] text-slate-400 px-1">
-                          <strong className={isDoctor ? 'text-teal-400' : 'text-slate-700 dark:text-slate-200'}>
-                            {msg.senderName}
-                          </strong>
-                          <span>•</span>
-                          <span>{msg.timestamp}</span>
-                        </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => {
+                    const mockApt: Appointment = {
+                      id: `apt-${Date.now()}`,
+                      patientId: selectedPatient.id,
+                      patientName: selectedPatient.name,
+                      doctorId: 'doc-1',
+                      doctorName: 'Dr. Roger S.',
+                      department: 'Pulmonology',
+                      date: new Date().toISOString().split('T')[0],
+                      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                      status: 'In-Progress',
+                      visitType: 'Consultation',
+                      notes: `Ad-hoc Clinical Telehealth consultation with ${selectedPatient.name}`
+                    };
+                    launchTelehealthRoom(mockApt);
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                >
+                  <Video className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Launch Telehealth Call</span>
+                </button>
 
-                        <div className={`max-w-[82%] p-4 rounded-2xl text-xs leading-relaxed ${
-                          isDoctor
-                            ? 'bg-teal-600 text-white rounded-tr-none shadow-sm'
-                            : isDark
-                              ? 'bg-slate-800 text-slate-100 rounded-tl-none border border-slate-700'
-                              : 'bg-white text-slate-800 rounded-tl-none border border-slate-200 shadow-xs'
-                        }`}>
-                          {msg.text}
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
+                <button
+                  onClick={() => fetchMessages(true)}
+                  disabled={isRefreshing}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-slate-400 hover:text-teal-500"
+                  title="Force Refresh Messages"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-teal-500' : ''}`} />
+                </button>
               </div>
             </div>
 
-            {/* Doctor Reply Action Console */}
-            <div className="mt-4 space-y-3">
+            {/* Message History Feed (Scrollable, takes all available space) */}
+            <div className="flex-1 overflow-y-auto space-y-3 pr-2 min-h-0 py-2">
+              {messages.length === 0 ? (
+                <div className="text-center py-12 text-slate-400">
+                  <Stethoscope className="w-10 h-10 mx-auto text-teal-500/40 mb-2" />
+                  <p className="text-xs">No active consultation transcripts yet with {selectedPatient?.name}.</p>
+                  <span className="text-[11px] text-slate-500">Send an initial instruction or clinical update below.</span>
+                </div>
+              ) : (
+                messages.map((msg, i) => {
+                  const isDoctor = msg.sender === 'doctor';
+                  return (
+                    <div
+                      key={msg.id || i}
+                      className={`flex flex-col ${isDoctor ? 'items-end' : 'items-start'}`}
+                    >
+                      <div className="flex items-center gap-1.5 mb-1 text-[11px] text-slate-400 px-1">
+                        <strong className={isDoctor ? 'text-teal-400' : 'text-slate-700 dark:text-slate-200'}>
+                          {msg.senderName}
+                        </strong>
+                        <span>•</span>
+                        <span>{msg.timestamp}</span>
+                      </div>
+
+                      <div className={`max-w-[82%] p-3.5 rounded-2xl text-xs leading-relaxed ${
+                        isDoctor
+                          ? 'bg-teal-600 text-white rounded-tr-none shadow-sm'
+                          : isDark
+                            ? 'bg-slate-800 text-slate-100 rounded-tl-none border border-slate-700'
+                            : 'bg-white text-slate-800 rounded-tl-none border border-slate-200 shadow-xs'
+                      }`}>
+                        {msg.text}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Doctor Reply Action Console (Pinned firmly at the bottom of the card) */}
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5 shrink-0">
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
                   Quick Clinical Prescriptive Macros (Click to Insert):
                 </span>
                 <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
@@ -1277,7 +1305,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                         sound.playClick();
                         setReplyText(macro);
                       }}
-                      className="text-[11px] px-3 py-1 rounded-full border border-teal-500/30 text-teal-600 dark:text-teal-300 hover:bg-teal-500/10 whitespace-nowrap transition-all"
+                      className="text-[10px] px-2.5 py-0.5 rounded-full border border-teal-500/30 text-teal-600 dark:text-teal-300 hover:bg-teal-500/10 whitespace-nowrap transition-all cursor-pointer"
                     >
                       {macro.slice(0, 45)}...
                     </button>
@@ -1285,20 +1313,20 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 </div>
               </div>
 
-              <form onSubmit={handleSendReply} className="flex gap-2.5">
+              <form onSubmit={handleSendReply} className="flex gap-2">
                 <input
                   type="text"
                   value={replyText}
                   onChange={e => setReplyText(e.target.value)}
                   placeholder={`Type doctor instruction or reply to ${selectedPatient?.name}...`}
-                  className="flex-1 px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="flex-1 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
                 <button
                   type="submit"
                   disabled={isSending || !replyText.trim()}
-                  className="px-6 py-3 rounded-2xl bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-2 transition-all shadow-md shrink-0"
+                  className="px-5 py-2.5 rounded-2xl bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shrink-0 cursor-pointer"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-3.5 h-3.5" />
                   <span>Send Reply</span>
                 </button>
               </form>
