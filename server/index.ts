@@ -417,8 +417,8 @@ app.post('/api/patients', async (req: Request, res: Response) => {
     const newCode = req.body.patientCode || `P-${Math.floor(10000 + Math.random() * 90000)}x`;
 
     await p.query(
-      `INSERT INTO patients (id, patient_code, name, age, gender, blood_group, admission_date, admission_status, diagnosis, attending_doctor, room_bed, insurance_provider, emergency_contact, vitals, medical_history, allergies, avatar)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO patients (id, patient_code, name, age, gender, blood_group, admission_date, admission_status, diagnosis, attending_doctor, room_bed, insurance_provider, emergency_contact, email, vitals, medical_history, allergies, avatar)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         newId,
         newCode,
@@ -432,7 +432,8 @@ app.post('/api/patients', async (req: Request, res: Response) => {
         req.body.attendingDoctor || null,
         req.body.roomBed || null,
         req.body.insuranceProvider || null,
-        req.body.emergencyContact || null,
+        req.body.emergencyContact || req.body.phone || null,
+        req.body.email || `${req.body.name.toLowerCase().replace(/[^a-z]/g, '')}@example.com`,
         JSON.stringify(req.body.vitals || {}),
         JSON.stringify(req.body.medicalHistory || []),
         JSON.stringify(req.body.allergies || []),
