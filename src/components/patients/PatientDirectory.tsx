@@ -26,8 +26,11 @@ import {
   Sparkles,
   Phone,
   Mail,
-  Droplet
+  Droplet,
+  CreditCard,
+  Printer
 } from 'lucide-react';
+import { DigitalHealthCardModal } from '../export';
 
 interface PatientDirectoryProps {
   theme: ThemeMode;
@@ -45,6 +48,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(patients[0]);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | '3d_anatomy' | 'history'>('overview');
+  const [isHealthCardOpen, setIsHealthCardOpen] = useState(false);
 
   // New patient form state
   const [newPatient, setNewPatient] = useState({
@@ -287,7 +291,19 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                 </div>
 
                 {/* Sub-tab pills */}
-                <div className={`flex items-center gap-1 p-1 rounded-2xl border text-xs ${
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      sound.playClick();
+                      setIsHealthCardOpen(true);
+                    }}
+                    className="px-3 py-1.5 rounded-2xl border border-teal-500/30 bg-teal-500/10 hover:bg-teal-500/20 text-teal-700 dark:text-teal-300 font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs"
+                    title="View & Print Official Patient Smart Health ID Card"
+                  >
+                    <CreditCard className="w-3.5 h-3.5" />
+                    <span>Smart Health ID Card</span>
+                  </button>
+                  <div className={`flex items-center gap-1 p-1 rounded-2xl border text-xs ${
                   isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'
                 }`}>
                   <button
@@ -325,6 +341,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                     Medical Timeline
                   </button>
                 </div>
+              </div>
               </div>
 
               {/* TAB 1: OVERVIEW & VITALS */}

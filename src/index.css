@@ -933,7 +933,49 @@
    PRINT STYLES
    ============================================================ */
 @media print {
-  .docr-sidebar, .docr-topbar { display: none !important; }
+  /* Suppress web navigation, overlays & chrome when printing */
+  .no-print,
+  .docr-sidebar,
+  .docr-topbar,
+  aside,
+  header,
+  nav,
+  button:not(.allow-print),
+  .command-palette-backdrop {
+    display: none !important;
+  }
+
+  body, html {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   .docr-main { margin-left: 0 !important; }
   .docr-content { padding: 0 !important; }
+
+  /* Ensure printable sheets take standard clean document layout */
+  #printable-invoice-sheet,
+  #printable-rx-sheet,
+  #printable-health-card-sheet {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 12mm !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    border: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  @page {
+    size: auto;
+    margin: 10mm;
+  }
 }

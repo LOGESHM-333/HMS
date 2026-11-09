@@ -16,8 +16,10 @@ import {
   Search, 
   Filter, 
   Clock, 
-  CheckCircle2 
+  CheckCircle2,
+  Printer
 } from 'lucide-react';
+import { PrintablePrescriptionModal } from '../export';
 
 interface PharmacyManagerProps {
   theme: ThemeMode;
@@ -30,6 +32,7 @@ export const PharmacyManager: React.FC<PharmacyManagerProps> = ({ theme }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'inventory' | 'prescriptions'>('inventory');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedRxForPrint, setSelectedRxForPrint] = useState<Prescription | null>(null);
 
   const [newMed, setNewMed] = useState({
     name: '',

@@ -8,6 +8,7 @@ import { Patient, ThemeMode, Appointment, Invoice, LabOrder, Prescription } from
 import { db } from '../../services/mockDatabase';
 import { api } from '../../services/api';
 import { sound } from '../../services/audioService';
+import { PrintableInvoiceModal, PrintablePrescriptionModal, DigitalHealthCardModal } from '../export';
 import { 
   Heart, 
   Activity, 
@@ -233,6 +234,8 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
   const [claimAmount, setClaimAmount] = useState('480.00');
   const [claimDiagnosis, setClaimDiagnosis] = useState('ICD-10 J44.9 (Chronic Obstructive Infiltration)');
   const [receiptPrintModalOpen, setReceiptPrintModalOpen] = useState(false);
+  const [isHealthCardOpen, setIsHealthCardOpen] = useState(false);
+  const [selectedPrescriptionForPrint, setSelectedPrescriptionForPrint] = useState<Prescription | null>(null);
   const [activeReceipt, setActiveReceipt] = useState<Invoice | null>(null);
 
   // 8. DOCTOR CHAT STATES
@@ -2857,58 +2860,29 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
       )}
 
       {/* ================= MODAL: PRINT OFFICIAL TAX RECEIPT ================= */}
-      {receiptPrintModalOpen && activeReceipt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-3xl p-8 bg-white text-slate-900 shadow-2xl border border-slate-200">
-            <div className="flex justify-between items-start pb-4 border-b-2 border-teal-700 mb-6">
-              <div>
-                <h3 className="font-black text-xl text-teal-800">MEDICORE OFFICIAL RECEIPT</h3>
-                <span className="text-xs text-slate-500">Tax Invoice & Proof of Settlement</span>
-              </div>
-              <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">PAID IN FULL</span>
-            </div>
+      <PrintableInvoiceModal
+        isOpen={receiptPrintModalOpen}
+        onClose={() => setReceiptPrintModalOpen(false)}
+        invoice={activeReceipt}
+        theme={theme}
+      />
 
-            <div className="space-y-3 text-xs mb-6">
-              <div className="flex justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-500">Invoice Number:</span>
-                <span className="font-bold font-mono">{activeReceipt.invoiceNumber}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-500">Patient Name:</span>
-                <span className="font-bold">{activeReceipt.patientName}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-500">Payment Date:</span>
-                <span className="font-bold">{activeReceipt.dueDate}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-500">Payment Method:</span>
-                <span className="font-bold">{activeReceipt.paymentMethod || 'Online Credit Card'}</span>
-              </div>
-              <div className="flex justify-between py-2 text-base font-black border-t-2 border-slate-900 mt-2">
-                <span>Total Settled:</span>
-                <span className="text-teal-700">₹{activeReceipt.grandTotal.toFixed(2)}</span>
-              </div>
-            </div>
+      {/* ================= MODAL: PRINT DIGITAL HEALTH ID CARD ================= */}
+      <DigitalHealthCardModal
+        isOpen={isHealthCardOpen}
+        onClose={() => setIsHealthCardOpen(false)}
+        patient={patient}
+        theme={theme}
+      />
 
-            <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
-              <button
-                onClick={() => setReceiptPrintModalOpen(false)}
-                className="px-4 py-2 rounded-xl border border-slate-300 font-bold text-xs"
-              >
-                Close
-              </button>
-              <button
-                onClick={() => handlePrintDocument(`Receipt-${activeReceipt.invoiceNumber}`)}
-                className="px-5 py-2 rounded-xl bg-teal-600 text-white font-bold text-xs flex items-center gap-1.5"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Print Tax Receipt</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ================= MODAL: PRINT OFFICIAL E-PRESCRIPTION ================= */}
+      <PrintablePrescriptionModal
+        isOpen={Boolean(selectedPrescriptionForPrint)}
+        onClose={() => setSelectedPrescriptionForPrint(null)}
+        prescription={selectedPrescriptionForPrint}
+        patient={patient}
+        theme={theme}
+      />
 
       {/* ================= MODAL: LOG NUTRITION MEAL ================= */}
       {mealModalOpen && (

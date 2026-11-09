@@ -52,6 +52,7 @@ import {
   ArrowRight,
   Building2
 } from 'lucide-react';
+import { PrintablePrescriptionModal } from '../export';
 
 interface DoctorPortalProps {
   activeSection?: string;
@@ -1463,6 +1464,36 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2 self-end md:self-center">
+                  <button
+                    onClick={() => {
+                      sound.playClick();
+                      const parentRx = prescriptions.find(p => p.id === rxItem.rxId) || {
+                        id: rxItem.rxId,
+                        patientId: rxItem.patientId,
+                        patientName: rxItem.patientName,
+                        doctorId: 'doc-1',
+                        doctorName: 'Dr. Roger S., MD',
+                        date: rxItem.date,
+                        status: (rxItem.rxStatus as any) || 'Prescribed',
+                        items: [{
+                          medicineId: 'med-rx',
+                          medicineName: rxItem.medicineName,
+                          dosage: rxItem.dosage,
+                          frequency: rxItem.frequency,
+                          duration: rxItem.duration,
+                          quantity: rxItem.quantity,
+                          dispensed: false
+                        }]
+                      };
+                      setRxPrintModal(parentRx);
+                    }}
+                    className="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-teal-700 dark:text-teal-400 font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs"
+                    title="Print Official E-Prescription Slip"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>Print Rx</span>
+                  </button>
+
                   <button
                     onClick={() => handleAuthorizeRefill(rxItem.rxId, rxItem.medicineName)}
                     className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-xs"

@@ -17,8 +17,10 @@ import {
   Download, 
   Filter, 
   Search,
-  ShieldCheck
+  ShieldCheck,
+  Printer
 } from 'lucide-react';
+import { PrintableInvoiceModal } from '../export';
 
 interface BillingManagerProps {
   theme: ThemeMode;
@@ -29,6 +31,7 @@ export const BillingManager: React.FC<BillingManagerProps> = ({ theme }) => {
   const [invoices, setInvoices] = useState<Invoice[]>(db.getInvoices());
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(invoices[0] || null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [printInvoiceModalOpen, setPrintInvoiceModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('Medical Insurance (Aetna Health)');
 
   const totalRevenue = 4240500;
@@ -198,11 +201,14 @@ export const BillingManager: React.FC<BillingManagerProps> = ({ theme }) => {
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => sound.playClick()}
-                    className="px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5"
+                    onClick={() => {
+                      sound.playClick();
+                      setPrintInvoiceModalOpen(true);
+                    }}
+                    className="px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-teal-700 dark:text-teal-400 flex items-center gap-1.5 transition-all shadow-sm"
                   >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Download PDF</span>
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>Print / Export PDF</span>
                   </button>
 
                   {selectedInvoice.status === 'Pending' && (
@@ -271,6 +277,14 @@ export const BillingManager: React.FC<BillingManagerProps> = ({ theme }) => {
           </div>
         </div>
       )}
+
+      {/* PRINTABLE OFFICIAL TAX INVOICE MODAL */}
+      <PrintableInvoiceModal
+        isOpen={printInvoiceModalOpen}
+        onClose={() => setPrintInvoiceModalOpen(false)}
+        invoice={selectedInvoice}
+        theme={theme}
+      />
     </div>
   );
 };
