@@ -25,6 +25,7 @@ import {
 } from '../types';
 import { api } from './api';
 import { dataset1000 } from '../data/dataset1000';
+import { LAB_CATALOG, WORKING_LAB_ORDERS } from '../data/labCatalog';
 
 const INITIAL_PATIENTS: Patient[] = [
   {
@@ -517,86 +518,9 @@ const INITIAL_PRESCRIPTIONS: Prescription[] = [
   },
 ];
 
-const INITIAL_LAB_TESTS: LabTest[] = [
-  {
-    id: 'test-1',
-    testName: 'Thoracic High-Resolution CT & 3D Volumetry',
-    category: 'Radiology / Imaging',
-    price: 480,
-    durationHours: 3,
-    normalRange: 'No infiltrates or pleural effusion',
-    unit: 'HU Index',
-  },
-  {
-    id: 'test-2',
-    testName: 'Comprehensive Metabolic Panel (CMP-14)',
-    category: 'Biochemistry',
-    price: 65,
-    durationHours: 2,
-    normalRange: 'See sub-analyte ranges',
-    unit: 'mg/dL',
-  },
-  {
-    id: 'test-3',
-    testName: 'Advanced Lipid & ApoB Profile',
-    category: 'Cardiovascular',
-    price: 85,
-    durationHours: 4,
-    normalRange: '< 100 LDL, < 80 ApoB',
-    unit: 'mg/dL',
-  },
-  {
-    id: 'test-4',
-    testName: 'Arterial Blood Gas Analysis (ABG)',
-    category: 'Critical Care',
-    price: 110,
-    durationHours: 1,
-    normalRange: 'pH 7.35-7.45, PaO2 80-100',
-    unit: 'mmHg',
-  },
-];
+const INITIAL_LAB_TESTS: LabTest[] = LAB_CATALOG;
 
-const INITIAL_LAB_ORDERS: LabOrder[] = [
-  {
-    id: 'lab-1',
-    patientId: 'pat-1',
-    patientName: 'Magnus Stephenson',
-    doctorId: 'doc-1',
-    testId: 'test-1',
-    testName: 'Thoracic High-Resolution CT & 3D Volumetry',
-    orderedDate: '2026-03-28',
-    completedDate: '2026-03-28',
-    status: 'Completed',
-    resultValue: 'Mild basal left consolidation; bronchovascular markings prominent',
-    unit: 'Morphology',
-    interpretation: 'Borderline',
-  },
-  {
-    id: 'lab-2',
-    patientId: 'pat-1',
-    patientName: 'Magnus Stephenson',
-    doctorId: 'doc-1',
-    testId: 'test-3',
-    testName: 'Advanced Lipid & ApoB Profile',
-    orderedDate: '2026-03-29',
-    completedDate: '2026-03-30',
-    status: 'Completed',
-    resultValue: '190 mg/dL Total Chol, 122 mg/dL LDL',
-    unit: 'mg/dL',
-    interpretation: 'Borderline',
-  },
-  {
-    id: 'lab-3',
-    patientId: 'pat-3',
-    patientName: 'Elena Rostova-Smith',
-    doctorId: 'doc-4',
-    testId: 'test-4',
-    testName: 'Arterial Blood Gas Analysis (ABG)',
-    orderedDate: '2026-04-02',
-    status: 'Analyzing',
-    interpretation: 'Critical',
-  },
-];
+const INITIAL_LAB_ORDERS: LabOrder[] = WORKING_LAB_ORDERS as LabOrder[];
 
 const INITIAL_BEDS: Bed[] = [
   { id: 'b-101', bedNumber: 'ICU-01', wardId: 'w-icu', wardName: 'Intensive Care Unit', type: 'ICU', status: 'Occupied', patientId: 'pat-3', patientName: 'Elena Rostova-Smith', admittedDate: '2026-03-30' },
@@ -1113,7 +1037,14 @@ class MockDatabase {
     }
   }
 
-  public orderLabTest(order: Omit<LabOrder, 'id' | 'orderedDate' | 'status'>): LabOrder {
+  public orderLabTest(order: Omit<LabOrder, 'id' | 'orderedDate' | 'status'> & {
+    doctorName?: string;
+    priority?: string;
+    specimenBarcode?: string;
+    specimenType?: string;
+    technicianNotes?: string;
+    referenceRange?: string;
+  }): LabOrder {
     const newOrder: LabOrder = {
       ...order,
       id: `lab-${Date.now()}`,
@@ -1125,6 +1056,19 @@ class MockDatabase {
     this.saveToStorage();
     api.createLabOrder(newOrder).catch(() => {});
     return newOrder;
+  }
+
+  public deleteLabOrder(id: string): boolean {
+    const idx = this.labOrders.findIndex(o => o.id === id);
+    if (idx !== -1) {
+      const removed = this.labOrders[idx];
+      this.labOrders.splice(idx, 1);
+      this.logAudit('Lab Order Cancelled/Deleted', 'Laboratory', `Cancelled diagnostic order ${removed.testName} (${removed.id}) for ${removed.patientName}`);
+      this.saveToStorage();
+      api.deleteLabOrder(id).catch(() => {});
+      return true;
+    }
+    return false;
   }
 
   // Beds & Admissions

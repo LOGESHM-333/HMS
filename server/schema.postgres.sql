@@ -124,6 +124,44 @@ CREATE TABLE IF NOT EXISTS invoices (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS lab_tests (
+    id VARCHAR(64) PRIMARY KEY,
+    test_code VARCHAR(32) NOT NULL UNIQUE,
+    test_name VARCHAR(255) NOT NULL,
+    category VARCHAR(64) NOT NULL,
+    specimen_type VARCHAR(64) NOT NULL DEFAULT 'Whole Blood',
+    price NUMERIC(10, 2) NOT NULL DEFAULT 500.00,
+    duration_hours INT NOT NULL DEFAULT 4,
+    normal_range VARCHAR(255) NOT NULL,
+    unit VARCHAR(64) NOT NULL,
+    methodology VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lab_orders (
+    id VARCHAR(64) PRIMARY KEY,
+    patient_id VARCHAR(64) REFERENCES patients(id) ON DELETE CASCADE,
+    patient_name VARCHAR(255) NOT NULL,
+    doctor_id VARCHAR(64) REFERENCES doctors(id) ON DELETE CASCADE,
+    doctor_name VARCHAR(255),
+    test_id VARCHAR(64) REFERENCES lab_tests(id) ON DELETE CASCADE,
+    test_name VARCHAR(255) NOT NULL,
+    order_date DATE NOT NULL,
+    completed_date DATE,
+    status VARCHAR(32) NOT NULL DEFAULT 'Ordered',
+    priority VARCHAR(32) NOT NULL DEFAULT 'Routine',
+    specimen_barcode VARCHAR(64),
+    specimen_type VARCHAR(64) NOT NULL DEFAULT 'Whole Blood',
+    result_value TEXT,
+    reference_range VARCHAR(255),
+    unit VARCHAR(64),
+    interpretation VARCHAR(32) DEFAULT 'Normal',
+    technician_notes TEXT,
+    report_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS audit_logs (
     id VARCHAR(64) PRIMARY KEY,
     timestamp VARCHAR(64) NOT NULL,
@@ -141,3 +179,7 @@ CREATE INDEX IF NOT EXISTS idx_patients_status ON patients(admission_status);
 CREATE INDEX IF NOT EXISTS idx_doctors_dept ON doctors(department);
 CREATE INDEX IF NOT EXISTS idx_beds_status ON beds(status);
 CREATE INDEX IF NOT EXISTS idx_invoices_status ON invoices(status);
+CREATE INDEX IF NOT EXISTS idx_lab_orders_patient ON lab_orders(patient_id);
+CREATE INDEX IF NOT EXISTS idx_lab_orders_status ON lab_orders(status);
+CREATE INDEX IF NOT EXISTS idx_lab_orders_date ON lab_orders(order_date);
+

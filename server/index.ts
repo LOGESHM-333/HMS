@@ -198,21 +198,28 @@ function mapPrescriptionRow(r: any): Prescription {
   };
 }
 
-// Map MySQL lab order row to frontend LabOrder object
-function mapLabOrderRow(r: any): LabOrder {
+// Map MySQL / PostgreSQL / Fallback lab order row to frontend LabOrder object
+function mapLabOrderRow(r: any): any {
   return {
     id: r.id,
-    patientId: r.patient_id,
-    patientName: r.patient_name,
-    doctorId: r.doctor_id || 'doc-1',
-    testId: r.test_id || 'test-1',
-    testName: r.test_name,
-    orderedDate: r.order_date,
+    patientId: r.patient_id || r.patientId,
+    patientName: r.patient_name || r.patientName,
+    doctorId: r.doctor_id || r.doctorId || 'doc-1',
+    doctorName: r.doctor_name || r.doctorName || 'Dr. Roger Sterling, MD',
+    testId: r.test_id || r.testId || 'test-1',
+    testName: r.test_name || r.testName,
+    orderedDate: r.order_date || r.orderedDate || r.orderDate,
     status: (r.status as any) || 'Ordered',
-    resultValue: r.result_value || undefined,
+    priority: r.priority || 'Routine',
+    specimenBarcode: r.specimen_barcode || r.specimenBarcode || 'MED-BC-90001',
+    specimenType: r.specimen_type || r.specimenType || 'Serum',
+    resultValue: r.result_value || r.resultValue || undefined,
+    referenceRange: r.reference_range || r.referenceRange || undefined,
     unit: r.unit || undefined,
     interpretation: (r.interpretation as any) || undefined,
-    completedDate: r.completed_date || undefined,
+    technicianNotes: r.technician_notes || r.technicianNotes || undefined,
+    reportUrl: r.report_url || r.reportUrl || undefined,
+    completedDate: r.completed_date || r.completedDate || undefined,
   };
 }
 
@@ -345,19 +352,10 @@ app.get('/api/bootstrap', async (_req: Request, res: Response) => {
       appointments: fallbackStore.appointments,
       medicines: fallbackStore.medicines,
       prescriptions: fallbackStore.prescriptions,
-      labTests: fallbackStore.medicines.map((m: any, idx: number) => ({
-        id: `test-${idx + 1}`,
-        testCode: `LAB-${100 + idx}`,
-        name: m.name,
-        department: m.category,
-        sampleType: 'Whole Blood',
-        turnaroundTimeHours: 12,
-        cost: 450,
-        referenceRange: 'Normal',
-        unit: 'mg/dL',
-        isActive: true
-      })),
-      labOrders: [],
+      labTests: fallbackStore.labTests && fallbackStore.labTests.length > 0 ? fallbackStore.labTests : [
+        { id: 'test-cbc', testName: 'Complete Blood Count (CBC)', category: 'Hematology', price: 450, durationHours: 2, normalRange: 'WBC 4.5-11.0, Plt 150-450', unit: 'K/uL' }
+      ],
+      labOrders: fallbackStore.labOrders && fallbackStore.labOrders.length > 0 ? fallbackStore.labOrders : [],
       beds: fallbackStore.beds,
       invoices: fallbackStore.invoices,
       alerts: fallbackStore.alerts,
@@ -620,6 +618,22 @@ app.put('/api/appointments/:id', async (req: Request, res: Response) => {
   }
 });
 
+app.delete('/api/appointments/:id', async (req: Request, res: Response) => {
+  try {
+    const p = getPool();
+    const [existing]: any = await p.query('SELECT * FROM appointments WHERE id = ?', [req.params.id]);
+    if (!existing || existing.length === 0) return res.status(404).json({ error: 'Appointment not found' });
+
+    const current = mapAppointmentRow(existing[0]);
+    await p.query('DELETE FROM appointments WHERE id = ?', [req.params.id]);
+
+    await logAudit('Appointment Cancelled/Deleted', 'Appointments', `Cancelled appointment #${current.id} for ${current.patientName}`);
+    res.json({ message: 'Appointment deleted successfully', id: req.params.id });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Beds
 app.get('/api/beds', async (_req: Request, res: Response) => {
   try {
@@ -765,6 +779,22 @@ app.put('/api/pharmacy/prescriptions/:id', async (req: Request, res: Response) =
   }
 });
 
+app.delete('/api/pharmacy/prescriptions/:id', async (req: Request, res: Response) => {
+  try {
+    const p = getPool();
+    const [existing]: any = await p.query('SELECT * FROM prescriptions WHERE id = ?', [req.params.id]);
+    if (!existing || existing.length === 0) return res.status(404).json({ error: 'Prescription not found' });
+
+    const rx = mapPrescriptionRow(existing[0]);
+    await p.query('DELETE FROM prescriptions WHERE id = ?', [req.params.id]);
+
+    await logAudit('Prescription Revoked/Deleted', 'Pharmacy', `Revoked Rx #${rx.id} for ${rx.patientName}`);
+    res.json({ message: 'Prescription deleted successfully', id: req.params.id });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Laboratory
 app.get('/api/lab/tests', async (_req: Request, res: Response) => {
   try {
@@ -772,26 +802,44 @@ app.get('/api/lab/tests', async (_req: Request, res: Response) => {
     const [rows]: any = await p.query('SELECT * FROM lab_tests');
     res.json(rows.map((t: any) => ({
       id: t.id,
-      testCode: t.test_code,
-      name: t.name,
-      department: t.department,
-      sampleType: t.sample_type,
-      turnaroundTimeHours: t.turnaround_time_hours,
-      cost: Number(t.cost) || 0,
-      referenceRange: t.reference_range,
-      unit: t.unit,
-      isActive: Boolean(t.is_active),
+      testCode: t.test_code || t.testCode || t.id,
+      testName: t.test_name || t.testName || t.name,
+      category: t.category || t.department || 'General',
+      specimenType: t.specimen_type || t.specimenType || t.sample_type || 'Whole Blood',
+      price: Number(t.price || t.cost) || 500,
+      durationHours: Number(t.duration_hours || t.durationHours || t.turnaround_time_hours) || 2,
+      normalRange: t.normal_range || t.normalRange || t.reference_range || 'Normal',
+      unit: t.unit || '',
+      methodology: t.methodology || 'Automated Clinical Assay',
     })));
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.get('/api/lab/orders', async (_req: Request, res: Response) => {
+app.get('/api/lab/orders', async (req: Request, res: Response) => {
   try {
     const p = getPool();
     const [rows]: any = await p.query('SELECT * FROM lab_orders ORDER BY order_date DESC');
-    res.json(rows.map(mapLabOrderRow));
+    let mapped = rows.map(mapLabOrderRow);
+
+    if (req.query.patientId) {
+      mapped = mapped.filter((o: any) => o.patientId === req.query.patientId);
+    }
+    if (req.query.status && req.query.status !== 'All') {
+      mapped = mapped.filter((o: any) => o.status === req.query.status);
+    }
+    if (req.query.search) {
+      const q = String(req.query.search).toLowerCase();
+      mapped = mapped.filter((o: any) => 
+        o.patientName?.toLowerCase().includes(q) ||
+        o.testName?.toLowerCase().includes(q) ||
+        o.specimenBarcode?.toLowerCase().includes(q) ||
+        o.doctorName?.toLowerCase().includes(q)
+      );
+    }
+
+    res.json(mapped);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -802,6 +850,7 @@ app.post('/api/lab/orders', async (req: Request, res: Response) => {
     const p = getPool();
     const newId = req.body.id || `lab-${Date.now()}`;
     const orderDate = req.body.orderDate || req.body.orderedDate || new Date().toISOString().split('T')[0];
+    const barcode = req.body.specimenBarcode || `MED-BC-${Math.floor(100000 + Math.random() * 900000)}`;
 
     await p.query(
       `INSERT INTO lab_orders (id, patient_id, patient_name, doctor_id, doctor_name, test_id, test_name, order_date, status, result_value, reference_range, unit, interpretation, completed_date, notes)
@@ -811,24 +860,24 @@ app.post('/api/lab/orders', async (req: Request, res: Response) => {
         req.body.patientId,
         req.body.patientName,
         req.body.doctorId || 'doc-1',
-        req.body.doctorName || 'Dr. Roger S.',
+        req.body.doctorName || 'Dr. Roger Sterling, MD',
         req.body.testId || 'test-1',
         req.body.testName,
         orderDate,
-        req.body.status || 'Pending',
+        req.body.status || 'Ordered',
         req.body.resultValue || null,
         req.body.referenceRange || null,
         req.body.unit || null,
-        req.body.interpretation || null,
+        req.body.interpretation || 'Normal',
         req.body.completedDate || null,
-        req.body.notes || null
+        req.body.notes || req.body.technicianNotes || null
       ]
     );
 
-    await logAudit('Lab Order Created', 'Laboratory', `Ordered ${req.body.testName} for ${req.body.patientName}`);
+    await logAudit('Lab Order Created', 'Laboratory', `Ordered ${req.body.testName} (${barcode}) for ${req.body.patientName}`);
 
     const [rows]: any = await p.query('SELECT * FROM lab_orders WHERE id = ?', [newId]);
-    res.status(201).json(mapLabOrderRow(rows[0]));
+    res.status(201).json(rows[0] ? mapLabOrderRow(rows[0]) : { id: newId, ...req.body });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -848,15 +897,31 @@ app.put('/api/lab/orders/:id', async (req: Request, res: Response) => {
       [
         updated.status,
         updated.resultValue || null,
-        updated.interpretation || null,
-        updated.completedDate || null,
-        updated.notes || null,
+        updated.interpretation || 'Normal',
+        updated.completedDate || (updated.status === 'Completed' ? new Date().toISOString().split('T')[0] : null),
+        updated.technicianNotes || updated.notes || null,
         req.params.id
       ]
     );
 
-    await logAudit('Lab Order Completed', 'Laboratory', `Updated test ${updated.testName} to ${updated.status}`);
+    await logAudit('Lab Order Updated', 'Laboratory', `Updated test ${updated.testName} (${updated.id}) to ${updated.status}`);
     res.json(updated);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/lab/orders/:id', async (req: Request, res: Response) => {
+  try {
+    const p = getPool();
+    const [existing]: any = await p.query('SELECT * FROM lab_orders WHERE id = ?', [req.params.id]);
+    if (!existing || existing.length === 0) return res.status(404).json({ error: 'Lab order not found' });
+
+    const current = mapLabOrderRow(existing[0]);
+    await p.query('DELETE FROM lab_orders WHERE id = ?', [req.params.id]);
+
+    await logAudit('Lab Order Cancelled/Deleted', 'Laboratory', `Cancelled test order ${current.testName} (${current.id}) for ${current.patientName}`);
+    res.json({ message: 'Lab order deleted successfully', id: req.params.id });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -922,6 +987,22 @@ app.put('/api/billing/invoices/:id/pay', async (req: Request, res: Response) => 
 
     await logAudit('Invoice Paid', 'Billing', `Processed payment of $${inv.grandTotal.toFixed(2)} for ${inv.patientName}`);
     res.json(inv);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/billing/invoices/:id', async (req: Request, res: Response) => {
+  try {
+    const p = getPool();
+    const [existing]: any = await p.query('SELECT * FROM invoices WHERE id = ?', [req.params.id]);
+    if (!existing || existing.length === 0) return res.status(404).json({ error: 'Invoice not found' });
+
+    const inv = mapInvoiceRow(existing[0]);
+    await p.query('DELETE FROM invoices WHERE id = ?', [req.params.id]);
+
+    await logAudit('Invoice Voided/Deleted', 'Billing', `Voided invoice ${inv.invoiceNumber} (${inv.id}) for ${inv.patientName}`);
+    res.json({ message: 'Invoice deleted successfully', id: req.params.id });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

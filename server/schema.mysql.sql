@@ -133,6 +133,48 @@ CREATE TABLE IF NOT EXISTS `invoices` (
     INDEX `idx_invoices_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `lab_tests` (
+    `id` VARCHAR(64) PRIMARY KEY,
+    `test_code` VARCHAR(32) NOT NULL UNIQUE,
+    `test_name` VARCHAR(255) NOT NULL,
+    `category` VARCHAR(64) NOT NULL,
+    `specimen_type` VARCHAR(64) NOT NULL DEFAULT 'Whole Blood',
+    `price` DECIMAL(10, 2) NOT NULL DEFAULT 500.00,
+    `duration_hours` INT NOT NULL DEFAULT 4,
+    `normal_range` VARCHAR(255) NOT NULL,
+    `unit` VARCHAR(64) NOT NULL,
+    `methodology` VARCHAR(255),
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_lab_tests_cat` (`category`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `lab_orders` (
+    `id` VARCHAR(64) PRIMARY KEY,
+    `patient_id` VARCHAR(64) NOT NULL,
+    `patient_name` VARCHAR(255) NOT NULL,
+    `doctor_id` VARCHAR(64) NOT NULL,
+    `doctor_name` VARCHAR(255),
+    `test_id` VARCHAR(64) NOT NULL,
+    `test_name` VARCHAR(255) NOT NULL,
+    `order_date` DATE NOT NULL,
+    `completed_date` DATE,
+    `status` VARCHAR(32) NOT NULL DEFAULT 'Ordered',
+    `priority` VARCHAR(32) NOT NULL DEFAULT 'Routine',
+    `specimen_barcode` VARCHAR(64),
+    `specimen_type` VARCHAR(64) NOT NULL DEFAULT 'Whole Blood',
+    `result_value` TEXT,
+    `reference_range` VARCHAR(255),
+    `unit` VARCHAR(64),
+    `interpretation` VARCHAR(32) DEFAULT 'Normal',
+    `technician_notes` TEXT,
+    `report_url` TEXT,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_lab_orders_patient` (`patient_id`),
+    INDEX `idx_lab_orders_status` (`status`),
+    INDEX `idx_lab_orders_date` (`order_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `audit_logs` (
     `id` VARCHAR(64) PRIMARY KEY,
     `timestamp` VARCHAR(64) NOT NULL,
@@ -144,3 +186,4 @@ CREATE TABLE IF NOT EXISTS `audit_logs` (
     `ip_address` VARCHAR(64),
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

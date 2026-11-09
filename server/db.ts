@@ -67,6 +67,8 @@ export let fallbackStore: {
   invoices: any[];
   alerts: any[];
   auditLogs: any[];
+  labTests: any[];
+  labOrders: any[];
 } = {
   patients: [],
   doctors: [],
@@ -77,7 +79,9 @@ export let fallbackStore: {
   prescriptions: [],
   invoices: [],
   alerts: [],
-  auditLogs: []
+  auditLogs: [],
+  labTests: [],
+  labOrders: []
 };
 
 /**
@@ -106,6 +110,9 @@ export function load1000Dataset() {
       fallbackStore.invoices = fbData.invoices || [];
       fallbackStore.alerts = fbData.alerts || [];
       fallbackStore.auditLogs = fbData.auditLogs || [];
+      fallbackStore.labTests = fbData.labTests || [];
+      fallbackStore.labOrders = fbData.labOrders || [];
+      console.log(`[MediCore DB] Loaded ${fallbackStore.labTests.length} diagnostic laboratory tests and ${fallbackStore.labOrders.length} working orders`);
     }
   } catch (err: any) {
     console.error('[MediCore DB] Error loading dataset:', err.message);
@@ -283,6 +290,45 @@ function toStaffRow(s: any) {
   };
 }
 
+function toLabTestRow(t: any) {
+  return {
+    id: t.id,
+    test_code: t.testCode || t.id,
+    test_name: t.testName || t.name,
+    category: t.category || t.department,
+    specimen_type: t.specimenType || t.sampleType || 'Whole Blood',
+    price: Number(t.price || t.cost) || 500,
+    duration_hours: Number(t.durationHours || t.turnaroundTimeHours) || 2,
+    normal_range: t.normalRange || t.referenceRange || 'Normal',
+    unit: t.unit || '',
+    methodology: t.methodology || 'Automated Clinical Assay'
+  };
+}
+
+function toLabOrderRow(o: any) {
+  return {
+    id: o.id,
+    patient_id: o.patientId || o.patient_id,
+    patient_name: o.patientName || o.patient_name,
+    doctor_id: o.doctorId || o.doctor_id || 'doc-1',
+    doctor_name: o.doctorName || o.doctor_name || 'Dr. Roger Sterling, MD',
+    test_id: o.testId || o.test_id || 'test-1',
+    test_name: o.testName || o.test_name,
+    order_date: o.orderedDate || o.order_date || new Date().toISOString().split('T')[0],
+    completed_date: o.completedDate || o.completed_date || null,
+    status: o.status || 'Ordered',
+    priority: o.priority || 'Routine',
+    specimen_barcode: o.specimenBarcode || o.specimen_barcode || 'MED-BC-90001',
+    specimen_type: o.specimenType || o.specimen_type || 'Serum',
+    result_value: o.resultValue || o.result_value || null,
+    reference_range: o.referenceRange || o.reference_range || null,
+    unit: o.unit || null,
+    interpretation: o.interpretation || 'Normal',
+    technician_notes: o.technicianNotes || o.technician_notes || null,
+    report_url: o.reportUrl || o.report_url || null
+  };
+}
+
 export function getPool(): any {
   if (mysqlPool) return mysqlPool;
   if (pgPool) {
@@ -300,6 +346,8 @@ export function getPool(): any {
   return {
     query: async (sql: string, params: any[] = []) => {
       const lower = sql.toLowerCase();
+
+      // COUNT Queries
       if (lower.includes('count(*)')) {
         if (lower.includes('patients')) return [[{ count: fallbackStore.patients.length }]];
         if (lower.includes('doctors')) return [[{ count: fallbackStore.doctors.length }]];
@@ -308,7 +356,102 @@ export function getPool(): any {
         if (lower.includes('medicines')) return [[{ count: fallbackStore.medicines.length }]];
         if (lower.includes('invoices')) return [[{ count: fallbackStore.invoices.length }]];
         if (lower.includes('appointments')) return [[{ count: fallbackStore.appointments.length }]];
+        if (lower.includes('lab_orders')) return [[{ count: fallbackStore.labOrders.length }]];
+        if (lower.includes('lab_tests')) return [[{ count: fallbackStore.labTests.length }]];
         return [[{ count: 1000 }]];
+      }
+
+      // DELETE Queries
+      if (lower.startsWith('delete from')) {
+        if (lower.includes('patients')) {
+          const id = params[0];
+          fallbackStore.patients = fallbackStore.patients.filter((p: any) => p.id !== id);
+          persistFallbackStore();
+          return [{ affectedRows: 1 }];
+        }
+        if (lower.includes('lab_orders')) {
+          const id = params[0];
+          fallbackStore.labOrders = fallbackStore.labOrders.filter((o: any) => o.id !== id);
+          persistFallbackStore();
+          return [{ affectedRows: 1 }];
+        }
+        if (lower.includes('appointments')) {
+          const id = params[0];
+          fallbackStore.appointments = fallbackStore.appointments.filter((a: any) => a.id !== id);
+          persistFallbackStore();
+          return [{ affectedRows: 1 }];
+        }
+        if (lower.includes('medicines')) {
+          const id = params[0];
+          fallbackStore.medicines = fallbackStore.medicines.filter((m: any) => m.id !== id);
+          persistFallbackStore();
+          return [{ affectedRows: 1 }];
+        }
+        if (lower.includes('prescriptions')) {
+          const id = params[0];
+          fallbackStore.prescriptions = fallbackStore.prescriptions.filter((rx: any) => rx.id !== id);
+          persistFallbackStore();
+          return [{ affectedRows: 1 }];
+        }
+        if (lower.includes('invoices')) {
+          const id = params[0];
+          fallbackStore.invoices = fallbackStore.invoices.filter((i: any) => i.id !== id);
+          persistFallbackStore();
+          return [{ affectedRows: 1 }];
+        }
+        return [{ affectedRows: 0 }];
+      }
+
+      // INSERT INTO lab_orders
+      if (lower.startsWith('insert into lab_orders')) {
+        const newRecord = {
+          id: params[0],
+          patientId: params[1],
+          patientName: params[2],
+          doctorId: params[3],
+          doctorName: params[4],
+          testId: params[5],
+          testName: params[6],
+          orderedDate: params[7],
+          status: params[8] || 'Ordered',
+          resultValue: params[9] || null,
+          referenceRange: params[10] || null,
+          unit: params[11] || null,
+          interpretation: params[12] || 'Normal',
+          completedDate: params[13] || null,
+          notes: params[14] || null
+        };
+        fallbackStore.labOrders.unshift(newRecord);
+        persistFallbackStore();
+        return [{ affectedRows: 1, insertId: newRecord.id }];
+      }
+
+      // UPDATE lab_orders
+      if (lower.startsWith('update lab_orders')) {
+        const id = params[params.length - 1];
+        const existing = fallbackStore.labOrders.find((o: any) => o.id === id);
+        if (existing) {
+          existing.status = params[0];
+          if (params[1] !== undefined) existing.resultValue = params[1];
+          if (params[2] !== undefined) existing.interpretation = params[2];
+          if (params[3] !== undefined) existing.completedDate = params[3];
+          if (params[4] !== undefined) existing.technicianNotes = params[4];
+          persistFallbackStore();
+        }
+        return [{ affectedRows: existing ? 1 : 0 }];
+      }
+
+      // SELECT Queries
+      if (lower.includes('from lab_tests')) {
+        return [fallbackStore.labTests.map(toLabTestRow)];
+      }
+
+      if (lower.includes('from lab_orders')) {
+        if (params && params[0] && lower.includes('where id =')) {
+          const found = fallbackStore.labOrders.find((o: any) => o.id === params[0]);
+          return [found ? [toLabOrderRow(found)] : []];
+        }
+        return [fallbackStore.labOrders.map(toLabOrderRow)];
       }
 
       if (lower.includes('from patients')) {
@@ -459,7 +602,33 @@ async function seedPostgresData() {
       );
     }
 
-    console.log('[MediCore DB] ✓ 1,000 members seeded into PostgreSQL successfully!');
+    // Seed lab_tests into PostgreSQL
+    for (const test of (fallbackStore.labTests || [])) {
+      await pgPool.query(
+        `INSERT INTO lab_tests (id, test_code, test_name, category, specimen_type, price, duration_hours, normal_range, unit, methodology)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+         ON CONFLICT (id) DO NOTHING`,
+        [test.id, test.testCode || test.id, test.testName, test.category, test.specimenType || 'Whole Blood', test.price, test.durationHours || 2, test.normalRange, test.unit, test.methodology || 'Automated Clinical Assay']
+      );
+    }
+
+    // Seed lab_orders into PostgreSQL
+    for (const order of (fallbackStore.labOrders || [])) {
+      await pgPool.query(
+        `INSERT INTO lab_orders (id, patient_id, patient_name, doctor_id, doctor_name, test_id, test_name, order_date, completed_date, status, priority, specimen_barcode, specimen_type, result_value, reference_range, unit, interpretation, technician_notes, report_url)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+         ON CONFLICT (id) DO NOTHING`,
+        [
+          order.id, order.patientId, order.patientName, order.doctorId || 'doc-1', order.doctorName || 'Dr. Roger Sterling, MD',
+          order.testId || 'test-1', order.testName, order.orderedDate || order.orderDate, order.completedDate || null,
+          order.status || 'Ordered', order.priority || 'Routine', order.specimenBarcode || 'MED-BC-90001',
+          order.specimenType || 'Serum', order.resultValue || null, order.referenceRange || null,
+          order.unit || null, order.interpretation || 'Normal', order.technicianNotes || null, order.reportUrl || null
+        ]
+      );
+    }
+
+    console.log('[MediCore DB] ✓ 1,000 members & Diagnostic Laboratory battery seeded into PostgreSQL successfully!');
   } catch (err: any) {
     console.error('[MediCore DB] PostgreSQL seeding error:', err.message);
   }
@@ -510,7 +679,31 @@ async function seedMysqlData() {
       );
     }
 
-    console.log('[MediCore DB] ✓ 1,000 members seeded into MySQL successfully!');
+    // Seed lab_tests into MySQL
+    for (const test of (fallbackStore.labTests || [])) {
+      await mysqlPool.query(
+        `INSERT IGNORE INTO lab_tests (id, test_code, test_name, category, specimen_type, price, duration_hours, normal_range, unit, methodology)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [test.id, test.testCode || test.id, test.testName, test.category, test.specimenType || 'Whole Blood', test.price, test.durationHours || 2, test.normalRange, test.unit, test.methodology || 'Automated Clinical Assay']
+      );
+    }
+
+    // Seed lab_orders into MySQL
+    for (const order of (fallbackStore.labOrders || [])) {
+      await mysqlPool.query(
+        `INSERT IGNORE INTO lab_orders (id, patient_id, patient_name, doctor_id, doctor_name, test_id, test_name, order_date, completed_date, status, priority, specimen_barcode, specimen_type, result_value, reference_range, unit, interpretation, technician_notes, report_url)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          order.id, order.patientId, order.patientName, order.doctorId || 'doc-1', order.doctorName || 'Dr. Roger Sterling, MD',
+          order.testId || 'test-1', order.testName, order.orderedDate || order.orderDate, order.completedDate || null,
+          order.status || 'Ordered', order.priority || 'Routine', order.specimenBarcode || 'MED-BC-90001',
+          order.specimenType || 'Serum', order.resultValue || null, order.referenceRange || null,
+          order.unit || null, order.interpretation || 'Normal', order.technicianNotes || null, order.reportUrl || null
+        ]
+      );
+    }
+
+    console.log('[MediCore DB] ✓ 1,000 members & Diagnostic Laboratory battery seeded into MySQL successfully!');
   } catch (err: any) {
     console.error('[MediCore DB] MySQL seeding error:', err.message);
   }

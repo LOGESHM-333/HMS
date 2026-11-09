@@ -98,10 +98,12 @@ export const api = {
   // Laboratory
   getLabTests: () => request<LabTest[]>('/lab/tests'),
   getLabOrders: () => request<LabOrder[]>('/lab/orders'),
-  createLabOrder: (order: Omit<LabOrder, 'id' | 'orderDate'>) => 
+  createLabOrder: (order: Partial<LabOrder>) => 
     request<LabOrder>('/lab/orders', { method: 'POST', body: JSON.stringify(order) }),
   updateLabOrder: (id: string, updates: Partial<LabOrder>) => 
     request<LabOrder>(`/lab/orders/${id}`, { method: 'PUT', body: JSON.stringify(updates) }),
+  deleteLabOrder: (id: string) =>
+    request<{ message: string; id: string }>(`/lab/orders/${id}`, { method: 'DELETE' }),
 
   // Billing
   getInvoices: () => request<Invoice[]>('/billing/invoices'),
