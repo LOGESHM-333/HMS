@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediCore Live Database Explorer • MySQL 8.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    code, pre, .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0b1329; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+  </style>
+</head>
+<body class="bg-[#070D1B] text-slate-100 min-h-screen flex flex-col">
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-800 bg-[#0A1226]/90 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-teal-500/20">
+          M
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">MediCore Database Explorer</h1>
+            <span id="db-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span id="dialect-name">MySQL 8.0 Connected</span>
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Database: <strong class="text-teal-300 font-mono" id="db-name">medicore_db</strong> on port <strong class="text-teal-300 font-mono" id="db-port">3306</strong></p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="http://localhost:3000" target="_blank" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-500/10 text-teal-300 hover:bg-teal-500 hover:text-slate-950 border border-teal-500/30 transition-all flex items-center gap-1.5 shadow-sm">
+          <span>Open Hospital Portals (Port 3000)</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
+        <a href="/api/health" target="_blank" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">
+          Health JSON
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-5">
+
+    <!-- KPI STATS -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div class="glass-card p-3.5 rounded-2xl">
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Patients</div>
+        <div id="stat-patients" class="text-2xl font-black text-white mt-1">850</div>
+        <div class="text-[10px] text-teal-400 mt-0.5">Clinical Inpatients/OPDs</div>
+      </div>
+      <div class="glass-card p-3.5 rounded-2xl">
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Doctors</div>
+        <div id="stat-doctors" class="text-2xl font-black text-white mt-1">80</div>
+        <div class="text-[10px] text-teal-400 mt-0.5">Consultants & Surgeons</div>
+      </div>
+      <div class="glass-card p-3.5 rounded-2xl">
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Staff</div>
+        <div id="stat-staff" class="text-2xl font-black text-white mt-1">70</div>
+        <div class="text-[10px] text-teal-400 mt-0.5">Nurses & Technicians</div>
+      </div>
+      <div class="glass-card p-3.5 rounded-2xl">
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Lab Assays</div>
+        <div id="stat-labs" class="text-2xl font-black text-white mt-1">18</div>
+        <div class="text-[10px] text-cyan-400 mt-0.5">Full Clinical Battery</div>
+      </div>
+      <div class="glass-card p-3.5 rounded-2xl">
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Inpatient Beds</div>
+        <div id="stat-beds" class="text-2xl font-black text-white mt-1">12</div>
+        <div class="text-[10px] text-emerald-400 mt-0.5">Interactive Wards</div>
+      </div>
+      <div class="glass-card p-3.5 rounded-2xl">
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Members</div>
+        <div id="stat-total" class="text-2xl font-black text-teal-400 mt-1">1,000</div>
+        <div class="text-[10px] text-slate-400 mt-0.5">Live Live Demo Store</div>
+      </div>
+    </div>
+
+    <!-- TABLE EXPLORER CARD -->
+    <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col">
+
+      <!-- TOOLBAR & TABLE TABS -->
+      <div class="p-4 border-b border-slate-800/80 bg-slate-900/60 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <!-- TABS -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none" id="table-tabs">
+          <!-- Injected via JavaScript -->
+        </div>
+
+        <!-- SEARCH -->
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="relative">
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search table records..."
+              class="w-56 sm:w-64 pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-950/80 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition-all font-mono"
+            />
+            <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </div>
+          <button id="refresh-btn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all cursor-pointer" title="Refresh Table">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- TABLE CONTAINER -->
+      <div class="overflow-x-auto max-h-[560px] overflow-y-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="sticky top-0 bg-[#0A1226] z-10 border-b border-slate-800 text-slate-400 font-mono text-[11px] uppercase tracking-wider" id="table-head">
+            <!-- Dynamic columns -->
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 font-sans" id="table-body">
+            <tr>
+              <td colspan="8" class="text-center py-12 text-slate-500">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-400 mb-2"></div>
+                <div>Loading MySQL records...</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TABLE FOOTER -->
+      <div class="p-3.5 border-t border-slate-800/80 bg-slate-900/60 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+        <div id="footer-count">Showing 0 records</div>
+        <div class="flex items-center gap-2">
+          <button id="prev-btn" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-white">Previous</button>
+          <span id="page-indicator" class="font-mono text-slate-300">1 / 1</span>
+          <button id="next-btn" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-white">Next</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DIRECT REST API LINKS ACCORDION -->
+    <div class="glass-card p-4 rounded-2xl border border-slate-800 text-xs">
+      <div class="font-bold text-slate-300 text-sm mb-2 flex items-center justify-between">
+        <span>Direct REST API Endpoints (Click to view raw JSON in browser)</span>
+        <span class="text-[11px] font-mono text-teal-400">HTTP GET 200 OK</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-3 font-mono text-[11px]">
+        <a href="/api/patients" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
+          <span>/api/patients</span>
+          <span class="text-teal-400 font-bold">850</span>
+        </a>
+        <a href="/api/doctors" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
+          <span>/api/doctors</span>
+          <span class="text-teal-400 font-bold">80</span>
+        </a>
+        <a href="/api/staff" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
+          <span>/api/staff</span>
+          <span class="text-teal-400 font-bold">70</span>
+        </a>
+        <a href="/api/lab/tests" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
+          <span>/api/lab/tests</span>
+          <span class="text-cyan-400 font-bold">18</span>
+        </a>
+        <a href="/api/lab/orders" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
+          <span>/api/lab/orders</span>
+          <span class="text-cyan-400 font-bold">18</span>
+        </a>
+        <a href="/api/beds" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
+          <span>/api/beds</span>
+          <span class="text-emerald-400 font-bold">12</span>
+        </a>
+        <a href="/api/appointments" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
+          <span>/api/appointments</span>
+          <span class="text-slate-400 font-bold">6</span>
+        </a>
+        <a href="/api/pharmacy/medicines" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
+          <span>/api/medicines</span>
+          <span class="text-slate-400 font-bold">5</span>
+        </a>
+        <a href="/api/billing/invoices" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
+          <span>/api/invoices</span>
+          <span class="text-slate-400 font-bold">2</span>
+        </a>
+        <a href="/api/audit-logs" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
+          <span>/api/audit-logs</span>
+          <span class="text-purple-400 font-bold">Audit</span>
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL FOR DETAIL INSPECTION -->
+  <div id="detail-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card max-w-2xl w-full rounded-2xl p-6 border border-slate-700 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 id="modal-title" class="font-bold text-sm text-teal-300 font-mono">Row Inspector</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+      <div class="overflow-y-auto flex-1">
+        <pre id="modal-json" class="text-xs bg-slate-950 p-4 rounded-xl border border-slate-800 text-teal-400 font-mono overflow-x-auto"></pre>
+      </div>
+      <div class="flex justify-end">
+        <button onclick="closeModal()" class="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TABLES = [
+      { id: 'patients', label: 'Patients', endpoint: '/api/patients' },
+      { id: 'doctors', label: 'Doctors', endpoint: '/api/doctors' },
+      { id: 'staff', label: 'Staff', endpoint: '/api/staff' },
+      { id: 'beds', label: 'Beds', endpoint: '/api/beds' },
+      { id: 'lab_tests', label: 'Lab Assays', endpoint: '/api/lab/tests' },
+      { id: 'lab_orders', label: 'Lab Orders', endpoint: '/api/lab/orders' },
+      { id: 'appointments', label: 'Appointments', endpoint: '/api/appointments' },
+      { id: 'medicines', label: 'Medicines', endpoint: '/api/pharmacy/medicines' },
+      { id: 'invoices', label: 'Invoices', endpoint: '/api/billing/invoices' },
+      { id: 'audit_logs', label: 'Audit Trail', endpoint: '/api/audit-logs' },
+    ];
+
+    let currentTable = 'patients';
+    let currentRows = [];
+    let filteredRows = [];
+    let page = 1;
+    const pageSize = 20;
+
+    async function init() {
+      renderTabs();
+      await fetchHealth();
+      await loadTable(currentTable);
+
+      document.getElementById('search-input').addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        filteredRows = currentRows.filter(row => 
+          JSON.stringify(row).toLowerCase().includes(query)
+        );
+        page = 1;
+        renderTableRows();
+      });
+
+      document.getElementById('prev-btn').addEventListener('click', () => {
+        if (page > 1) { page--; renderTableRows(); }
+      });
+      document.getElementById('next-btn').addEventListener('click', () => {
+        if (page * pageSize < filteredRows.length) { page++; renderTableRows(); }
+      });
+      document.getElementById('refresh-btn').addEventListener('click', () => {
+        loadTable(currentTable);
+      });
+    }
+
+    async function fetchHealth() {
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        if (data.database) {
+          document.getElementById('dialect-name').textContent = data.database.engine + ' (' + (data.database.connected ? 'Connected' : 'Fallback') + ')';
+          document.getElementById('db-name').textContent = data.database.databaseName;
+          document.getElementById('db-port').textContent = data.database.activePort || '3306';
+        }
+        if (data.records) {
+          document.getElementById('stat-patients').textContent = (data.records.patients || 850).toLocaleString();
+          document.getElementById('stat-doctors').textContent = data.records.doctors || 80;
+          document.getElementById('stat-staff').textContent = data.records.staff || 70;
+          document.getElementById('stat-beds').textContent = data.records.beds || 12;
+          document.getElementById('stat-total').textContent = (data.records.totalMembers || 1000).toLocaleString();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function renderTabs() {
+      const container = document.getElementById('table-tabs');
+      container.innerHTML = TABLES.map(t => `
+        <button
+          onclick="switchTable('${t.id}')"
+          id="tab-${t.id}"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+            t.id === currentTable 
+              ? 'bg-teal-500 text-slate-950 shadow-md font-extrabold' 
+              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+          }"
+        >
+          ${t.label}
+        </button>
+      `).join('');
+    }
+
+    async function switchTable(tableId) {
+      currentTable = tableId;
+      page = 1;
+      document.getElementById('search-input').value = '';
+      renderTabs();
+      await loadTable(tableId);
+    }
+
+    async function loadTable(tableId) {
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-slate-500"><div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-teal-400 mb-2"></div><div>Querying MySQL table ${tableId}...</div></td></tr>`;
+      
+      const tableDef = TABLES.find(t => t.id === tableId);
+      try {
+        const res = await fetch(tableDef.endpoint);
+        const data = await res.json();
+        currentRows = Array.isArray(data) ? data : (data.records || []);
+        filteredRows = [...currentRows];
+        renderTableHeader();
+        renderTableRows();
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-rose-400">Failed to query ${tableId}: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderTableHeader() {
+      const thead = document.getElementById('table-head');
+      if (filteredRows.length === 0) {
+        thead.innerHTML = '<tr><th class="p-3">No Records</th></tr>';
+        return;
+      }
+      const sample = filteredRows[0];
+      const keys = Object.keys(sample).slice(0, 7);
+      thead.innerHTML = `
+        <tr>
+          ${keys.map(k => `<th class="p-3">${k.replace(/([A-Z])/g, ' $1').toLowerCase()}</th>`).join('')}
+          <th class="p-3 text-right">Action</th>
+        </tr>
+      `;
+    }
+
+    function renderTableRows() {
+      const tbody = document.getElementById('table-body');
+      const start = (page - 1) * pageSize;
+      const end = start + pageSize;
+      const pageRows = filteredRows.slice(start, end);
+
+      if (pageRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500">No matching records found</td></tr>`;
+        updateFooter();
+        return;
+      }
+
+      const keys = Object.keys(pageRows[0]).slice(0, 7);
+
+      tbody.innerHTML = pageRows.map((row, idx) => `
+        <tr class="hover:bg-slate-800/40 transition-colors">
+          ${keys.map(k => {
+            const val = row[k];
+            let display = typeof val === 'object' ? JSON.stringify(val) : String(val ?? '');
+            if (display.length > 40) display = display.substring(0, 40) + '...';
+
+            if (k === 'admissionStatus' || k === 'status') {
+              const color = val === 'Admitted' || val === 'Active' || val === 'Completed' ? 'emerald' : val === 'Discharged' ? 'purple' : val === 'ICU' ? 'rose' : 'slate';
+              return `<td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-${color}-500/10 text-${color}-400 border border-${color}-500/20">${val}</span></td>`;
+            }
+
+            return `<td class="p-3 font-mono text-[11px] text-slate-300">${display}</td>`;
+          }).join('')}
+          <td class="p-3 text-right">
+            <button onclick='viewDetails(${JSON.stringify(row).replace(/'/g, "&#39;")})' class="px-2.5 py-1 rounded-lg bg-teal-500/10 hover:bg-teal-500 hover:text-slate-950 text-teal-300 font-bold text-[10px] transition-all">
+              Inspect
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      updateFooter();
+    }
+
+    function updateFooter() {
+      const total = filteredRows.length;
+      const start = Math.min((page - 1) * pageSize + 1, total);
+      const end = Math.min(page * pageSize, total);
+      document.getElementById('footer-count').textContent = `Showing ${start}-${end} of ${total} records`;
+      document.getElementById('page-indicator').textContent = `${page} / ${Math.max(1, Math.ceil(total / pageSize))}`;
+      document.getElementById('prev-btn').disabled = (page <= 1);
+      document.getElementById('next-btn').disabled = (page * pageSize >= total);
+    }
+
+    function viewDetails(row) {
+      document.getElementById('modal-title').textContent = (row.name || row.patientCode || row.id || 'Row Details');
+      document.getElementById('modal-json').textContent = JSON.stringify(row, null, 2);
+      document.getElementById('detail-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('detail-modal').classList.add('hidden');
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

@@ -285,6 +285,15 @@ function mapAlertRow(r: any): CriticalAlert {
 
 // ================= REST ROUTES ================= //
 
+// Live Web Database Explorer GUI
+app.get(['/database', '/db', '/admin/database'], (_req: Request, res: Response) => {
+  const htmlPath = path.join(__dirname, 'dbViewer.html');
+  if (fs.existsSync(htmlPath)) {
+    return res.sendFile(htmlPath);
+  }
+  res.redirect('/api/health');
+});
+
 // Health check
 app.get('/api/health', async (_req: Request, res: Response) => {
   const dbStatus = getDbStatus();
