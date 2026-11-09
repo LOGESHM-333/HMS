@@ -8,6 +8,7 @@ import { ThemeMode, Patient, Bed } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { api } from '../../services/api';
 import { sound } from '../../services/audioService';
+import { InteractiveWardFloorplan } from '../ward/InteractiveWardFloorplan';
 import {
   Activity,
   Heart,
@@ -1079,180 +1080,12 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
 
       {/* ================= MODULE 1: WARD & BED ROUNDS ================= */}
       {activeTab === 'rounds' && (
-        <div className="space-y-4 animate-in fade-in duration-200">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
-                Live Inpatient Bed Census & Acuity Rounds
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Ward occupancy, patient MEWS telemetry, bed sanitizer status and bedside call light alerts.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2 flex-wrap">
-              <select
-                value={wardFilter}
-                onChange={e => setWardFilter(e.target.value)}
-                className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white font-medium"
-              >
-                <option value="All">All Wards</option>
-                <option value="ICU">ICU Pavilion</option>
-                <option value="General">General Ward</option>
-                <option value="Surgical">Surgical Recovery</option>
-                <option value="Emergency">Emergency</option>
-              </select>
-
-              <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="text"
-                  placeholder="Search bed, patient or ward..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredBeds.map(bed => {
-              const pat = patients.find(p => p && (p.bedNumber === bed.bedNumber || p.name === bed.patientName)) || DEFAULT_PATIENT;
-              const isOccupied = bed.status === 'Occupied';
-              const hasCallBell = activeCallBells[bed.bedNumber];
-
-              return (
-                <div
-                  key={bed.id}
-                  className={`p-5 rounded-2xl border transition-all ${
-                    hasCallBell
-                      ? 'border-rose-500 shadow-lg shadow-rose-500/20 bg-rose-500/10 backdrop-blur-md'
-                      : isDark
-                        ? 'bg-slate-900/60 backdrop-blur-md border-slate-800/80 shadow-xs'
-                        : 'bg-white/75 backdrop-blur-md border-white/80 shadow-xs'
-                  }`}
-                >
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center gap-2">
-                      <div className={`p-2 rounded-xl ${hasCallBell ? 'bg-rose-500 text-white animate-bounce' : 'bg-teal-500/10 text-teal-600'}`}>
-                        <BedIcon className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <h4 className="font-bold text-sm text-slate-900 dark:text-white">{bed.bedNumber}</h4>
-                          {hasCallBell && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-rose-600 text-white animate-pulse">
-                              CALL LIGHT!
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] text-slate-400">{bed.wardName} • {bed.type} Unit</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          isOccupied
-                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                            : bed.status === 'Cleaning'
-                              ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
-                        }`}
-                      >
-                        {bed.status}
-                      </span>
-
-                      {isOccupied && (
-                        <button
-                          onClick={() => toggleCallBell(bed.bedNumber)}
-                          className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-                            hasCallBell
-                              ? 'bg-rose-600 border-rose-500 text-white shadow-sm'
-                              : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 hover:text-rose-500'
-                          }`}
-                          title="Toggle Patient Call Light"
-                        >
-                          {hasCallBell ? <BellOff className="w-3.5 h-3.5" /> : <Bell className="w-3.5 h-3.5" />}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {isOccupied ? (
-                    <div className="pt-3 space-y-2.5">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={pat?.avatar || DEFAULT_PATIENT.avatar}
-                          alt={bed.patientName || pat.name}
-                          className="w-9 h-9 rounded-full object-cover ring-2 ring-teal-500/30"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="font-bold text-xs text-slate-900 dark:text-white truncate">
-                            {bed.patientName || pat.name}
-                          </p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                            {pat.diagnosis || 'Post-Op Monitoring'}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 text-center">
-                        <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/40">
-                          <span className="text-[10px] text-slate-400 block">BP</span>
-                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                            {pat?.vitals?.bloodPressure || '120/80'}
-                          </span>
-                        </div>
-                        <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/40">
-                          <span className="text-[10px] text-slate-400 block">Pulse</span>
-                          <span className="text-xs font-bold text-emerald-500">
-                            {pat?.vitals?.pulseRate ?? 74} bpm
-                          </span>
-                        </div>
-                        <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/40">
-                          <span className="text-[10px] text-slate-400 block">SpO2</span>
-                          <span className="text-xs font-bold text-teal-500">
-                            {pat?.vitals?.oxygenSaturation ?? 98}%
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-2 text-[11px]">
-                        <span className="text-slate-400">Assigned: <strong className="text-slate-700 dark:text-slate-300">Nurse Clara H.</strong></span>
-                        <button
-                          onClick={() => openVitalsForPatient(pat)}
-                          className="text-teal-600 dark:text-teal-400 font-bold hover:underline cursor-pointer"
-                        >
-                          Log Vitals →
-                        </button>
-                      </div>
-                    </div>
-                  ) : bed.status === 'Cleaning' ? (
-                    <div className="py-5 text-center space-y-2">
-                      <p className="text-xs font-bold text-amber-500">Sanitation in Progress</p>
-                      <button
-                        onClick={() => {
-                          sound.playSuccess();
-                          db.updateBedStatus(bed.id, 'Available');
-                          showToast(`Bed ${bed.bedNumber} marked Sanitized & Available.`);
-                        }}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-xs cursor-pointer"
-                      >
-                        ✓ Mark Cleaned & Ready
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="py-6 text-center text-slate-400 text-xs">
-                      Bed is sanitized & ready for admission.
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <InteractiveWardFloorplan
+          theme={theme}
+          onSelectPatient={(p) => openVitalsForPatient(p)}
+          onNavigateTab={(tab) => handleTabChange(tab)}
+          portalRole="nurse"
+        />
       )}
 
       {/* ================= MODULE 2: MAR (MEDICATION ADMINISTRATION RECORD) ================= */}
