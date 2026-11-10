@@ -42,6 +42,100 @@ interface UnifiedPortalAuthProps {
   onLoginSuperAdmin?: (superAdminName?: string) => void;
 }
 
+interface AuthorizedStaffAccount {
+  allowedEmails: string[];
+  allowedPasswords: string[];
+  role: 'DOCTOR' | 'NURSE' | 'HOSPITAL_ADMIN' | 'SUPER_ADMIN';
+  portalCategory: Exclude<AuthPortalCategory, 'patient'>;
+  name: string;
+  doctorData?: (doctors: Doctor[]) => Doctor | undefined;
+}
+
+const AUTHORIZED_MANAGEMENT_ACCOUNTS: Record<Exclude<AuthPortalCategory, 'patient'>, AuthorizedStaffAccount[]> = {
+  doctor: [
+    {
+      allowedEmails: [
+        'medicore.doctor@gmail.com',
+        'doctor@medicore.in',
+        'doctor@medicore.org',
+        'roger.s@medicore.org',
+        'dr.roger.s@gmail.com'
+      ],
+      allowedPasswords: ['Doctor@2026', 'doctor123', 'Roger@2026'],
+      role: 'DOCTOR',
+      portalCategory: 'doctor',
+      name: 'Dr. Roger S., MD (Chief of Cardiology)',
+      doctorData: (docs) => docs.find(d => d.id === 'doc-1' || d.name.toLowerCase().includes('roger')) || docs[0],
+    },
+    {
+      allowedEmails: [
+        'medicore.dr.sophia@gmail.com',
+        'sophia.chen@medicore.org',
+        'dr.sophia.chen@gmail.com'
+      ],
+      allowedPasswords: ['Doctor@2026', 'doctor123', 'Sophia@2026'],
+      role: 'DOCTOR',
+      portalCategory: 'doctor',
+      name: 'Dr. Sophia Chen, MD (Cardiovascular Surgery)',
+      doctorData: (docs) => docs.find(d => d.id === 'doc-2' || d.name.toLowerCase().includes('sophia')),
+    }
+  ],
+  nurse: [
+    {
+      allowedEmails: [
+        'medicore.nurse@gmail.com',
+        'nurse@medicore.in',
+        'nurse@medicore.org',
+        'sarah.j@medicore.org',
+        'nurse.sarah@gmail.com'
+      ],
+      allowedPasswords: ['Nurse@2026', 'nurse123', 'Sarah@2026'],
+      role: 'NURSE',
+      portalCategory: 'nurse',
+      name: 'Nurse Sarah Jenkins, RN, BSN',
+    },
+    {
+      allowedEmails: [
+        'medicore.nurse.elena@gmail.com',
+        'nurse.elena@gmail.com',
+        'elena.n@medicore.org'
+      ],
+      allowedPasswords: ['Nurse@2026', 'nurse123'],
+      role: 'NURSE',
+      portalCategory: 'nurse',
+      name: 'Head Nurse Elena Rostova, RN',
+    }
+  ],
+  admin: [
+    {
+      allowedEmails: [
+        'medicore.admin@gmail.com',
+        'admin@medicore.in',
+        'admin@medicore.org',
+        'hospital.admin@gmail.com'
+      ],
+      allowedPasswords: ['Admin@2026', 'admin123', 'Management@2026'],
+      role: 'HOSPITAL_ADMIN',
+      portalCategory: 'admin',
+      name: 'Marcus Vance, MHA (Hospital Administrator)',
+    }
+  ],
+  'super-admin': [
+    {
+      allowedEmails: [
+        'medicore.superadmin@gmail.com',
+        'superadmin@medicore.in',
+        'superadmin@medicore.org',
+        'director.superadmin@gmail.com'
+      ],
+      allowedPasswords: ['SuperAdmin@2026', 'enterprise123', 'Governance@2026'],
+      role: 'SUPER_ADMIN',
+      portalCategory: 'super-admin',
+      name: 'Dr. Eleanor Vance, MD, CISSP (Enterprise Command)',
+    }
+  ]
+};
+
 const PORTAL_CONFIG: Record<AuthPortalCategory, {
   label: string;
   desc: string;
@@ -58,7 +152,7 @@ const PORTAL_CONFIG: Record<AuthPortalCategory, {
     icon: Heart,
     color: '#3B4E6A',
     gradient: 'linear-gradient(135deg, #3B4E6A, #485E83)',
-    demoEmail: 'patient@medicore.in',
+    demoEmail: 'medicore.patient@gmail.com',
     demoPassword: 'patient123',
     badge: 'Self Service',
   },
@@ -68,8 +162,8 @@ const PORTAL_CONFIG: Record<AuthPortalCategory, {
     icon: Stethoscope,
     color: '#3B4E6A',
     gradient: 'linear-gradient(135deg, #3B4E6A, #506D9C)',
-    demoEmail: 'doctor@medicore.in',
-    demoPassword: 'doctor123',
+    demoEmail: 'medicore.doctor@gmail.com',
+    demoPassword: 'Doctor@2026',
     badge: 'Clinical',
   },
   nurse: {
@@ -78,8 +172,8 @@ const PORTAL_CONFIG: Record<AuthPortalCategory, {
     icon: Activity,
     color: '#44597C',
     gradient: 'linear-gradient(135deg, #44597C, #506D9C)',
-    demoEmail: 'nurse@medicore.in',
-    demoPassword: 'nurse123',
+    demoEmail: 'medicore.nurse@gmail.com',
+    demoPassword: 'Nurse@2026',
     badge: 'Clinical',
   },
   admin: {
@@ -88,8 +182,8 @@ const PORTAL_CONFIG: Record<AuthPortalCategory, {
     icon: Building2,
     color: '#3B4E6A',
     gradient: 'linear-gradient(135deg, #3B4E6A, #485E83)',
-    demoEmail: 'admin@medicore.in',
-    demoPassword: 'admin123',
+    demoEmail: 'medicore.admin@gmail.com',
+    demoPassword: 'Admin@2026',
     badge: 'Operations',
   },
   'super-admin': {
@@ -98,8 +192,8 @@ const PORTAL_CONFIG: Record<AuthPortalCategory, {
     icon: ShieldCheck,
     color: '#2E3E55',
     gradient: 'linear-gradient(135deg, #2E3E55, #44597C)',
-    demoEmail: 'superadmin@medicore.in',
-    demoPassword: 'enterprise123',
+    demoEmail: 'medicore.superadmin@gmail.com',
+    demoPassword: 'SuperAdmin@2026',
     badge: 'Enterprise',
   },
 };
@@ -159,11 +253,14 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!email.trim()) {
-      setErrorMessage('Please enter your email or ID.');
+    const inputEmail = email.trim().toLowerCase();
+    const inputPass = password.trim();
+
+    if (!inputEmail) {
+      setErrorMessage(portalCategory === 'patient' ? 'Please enter your email or Patient Code.' : 'Please enter your management official Gmail / Email.');
       return;
     }
-    if (!password) {
+    if (!inputPass) {
       setErrorMessage('Please enter your password.');
       return;
     }
@@ -172,39 +269,83 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
     sound.playClick();
 
     setTimeout(() => {
+      // 1. PATIENT PORTAL LOGIN (Exception as requested)
       if (portalCategory === 'patient') {
         const found = existingPatients.find(
-          p => p.email.toLowerCase() === email.trim().toLowerCase() ||
-               p.patientCode.toLowerCase() === email.trim().toLowerCase()
+          p => p.email.toLowerCase() === inputEmail ||
+               p.patientCode.toLowerCase() === inputEmail ||
+               p.id.toLowerCase() === inputEmail
         );
-        const patient = found || existingPatients[0];
-        sound.playSuccess();
-        setSuccessMessage(`Welcome back, ${patient.name}! Launching Patient Portal...`);
-        setTimeout(() => onLoginPatient(patient), 500);
-      } else if (portalCategory === 'doctor') {
-        const foundDoc = existingDoctors.find(
-          d => d.name.toLowerCase().includes(email.trim().toLowerCase()) ||
-               d.id.toLowerCase() === email.trim().toLowerCase()
+
+        if (found || inputEmail === 'medicore.patient@gmail.com' || inputEmail === 'patient@medicore.in') {
+          const patient = found || existingPatients[0];
+          sound.playSuccess();
+          setSuccessMessage(`Welcome back, ${patient.name}! Launching Patient Portal...`);
+          setTimeout(() => onLoginPatient(patient), 500);
+        } else {
+          // Check local registered accounts
+          try {
+            const registered = JSON.parse(localStorage.getItem('medicore_registered_patients') || '[]');
+            const matched = registered.find((p: any) => p.email?.toLowerCase() === inputEmail);
+            if (matched) {
+              sound.playSuccess();
+              setSuccessMessage(`Welcome back, ${matched.name}! Launching Patient Portal...`);
+              setTimeout(() => onLoginPatient(matched), 500);
+              setLoading(false);
+              return;
+            }
+          } catch {}
+
+          setLoading(false);
+          sound.playWarning();
+          setErrorMessage('Patient email or code not found. Please verify your credentials or register a new patient account below.');
+          return;
+        }
+      } 
+      // 2. MANAGEMENT ROLES (Doctor, Nurse, Admin, Super Admin)
+      else {
+        const categoryAccounts = AUTHORIZED_MANAGEMENT_ACCOUNTS[portalCategory];
+        
+        // Find matching staff account by allowed emails
+        const matchedAccount = categoryAccounts.find(acc => 
+          acc.allowedEmails.some(ae => ae.toLowerCase() === inputEmail)
         );
-        const doctor = foundDoc || existingDoctors[0];
+
+        if (!matchedAccount) {
+          setLoading(false);
+          sound.playWarning();
+          setErrorMessage(`Access Denied: "${email}" is not an authorized management Gmail for ${config.label}. Only management-issued credentials can access this portal.`);
+          return;
+        }
+
+        // Validate corresponding password
+        const passwordMatches = matchedAccount.allowedPasswords.some(ap => ap === inputPass);
+        if (!passwordMatches) {
+          setLoading(false);
+          sound.playWarning();
+          setErrorMessage('Gmail or password incorrect. Please enter the valid corresponding management password.');
+          return;
+        }
+
+        // Successfully authenticated!
         sound.playSuccess();
-        setSuccessMessage(`Welcome, ${doctor.name}! Accessing Clinical Station...`);
-        setTimeout(() => onLoginDoctor(doctor), 500);
-      } else if (portalCategory === 'nurse') {
-        sound.playSuccess();
-        setSuccessMessage('Welcome, Nurse Sarah Jenkins, RN! Opening Nursing Station...');
-        setTimeout(() => onLoginNurse('Nurse Sarah Jenkins, RN'), 500);
-      } else if (portalCategory === 'admin') {
-        sound.playSuccess();
-        setSuccessMessage('Welcome, Hospital Administrator! Loading Operations Portal...');
-        setTimeout(() => { if (onLoginAdmin) onLoginAdmin('Hospital Admin'); }, 500);
-      } else if (portalCategory === 'super-admin') {
-        sound.playSuccess();
-        setSuccessMessage('Enterprise access granted. Loading Governance Command...');
-        setTimeout(() => { if (onLoginSuperAdmin) onLoginSuperAdmin('Chief Administrator'); }, 500);
+        if (portalCategory === 'doctor') {
+          const doctorObj = (matchedAccount.doctorData && matchedAccount.doctorData(existingDoctors)) || existingDoctors[0];
+          setSuccessMessage(`Access Granted: Welcome, ${matchedAccount.name}! Opening Doctor Clinical Station...`);
+          setTimeout(() => onLoginDoctor(doctorObj), 500);
+        } else if (portalCategory === 'nurse') {
+          setSuccessMessage(`Access Granted: Welcome, ${matchedAccount.name}! Opening Head Nurse Station...`);
+          setTimeout(() => onLoginNurse(matchedAccount.name), 500);
+        } else if (portalCategory === 'admin') {
+          setSuccessMessage(`Access Granted: Welcome, ${matchedAccount.name}! Opening Hospital Operations Portal...`);
+          setTimeout(() => { if (onLoginAdmin) onLoginAdmin(matchedAccount.name); }, 500);
+        } else if (portalCategory === 'super-admin') {
+          setSuccessMessage(`Enterprise Clearance Verified: Welcome, ${matchedAccount.name}! Accessing Governance Command...`);
+          setTimeout(() => { if (onLoginSuperAdmin) onLoginSuperAdmin(matchedAccount.name); }, 500);
+        }
       }
       setLoading(false);
-    }, 900);
+    }, 700);
   };
 
   const handleSignUp = (e: React.FormEvent) => {
@@ -419,7 +560,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                 {/* Email */}
                 <div>
                   <label className="docr-label">
-                    {portalCategory === 'patient' ? 'Email or Patient Code' : 'Email or Staff ID'}
+                    {portalCategory === 'patient' ? 'Email or Patient Code' : 'Management Official Gmail / Email'}
                   </label>
                   <div className="relative flex items-center">
                     <Mail size={16} className="absolute left-3.5 pointer-events-none z-10" style={{ color: 'var(--color-text-muted)' }} />
@@ -504,6 +645,45 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                   <span className="font-600" style={{ fontWeight: 600 }}>Auto-fill demo credentials</span>
                   <span className="ml-2 font-mono" style={{ color: 'var(--color-text-muted)' }}>({config.demoEmail})</span>
                 </button>
+
+                {/* Management Credential Guide / Helper Box */}
+                {portalCategory !== 'patient' ? (
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+                    <div className="flex items-center justify-between font-bold text-slate-800">
+                      <span className="flex items-center gap-1.5 text-slate-700 font-bold text-[11px] uppercase tracking-wide">
+                        <Lock size={12} className="text-[#3B4E6A]" />
+                        Official Management Login:
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#3B4E6A]/10 text-[#3B4E6A]">
+                        Authorized Only
+                      </span>
+                    </div>
+                    <div className="text-[11px] font-mono text-slate-600 space-y-1 bg-white p-2.5 rounded-xl border border-slate-200/70">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-500 font-sans text-[11px]">Management Gmail:</span>
+                        <strong className="text-slate-900 select-all font-semibold">{config.demoEmail}</strong>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-500 font-sans text-[11px]">Password:</span>
+                        <strong className="text-slate-900 select-all font-semibold">{config.demoPassword}</strong>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-slate-500 leading-tight">
+                      🔒 Access Policy: Only official management Gmail credentials can log in to this portal. Other accounts are rejected.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+                    <div className="flex items-center justify-between text-slate-600 font-medium">
+                      <span>Demo Patient Account:</span>
+                      <span className="font-mono text-slate-800 font-semibold">{config.demoEmail}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-600 font-medium">
+                      <span>Password:</span>
+                      <span className="font-mono text-slate-800 font-semibold">{config.demoPassword}</span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Sign up option */}
                 {portalCategory === 'patient' && (
