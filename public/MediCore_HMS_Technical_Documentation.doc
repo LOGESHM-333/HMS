@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html xmlns:o='urn:schemas-microsoft-com:office:office'
+      xmlns:w='urn:schemas-microsoft-com:office:word'
+      xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset="utf-8">
+<title>MediCore OS - Enterprise HMS Technical Documentation</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+@page Section1 {
+    size: 8.5in 11.0in;
+    margin: 1.0in 1.0in 1.0in 1.0in;
+    mso-header-margin: 0.5in;
+    mso-footer-margin: 0.5in;
+    mso-paper-source: 0;
+}
+div.Section1 {
+    page: Section1;
+}
+
+body {
+    font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #1e293b;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+.cover-header {
+    border-bottom: 3pt solid #3B4E6A;
+    padding-bottom: 16pt;
+    margin-bottom: 24pt;
+}
+.doc-title {
+    font-size: 26pt;
+    font-weight: bold;
+    color: #0f172a;
+    margin: 0 0 6pt 0;
+    letter-spacing: -0.5pt;
+}
+.doc-subtitle {
+    font-size: 13pt;
+    color: #3B4E6A;
+    font-weight: bold;
+    margin: 0 0 10pt 0;
+}
+.meta-bar {
+    font-size: 9.5pt;
+    color: #64748b;
+    margin-top: 6pt;
+}
+
+h1 {
+    font-size: 17pt;
+    font-weight: bold;
+    color: #0f172a;
+    border-bottom: 1.5pt solid #cbd5e1;
+    padding-bottom: 4pt;
+    margin-top: 24pt;
+    margin-bottom: 10pt;
+    page-break-after: avoid;
+}
+h2 {
+    font-size: 13pt;
+    font-weight: bold;
+    color: #3B4E6A;
+    margin-top: 18pt;
+    margin-bottom: 8pt;
+    page-break-after: avoid;
+}
+h3 {
+    font-size: 11.5pt;
+    font-weight: bold;
+    color: #334155;
+    margin-top: 14pt;
+    margin-bottom: 6pt;
+    page-break-after: avoid;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12pt 0;
+    font-size: 10pt;
+}
+th {
+    background-color: #3B4E6A;
+    color: #ffffff;
+    font-weight: bold;
+    text-align: left;
+    padding: 8pt 10pt;
+    border: 1pt solid #334155;
+}
+td {
+    padding: 7pt 10pt;
+    border: 1pt solid #cbd5e1;
+    color: #334155;
+}
+tr:nth-child(even) td {
+    background-color: #f8fafc;
+}
+
+.callout {
+    background-color: #f0fdf4;
+    border-left: 4pt solid #10b981;
+    padding: 10pt 14pt;
+    margin: 12pt 0;
+}
+.callout-title {
+    font-weight: bold;
+    color: #065f46;
+    margin-bottom: 3pt;
+}
+.callout-blue {
+    background-color: #eff6ff;
+    border-left: 4pt solid #3B4E6A;
+    padding: 10pt 14pt;
+    margin: 12pt 0;
+}
+.callout-blue-title {
+    font-weight: bold;
+    color: #1e3a8a;
+    margin-bottom: 3pt;
+}
+
+.code-block {
+    background-color: #f8fafc;
+    border: 1pt solid #e2e8f0;
+    padding: 10pt 12pt;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 9.5pt;
+    color: #0f172a;
+    margin: 10pt 0;
+    line-height: 1.4;
+}
+.badge {
+    background-color: #e2e8f0;
+    color: #334155;
+    padding: 2pt 6pt;
+    border-radius: 3pt;
+    font-family: monospace;
+    font-size: 9pt;
+}
+</style>
+</head>
+<body>
+<div class="Section1">
+
+<!-- HEADER BANNER -->
+<div class="cover-header">
+    <div class="doc-title">MediCore Enterprise HMS</div>
+    <div class="doc-subtitle">Complete Technical Architecture &amp; Technology Stack Specification</div>
+    <div class="meta-bar">
+        <strong>Document Version:</strong> 3.0.0 &nbsp;|&nbsp; 
+        <strong>Format:</strong> Microsoft Word (.doc) White Page &nbsp;|&nbsp; 
+        <strong>System:</strong> Hospital Operating &amp; Clinical Intelligence System
+    </div>
+</div>
+
+<div class="callout-blue">
+    <div class="callout-blue-title">Executive Summary</div>
+    <div>This technical specification document presents the complete codebase architecture, technology stack, database schemas, security models, and specialized clinical engines powering the MediCore Hospital Management System. Designed for high availability, enterprise healthcare compliance, and responsive daylight clinical operation.</div>
+</div>
+
+<!-- SECTION 1: TECHNOLOGY MATRIX -->
+<h1>1. Technology Stack Breakdown</h1>
+<p>The MediCore HMS platform is built using a modern decoupled client-server architecture with high-performance real-time capabilities.</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 22%;">Layer / Category</th>
+            <th style="width: 20%;">Technology</th>
+            <th style="width: 14%;">Version</th>
+            <th>Clinical Purpose &amp; Implementation Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Frontend Framework</strong></td>
+            <td>React</td>
+            <td><code>v19.0.1</code></td>
+            <td>High-performance concurrent UI rendering, responsive state management across 5 clinical portals.</td>
+        </tr>
+        <tr>
+            <td><strong>Programming Language</strong></td>
+            <td>TypeScript</td>
+            <td><code>v7.0.2</code></td>
+            <td>End-to-end static typing, strict clinical data contracts (Patient, Doctor, Bed, EMR records).</td>
+        </tr>
+        <tr>
+            <td><strong>Build Tool &amp; Dev Server</strong></td>
+            <td>Vite</td>
+            <td><code>v8.3.0</code></td>
+            <td>Sub-millisecond Hot Module Replacement (HMR), optimized production bundling with ES modules.</td>
+        </tr>
+        <tr>
+            <td><strong>CSS &amp; Styling</strong></td>
+            <td>Tailwind CSS v4</td>
+            <td><code>v4.3.3</code></td>
+            <td>Modern Daylight design tokens, custom healthcare glassmorphism, responsive grid layouts.</td>
+        </tr>
+        <tr>
+            <td><strong>Motion &amp; Animations</strong></td>
+            <td>Motion (Framer Motion)</td>
+            <td><code>v12.23.24</code></td>
+            <td>Smooth portal switches, slide-in clinical modals, heart-rate pulse animations.</td>
+        </tr>
+        <tr>
+            <td><strong>3D Graphics Engine</strong></td>
+            <td>Three.js (WebGL)</td>
+            <td><code>v0.187.0</code></td>
+            <td>Interactive 3D organ telemetry (Cardiovascular, Thoracic, Digestive systems) and clinical hotspot markers.</td>
+        </tr>
+        <tr>
+            <td><strong>Medical Iconography</strong></td>
+            <td>Lucide React</td>
+            <td><code>v0.546.0</code></td>
+            <td>Over 200 high-clarity SVG healthcare icons (vitals, stethoscopes, beds, prescriptions).</td>
+        </tr>
+        <tr>
+            <td><strong>Backend Runtime</strong></td>
+            <td>Node.js</td>
+            <td><code>v24.x</code></td>
+            <td>Asynchronous, non-blocking I/O runtime powering the high-concurrency healthcare API.</td>
+        </tr>
+        <tr>
+            <td><strong>Server Framework</strong></td>
+            <td>Express.js</td>
+            <td><code>v4.21.2</code></td>
+            <td>REST API routing, JSON payloads, CORS security middleware, and web database explorer endpoints.</td>
+        </tr>
+        <tr>
+            <td><strong>Server Execution Engine</strong></td>
+            <td>TSX</td>
+            <td><code>v4.21.0</code></td>
+            <td>Native zero-build TypeScript execution runtime for server and database migration scripts.</td>
+        </tr>
+        <tr>
+            <td><strong>Primary Database</strong></td>
+            <td>PostgreSQL</td>
+            <td><code>16.x (Port 5432)</code></td>
+            <td>Primary enterprise relational database (<code>medicore_db</code>), JSONB telemetry, ACID transactions.</td>
+        </tr>
+        <tr>
+            <td><strong>Secondary Database</strong></td>
+            <td>MySQL</td>
+            <td><code>8.x (Port 3306)</code></td>
+            <td>Dual schema database support with seamless failover compatibility.</td>
+        </tr>
+        <tr>
+            <td><strong>Database Drivers</strong></td>
+            <td>pg &amp; mysql2</td>
+            <td><code>8.23 / 3.24</code></td>
+            <td>Connection pooling, parameterized SQL queries preventing SQL injection attacks.</td>
+        </tr>
+        <tr>
+            <td><strong>Audio Synthesizer</strong></td>
+            <td>Web Audio API</td>
+            <td>Native Browser</td>
+            <td>Medical chime synthesizer, emergency call light alerts, click feedback without external media files.</td>
+        </tr>
+        <tr>
+            <td><strong>Clinical AI</strong></td>
+            <td>Google Gemini API</td>
+            <td><code>@google/genai</code></td>
+            <td>AI-driven patient triage insights, symptom intelligence, and clinical documentation assistance.</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- SECTION 2: SYSTEM ARCHITECTURE -->
+<h1>2. Architectural Overview</h1>
+<p>The system follows a modern multi-tiered healthcare computing architecture:</p>
+
+<div class="code-block">
+[ CLIENT PRESENTATION TIER ]
+  ├── Doctor Clinical Station (Telehealth, Rounds, E-Prescriptions, SOAP Notes)
+  ├── Head Nurse Station (MEWS Score, Bed Census, Call Bells, MAR Records)
+  ├── Hospital Admin Operations (Admissions, Discharges, Wards, Staff, Billing)
+  ├── Enterprise Super Admin (Multi-hospital governance, Audit logs, System status)
+  └── Patient Self-Service Portal (Anatomy 3D, Appointments, Rx Refills, Doctor Chat)
+            │
+            ▼ (RESTful JSON API via HTTP / Port 5000)
+[ BACKEND API SERVER TIER ]
+  ├── Express.js Application Server (server/index.ts)
+  ├── Dual Dialect Database Adapter (server/db.ts)
+  ├── Real-time Patient-Doctor Consultation Message Bridge
+  └── Live Web Database Explorer (/db &amp; /database)
+            │
+            ▼ (Connection Pooling / Parameterized SQL)
+[ ENTERPRISE RELATIONAL DATABASE TIER ]
+  ├── PostgreSQL 16 (medicore_db / Port 5432) [Active Engine]
+  └── 20 Relational Tables (846 Patients, 80 Doctors, 12 Beds, Vitals JSONB)
+</div>
+
+<!-- SECTION 3: DATABASE ARCHITECTURE -->
+<h1>3. Database Architecture (20 Relational Tables)</h1>
+<p>The database tier in <strong>PostgreSQL 16</strong> comprises 20 specialized healthcare tables managing all inpatient, outpatient, and operational workflows:</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 25%;">Table Name</th>
+            <th style="width: 30%;">Key Attributes</th>
+            <th>Healthcare Function</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>patients</code></td>
+            <td>id, patient_code, name, age, gender, blood_group, admission_status, vitals (JSONB), allergies (JSONB)</td>
+            <td>Inpatient/outpatient census records, telemetry tracking, clinical journey.</td>
+        </tr>
+        <tr>
+            <td><code>doctors</code></td>
+            <td>id, name, specialty, department, consultation_fee, rating, experience_years, schedule (JSONB)</td>
+            <td>Physician credentials, specialties, fee schedules, consultation availability.</td>
+        </tr>
+        <tr>
+            <td><code>staff</code></td>
+            <td>id, name, role, department, shift, status, contact</td>
+            <td>Nurses, pharmacists, lab technicians, shift rosters.</td>
+        </tr>
+        <tr>
+            <td><code>beds</code></td>
+            <td>id, bed_number, ward_name, type (ICU/General), status, patient_id, patient_name</td>
+            <td>Ward floorplan management, real-time bed allocation, call bells.</td>
+        </tr>
+        <tr>
+            <td><code>appointments</code></td>
+            <td>id, patient_id, doctor_id, date, time, type, status, notes</td>
+            <td>Outpatient scheduling, telehealth queue management.</td>
+        </tr>
+        <tr>
+            <td><code>prescriptions</code></td>
+            <td>id, patient_id, doctor_id, date, medications (JSONB), pharmacy_status</td>
+            <td>Electronic prescriptions (E-Rx), drug dosing, refill approvals.</td>
+        </tr>
+        <tr>
+            <td><code>medicines</code></td>
+            <td>id, name, category, dosage_form, stock_quantity, reorder_level, price</td>
+            <td>Pharmacy formulary, automated inventory reordering.</td>
+        </tr>
+        <tr>
+            <td><code>invoices</code></td>
+            <td>id, patient_id, total_amount, insurance_covered, status, items (JSONB)</td>
+            <td>Hospital billing, tax invoices, insurance co-pay tracking.</td>
+        </tr>
+        <tr>
+            <td><code>lab_orders</code> &amp; <code>lab_tests</code></td>
+            <td>id, patient_id, test_name, category, result_value, reference_range, status</td>
+            <td>Pathology diagnostics, imaging orders, lab technician sign-offs.</td>
+        </tr>
+        <tr>
+            <td><code>messages</code></td>
+            <td>id, sender_id, recipient_id, content, timestamp, status</td>
+            <td>Bidirectional real-time patient-doctor consultation chat.</td>
+        </tr>
+        <tr>
+            <td><code>sbar_notes</code></td>
+            <td>id, patient_id, author_id, situation, background, assessment, recommendation</td>
+            <td>Clinical nursing handoff documentation.</td>
+        </tr>
+        <tr>
+            <td><code>mar_records</code></td>
+            <td>id, patient_id, medicine_id, administered_time, nurse_id, dosage_given</td>
+            <td>Medication Administration Record confirming bedside dose delivery.</td>
+        </tr>
+        <tr>
+            <td><code>doctor_orders</code></td>
+            <td>id, patient_id, doctor_id, order_type, instructions, priority</td>
+            <td>Bedside clinical instructions (fluids, diets, oxygen titration).</td>
+        </tr>
+        <tr>
+            <td><code>discharged_patients</code></td>
+            <td>id, patient_code, name, admission_date, discharge_date, discharge_summary</td>
+            <td>Historical archive of discharged patients and length-of-stay metrics.</td>
+        </tr>
+        <tr>
+            <td><code>claims</code></td>
+            <td>id, invoice_id, provider, claim_amount, status, approval_code</td>
+            <td>Health insurance claims and pre-authorization processing.</td>
+        </tr>
+        <tr>
+            <td><code>immunizations</code></td>
+            <td>id, patient_id, vaccine_name, dose_number, date_given, next_due_date</td>
+            <td>Digital immunization passports and booster logs.</td>
+        </tr>
+        <tr>
+            <td><code>meals</code></td>
+            <td>id, patient_id, date, meal_type, diet_type, calories, status</td>
+            <td>Inpatient nutrition tracking and clinical dietary requirements.</td>
+        </tr>
+        <tr>
+            <td><code>alerts</code></td>
+            <td>id, type (Code Blue/Call Bell), location, severity, status, created_at</td>
+            <td>Emergency notifications and critical bedside signals.</td>
+        </tr>
+        <tr>
+            <td><code>audit_logs</code></td>
+            <td>id, user_id, action, target_resource, ip_address, timestamp</td>
+            <td>Regulatory compliance and security audit trails.</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- SECTION 4: SECURITY & CREDENTIALS -->
+<h1>4. Security &amp; Role-Based Access Control (RBAC)</h1>
+<p>MediCore enforces strict multi-portal separation. Staff accounts require official management-issued Gmail credentials. Unauthorized emails or incorrect passwords are automatically rejected with security alerts.</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 25%;">Portal Role</th>
+            <th style="width: 32%;">Authorized Management Gmail</th>
+            <th style="width: 20%;">Password</th>
+            <th>Access Clearance</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>🩺 Doctor Portal</strong></td>
+            <td><code>medicore.doctor@gmail.com</code></td>
+            <td><code>Doctor@2026</code></td>
+            <td>Clinical Station, Patient Rounds, E-Prescriptions, Tele-Chat</td>
+        </tr>
+        <tr>
+            <td><strong>👩‍⚕️ Nurse Portal</strong></td>
+            <td><code>medicore.nurse@gmail.com</code></td>
+            <td><code>Nurse@2026</code></td>
+            <td>Head Nurse Station, Bed Monitoring, MEWS Triage, MAR</td>
+        </tr>
+        <tr>
+            <td><strong>🏥 Hospital Admin</strong></td>
+            <td><code>medicore.admin@gmail.com</code></td>
+            <td><code>Admin@2026</code></td>
+            <td>Operations, Wards, Admissions, Discharges, Staff &amp; Billing</td>
+        </tr>
+        <tr>
+            <td><strong>🛡️ Super Admin</strong></td>
+            <td><code>medicore.superadmin@gmail.com</code></td>
+            <td><code>SuperAdmin@2026</code></td>
+            <td>Enterprise Governance, Multi-Hospital Command, Security Audit</td>
+        </tr>
+        <tr>
+            <td><strong>👤 Patient Portal</strong></td>
+            <td><code>medicore.patient@gmail.com</code><br><span style="font-size: 8.5pt; color: #64748b;">(or Patient Code: P-10001 / Staff-registered)</span></td>
+            <td><code>patient123</code></td>
+            <td>Self-service: 3D Anatomy, Vitals, Appointments, Doctor Chat</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="callout">
+    <div class="callout-title">Patient Portal Login Policy:</div>
+    <div>Patients registered by hospital staff (in Patient Directory) can log in using either their registered Gmail or unique Patient Code (e.g. <code>P-10023</code>) with initial password <code>patient123</code>. Patients who self-register from the login page use their registered email and custom password.</div>
+</div>
+
+<!-- SECTION 5: CLINICAL ALGORITHMS -->
+<h1>5. Clinical Intelligence &amp; Specialized Engines</h1>
+
+<h3>5.1 3D Anatomical Telemetry Engine (Three.js WebGL)</h3>
+<ul>
+    <li>Real-time 3D rendering of cardiovascular, thoracic, and digestive organ structures.</li>
+    <li>Interactive telemetry hotspots reporting blood flow velocity (1.2 m/s), myocardial perfusion (98%), and organ saturation.</li>
+    <li>Lightweight WebGL shaders tuned specifically for daylight healthcare aesthetics without high GPU overhead.</li>
+</ul>
+
+<h3>5.2 MEWS (Modified Early Warning Score) Engine</h3>
+<p>An automated clinical calculation continuously scores inpatient deterioration:</p>
+<div class="code-block">
+MEWS = Score(Systolic BP) + Score(Heart Rate) + Score(Respiratory Rate) + Score(Temp) + Score(AVPU)
+• Score 0-2 : Low Risk (Standard 4-hour monitoring)
+• Score 3-4 : Medium Risk (Nurse escalation &amp; doctor review within 30 minutes)
+• Score 5+  : Critical Risk (Immediate Rapid Response Team / ICU Code)
+</div>
+
+<h3>5.3 Real-time Patient-Doctor Consultation Bridge</h3>
+<ul>
+    <li>Direct messaging link between Patient Portal and Doctor Clinical Station.</li>
+    <li>Fixed-height viewport architecture preventing viewport scrolling disruptions.</li>
+    <li>Web Audio API dual-tone chime alerting physicians upon receiving incoming patient messages.</li>
+</ul>
+
+<!-- SECTION 6: EXECUTION & RUNBOOK -->
+<h1>6. Application Runbook &amp; Access Endpoints</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width: 25%;">Service</th>
+            <th style="width: 30%;">Access URL / Path</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Frontend Web App</strong></td>
+            <td><a href="http://localhost:3000">http://localhost:3000</a></td>
+            <td>React 19 Vite application with role-based clinical portals.</td>
+        </tr>
+        <tr>
+            <td><strong>Backend API</strong></td>
+            <td><a href="http://localhost:5000/api/health">http://localhost:5000/api/health</a></td>
+            <td>Node.js Express backend status and database health check.</td>
+        </tr>
+        <tr>
+            <td><strong>Live DB Explorer</strong></td>
+            <td><a href="http://localhost:5000/db">http://localhost:5000/db</a></td>
+            <td>In-browser real-time PostgreSQL 16 table &amp; row viewer.</td>
+        </tr>
+        <tr>
+            <td><strong>Desktop DB Explorer</strong></td>
+            <td><code>Desktop\View_PostgreSQL_Data.bat</code></td>
+            <td>One-click desktop prompt connected directly to PostgreSQL 16.</td>
+        </tr>
+        <tr>
+            <td><strong>pgAdmin 4 GUI</strong></td>
+            <td><code>Desktop\Open_pgAdmin_Database.bat</code></td>
+            <td>Official PostgreSQL graphical desktop client.</td>
+        </tr>
+    </tbody>
+</table>
+
+<br>
+<hr style="border: none; border-top: 1pt solid #cbd5e1; margin-top: 20pt;">
+<div style="font-size: 8.5pt; color: #94a3b8; text-align: center; margin-top: 10pt;">
+    MediCore OS Enterprise Hospital Operating &amp; Clinical Intelligence System • Confidential &amp; Proprietary Documentation
+</div>
+
+</div>
+</body>
+</html>
