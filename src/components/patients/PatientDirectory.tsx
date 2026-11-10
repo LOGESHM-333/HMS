@@ -882,6 +882,38 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Patient Gmail / Email</label>
+                  <input
+                    type="email"
+                    placeholder="patient@gmail.com"
+                    value={newPatient.email}
+                    onChange={(e) => setNewPatient({ ...newPatient, email: e.target.value })}
+                    className={`w-full px-3 py-2 rounded-xl text-xs border outline-none ${
+                      isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-[#142C43]'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-400 block mb-1">Contact Phone</label>
+                  <input
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    value={newPatient.phone}
+                    onChange={(e) => setNewPatient({ ...newPatient, phone: e.target.value })}
+                    className={`w-full px-3 py-2 rounded-xl text-xs border outline-none ${
+                      isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-[#142C43]'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200/80 dark:border-sky-800/60 text-[11px] flex items-center justify-between text-sky-800 dark:text-sky-300">
+                <span>🔑 <strong>Patient Portal Login:</strong> Gmail / Patient Code</span>
+                <span className="font-mono bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-sky-300 dark:border-sky-700 font-bold">Pass: patient123</span>
+              </div>
+
               <div>
                 <label className="text-[11px] font-semibold text-slate-400 block mb-1">Primary Diagnosis / Chief Complaint</label>
                 <input

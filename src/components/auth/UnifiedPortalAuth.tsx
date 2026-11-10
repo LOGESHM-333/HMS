@@ -230,29 +230,49 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
     setTimeout(() => {
       // 1. PATIENT PORTAL LOGIN
       if (portalCategory === 'patient') {
-        const isDemo = inputEmail === 'medicore.patient@gmail.com' || inputEmail === 'p-10001' || inputEmail === 'pat-1';
+        // A. Match against hospital database (existing patients or staff-registered patients)
+        const dbPatient = existingPatients.find(
+          p => p.email?.toLowerCase() === inputEmail ||
+               p.patientCode?.toLowerCase() === inputEmail ||
+               p.id?.toLowerCase() === inputEmail
+        );
 
-        if (isDemo) {
-          if (inputPass !== 'patient123') {
+        if (dbPatient || inputEmail === 'medicore.patient@gmail.com') {
+          const targetPatient = dbPatient || existingPatients[0];
+          
+          // Check registered accounts for custom password, or hospital default password 'patient123'
+          let expectedPass = 'patient123';
+          try {
+            const registered = JSON.parse(localStorage.getItem('medicore_registered_patients') || '[]');
+            const customReg = registered.find((p: any) => p.email?.toLowerCase() === inputEmail || p.id === targetPatient.id);
+            if (customReg?.password) {
+              expectedPass = customReg.password;
+            } else if ((targetPatient as any).password) {
+              expectedPass = (targetPatient as any).password;
+            }
+          } catch {}
+
+          if (inputPass !== expectedPass) {
             setLoading(false);
             sound.playWarning();
             setErrorMessage('Gmail or password incorrect. Please enter the valid credentials.');
             return;
           }
-          const patient = existingPatients[0];
+
           sound.playSuccess();
-          setSuccessMessage(`Welcome back, ${patient.name}! Launching Patient Portal...`);
-          setTimeout(() => onLoginPatient(patient), 400);
+          setSuccessMessage(`Welcome back, ${targetPatient.name}! Launching Patient Portal...`);
+          setTimeout(() => onLoginPatient(targetPatient), 400);
           setLoading(false);
           return;
         }
 
-        // Check local registered accounts
+        // B. Check local self-registered accounts
         try {
           const registered = JSON.parse(localStorage.getItem('medicore_registered_patients') || '[]');
-          const matched = registered.find((p: any) => p.email?.toLowerCase() === inputEmail);
+          const matched = registered.find((p: any) => p.email?.toLowerCase() === inputEmail || p.patientCode?.toLowerCase() === inputEmail);
           if (matched) {
-            if (matched.password && matched.password !== inputPass) {
+            const expectedPass = matched.password || 'patient123';
+            if (inputPass !== expectedPass) {
               setLoading(false);
               sound.playWarning();
               setErrorMessage('Gmail or password incorrect. Please enter the valid credentials.');
@@ -268,7 +288,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
 
         setLoading(false);
         sound.playWarning();
-        setErrorMessage('Gmail or password incorrect. No patient account found with this email. Please register below.');
+        setErrorMessage('Gmail or password incorrect. No patient account found with this email or Patient Code. Please register below.');
         return;
       } 
       // 2. MANAGEMENT ROLES (Doctor, Nurse, Admin, Super Admin)
