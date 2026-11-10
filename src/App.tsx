@@ -212,6 +212,22 @@ export default function App() {
 
   const handleSwitchPortal = (mode: HeaderPortalMode) => {
     sound.playClick();
+    if (mode === 'doctor') {
+      setPortalMode('doctor');
+      setCurrentRole('DOCTOR');
+      setCurrentTab('doctor-chat');
+      localStorage.setItem('medicore_portal_mode', 'doctor');
+      localStorage.setItem('medicore_authenticated', 'true');
+      return;
+    }
+    if (mode === 'patient') {
+      setPortalMode('patient');
+      setCurrentRole('PATIENT');
+      setCurrentTab('patient-messages');
+      localStorage.setItem('medicore_portal_mode', 'patient');
+      localStorage.setItem('medicore_authenticated', 'true');
+      return;
+    }
     setIsAuthenticated(false);
     setInitAuthCategory(mode as AuthPortalCategory);
     localStorage.removeItem('medicore_authenticated');
@@ -281,6 +297,7 @@ export default function App() {
             setCurrentTab('patient-health');
             localStorage.setItem('medicore_portal_mode', 'patient');
             localStorage.setItem('medicore_authenticated', 'true');
+            localStorage.setItem('medicore_patient_id', patient.id);
             setIsAuthenticated(true);
             sound.playClick();
           }}
@@ -488,6 +505,7 @@ export default function App() {
                   theme={theme}
                   activeSection={currentTab}
                   onSelectSection={handleTabChange}
+                  onSwitchToPatientPortal={() => handleSwitchPortal('patient')}
                   onSwitchToAdminPortal={() => handleSwitchPortal('admin')}
                   onSwitchToNursePortal={() => handleSwitchPortal('nurse')}
                   onLogout={handleLogout}
@@ -543,6 +561,7 @@ export default function App() {
               {currentTab !== 'settings' && (
                 <PatientPortal
                   theme={theme}
+                  patient={selectedPatient || undefined}
                   activeSection={currentTab}
                   onSelectSection={handleTabChange}
                   onSwitchToDoctorPortal={() => handleSwitchPortal('doctor')}

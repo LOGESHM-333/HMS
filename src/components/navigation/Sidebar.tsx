@@ -105,7 +105,7 @@ const NAV_GROUPS: NavGroup[] = [
     roles: ['doctor', 'nurse', 'patient'],
     items: [
       { id: 'doctor-overview', label: 'Doctor Overview', icon: LayoutDashboard, roles: ['doctor'] },
-      { id: 'doctor-chat', label: 'Patient Inquiries & Tele-Chat', icon: Stethoscope, roles: ['doctor'] },
+      { id: 'doctor-chat', label: 'Patient Inquiries & Tele-Chat', icon: Stethoscope, roles: ['doctor'], badge: 'Live', badgeVariant: 'info' },
       { id: 'doctor-patients', label: 'Inpatient Rounds & Rosters', icon: Bed, roles: ['doctor'], badge: '5' },
       { id: 'doctor-rx', label: 'E-Prescriptions & Refills', icon: Pill, roles: ['doctor'], badge: '2' },
       { id: 'doctor-labs', label: 'Lab & Imaging Orders', icon: FlaskConical, roles: ['doctor'], badge: '3' },
@@ -128,7 +128,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: 'patient-records', label: 'Medical History', icon: FileText, roles: ['patient'] },
       { id: 'patient-vaccines', label: 'Vaccine Passport', icon: ShieldCheck, roles: ['patient'] },
       { id: 'patient-billing', label: 'Billing & Insurance', icon: CreditCard, roles: ['patient'] },
-      { id: 'patient-messages', label: 'Doctor Chat', icon: Users, roles: ['patient'] },
+      { id: 'patient-messages', label: 'Doctor Chat', icon: Users, roles: ['patient'], badge: 'Online', badgeVariant: 'info' },
       { id: 'patient-nutrition', label: 'Nutrition & Diet', icon: Layers, roles: ['patient'] },
       { id: 'patient-emergency', label: 'Emergency SOS', icon: Activity, roles: ['patient'] },
     ],

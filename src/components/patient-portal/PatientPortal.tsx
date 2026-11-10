@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Patient, ThemeMode, Appointment, Invoice, LabOrder, Prescription } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { api } from '../../services/api';
@@ -57,6 +57,7 @@ import { PatientAuthPage } from './PatientAuthPage';
 
 interface PatientPortalProps {
   theme: ThemeMode;
+  patient?: Patient;
   activeSection?: string;
   onSelectSection?: (section: string) => void;
   onSwitchToDoctorPortal?: () => void;
@@ -68,6 +69,7 @@ interface PatientPortalProps {
 
 export const PatientPortal: React.FC<PatientPortalProps> = ({ 
   theme, 
+  patient: propPatient,
   activeSection = 'patient-health',
   onSelectSection,
   onSwitchToDoctorPortal,
@@ -81,6 +83,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
     return Boolean(localStorage.getItem('medicore_patient_auth'));
   });
   const [patient, setPatient] = useState<Patient>(() => {
+    if (propPatient) return propPatient;
     const savedId = localStorage.getItem('medicore_patient_id');
     if (savedId) {
       const found = db.getPatientById(savedId);
@@ -88,6 +91,12 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
     }
     return db.getPatients()[0];
   });
+
+  useEffect(() => {
+    if (propPatient && propPatient.id !== patient.id) {
+      setPatient(propPatient);
+    }
+  }, [propPatient]);
   const [currentSection, setCurrentSection] = useState<string>(activeSection);
 
   // Sync section
@@ -260,26 +269,49 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
   const [newMessageText, setNewMessageText] = useState('');
 
   // Real-time bidirectional message sync with Doctor Portal
-  useEffect(() => {
-    const fetchChat = async () => {
-      try {
-        const serverMsgs = await api.getMessages(patient.id);
-        if (serverMsgs && Array.isArray(serverMsgs) && serverMsgs.length > 0) {
+  const fetchChat = useCallback(async () => {
+    try {
+      const serverMsgs = await api.getMessages(patient.id);
+      if (serverMsgs && Array.isArray(serverMsgs)) {
+        if (serverMsgs.length > 0) {
           setChatMessages(serverMsgs.map(m => ({
             sender: m.sender,
             text: m.text,
             time: m.timestamp,
             doctorName: m.doctorName || m.senderName
           })));
+          localStorage.setItem(`medicore_chat_${patient.id}`, JSON.stringify(serverMsgs));
+        } else {
+          const savedLocal = localStorage.getItem(`medicore_chat_${patient.id}`);
+          if (savedLocal) {
+            try { setChatMessages(JSON.parse(savedLocal)); } catch {}
+          }
         }
-      } catch {
-        // Fallback
+      }
+    } catch {
+      const savedLocal = localStorage.getItem(`medicore_chat_${patient.id}`);
+      if (savedLocal) {
+        try { setChatMessages(JSON.parse(savedLocal)); } catch {}
+      }
+    }
+  }, [patient.id]);
+
+  useEffect(() => {
+    fetchChat();
+    const interval = setInterval(fetchChat, 2000);
+    const onChatUpdate = (e: any) => {
+      if (!e.detail?.patientId || e.detail.patientId === patient.id) {
+        fetchChat();
       }
     };
-    fetchChat();
-    const interval = setInterval(fetchChat, 2500);
-    return () => clearInterval(interval);
-  }, [patient.id]);
+    window.addEventListener('medicore_chat_updated', onChatUpdate);
+    window.addEventListener('storage', fetchChat);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('medicore_chat_updated', onChatUpdate);
+      window.removeEventListener('storage', fetchChat);
+    };
+  }, [fetchChat, patient.id]);
 
   // 9. NUTRITION & MEAL LOGGER STATES
   const [mealModalOpen, setMealModalOpen] = useState(false);
@@ -558,9 +590,18 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
         senderName: patient.name, 
         text: userText 
       });
+
+      // Broadcast update across windows & tabs
+      localStorage.setItem('medicore_last_chat_patient', patient.id);
+      localStorage.setItem('medicore_last_chat_patient_name', patient.name);
+      localStorage.setItem('medicore_last_chat_time', Date.now().toString());
+      window.dispatchEvent(new CustomEvent('medicore_chat_updated', { detail: { patientId: patient.id, sender: 'patient' } }));
+
       sound.playSuccess();
       showToast(`Inquiry sent directly to ${selectedChatDoctor.name}'s Doctor Portal!`);
     } catch {
+      localStorage.setItem('medicore_last_chat_patient', patient.id);
+      window.dispatchEvent(new CustomEvent('medicore_chat_updated', { detail: { patientId: patient.id, sender: 'patient' } }));
       showToast('Message saved to clinical queue.');
     }
   };

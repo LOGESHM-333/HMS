@@ -171,6 +171,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
 
   // ================= MODULE 1: PATIENT TELE-CHAT STATES & REAL-TIME POLLING =================
   const [messages, setMessages] = useState<MessageItem[]>([]);
+  const [allDoctorMessages, setAllDoctorMessages] = useState<MessageItem[]>([]);
   const [replyText, setReplyText] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -181,15 +182,65 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Messages grouped by patient
+  const messagesByPatient = useMemo(() => {
+    const map: Record<string, MessageItem[]> = {};
+    allDoctorMessages.forEach(m => {
+      if (!map[m.patientId]) map[m.patientId] = [];
+      map[m.patientId].push(m);
+    });
+    return map;
+  }, [allDoctorMessages]);
+
+  // Patients who have a pending/unanswered inquiry from patient
+  const unreadPatientIds = useMemo(() => {
+    const set = new Set<string>();
+    Object.entries(messagesByPatient).forEach(([pId, msgs]) => {
+      const last = msgs[msgs.length - 1];
+      if (last && last.sender === 'patient') {
+        set.add(pId);
+      }
+    });
+    return set;
+  }, [messagesByPatient]);
+
+  const unreadInquiriesCount = unreadPatientIds.size;
+
   const filteredChatPatients = useMemo(() => {
-    if (!chatSearchPatient.trim()) return patients.slice(0, 60);
-    const q = chatSearchPatient.toLowerCase();
-    return patients.filter(p => 
-      p.name.toLowerCase().includes(q) || 
-      p.patientCode.toLowerCase().includes(q) ||
-      (p.diagnosis && p.diagnosis.toLowerCase().includes(q))
-    ).slice(0, 60);
-  }, [patients, chatSearchPatient]);
+    let list = patients;
+    if (chatSearchPatient.trim()) {
+      const q = chatSearchPatient.toLowerCase();
+      list = patients.filter(p => 
+        p.name.toLowerCase().includes(q) || 
+        p.patientCode.toLowerCase().includes(q) ||
+        (p.diagnosis && p.diagnosis.toLowerCase().includes(q))
+      );
+    }
+    // Sort: Patients with new patient messages first, then patients with any messages, then rest
+    return [...list].sort((a, b) => {
+      const aHasUnread = unreadPatientIds.has(a.id) ? 1 : 0;
+      const bHasUnread = unreadPatientIds.has(b.id) ? 1 : 0;
+      if (bHasUnread !== aHasUnread) return bHasUnread - aHasUnread;
+
+      const aCount = messagesByPatient[a.id]?.length || 0;
+      const bCount = messagesByPatient[b.id]?.length || 0;
+      if (bCount !== aCount) return bCount - aCount;
+
+      return 0;
+    }).slice(0, 60);
+  }, [patients, chatSearchPatient, unreadPatientIds, messagesByPatient]);
+
+  // Fetch all doctor messages across all patients
+  const fetchAllMessages = async () => {
+    try {
+      const allMsgs = await api.getAllDoctorMessages();
+      if (allMsgs && Array.isArray(allMsgs)) {
+        setAllDoctorMessages(allMsgs);
+      }
+    } catch {
+      // Fallback
+    }
+  };
 
   const fetchMessages = async (showRefreshIndicator = false) => {
     if (!selectedPatient?.id) return;
@@ -200,20 +251,64 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
         setMessages(serverMsgs);
       }
     } catch {
-      // Offline fallback
+      const local = localStorage.getItem(`medicore_chat_${selectedPatient.id}`);
+      if (local) {
+        try { setMessages(JSON.parse(local)); } catch {}
+      }
     } finally {
       if (showRefreshIndicator) setIsRefreshing(false);
     }
   };
 
-  // Auto-polling messages every 2.5 seconds for instant live sync with Patient Portal
+  // Real-time polling & sync
   useEffect(() => {
+    fetchAllMessages();
     fetchMessages();
+
     const interval = setInterval(() => {
+      fetchAllMessages();
       fetchMessages();
-    }, 2500);
-    return () => clearInterval(interval);
-  }, [selectedPatient?.id]);
+    }, 2000);
+
+    const handleChatUpdate = (e: any) => {
+      fetchAllMessages();
+      fetchMessages();
+      if (e.detail?.patientId) {
+        const target = patients.find(p => p.id === e.detail.patientId);
+        if (target) {
+          setSelectedPatient(target);
+        }
+      }
+      if (e.detail?.sender === 'patient') {
+        sound.playSuccess();
+        showToast(`Incoming patient inquiry received!`);
+      }
+    };
+
+    window.addEventListener('medicore_chat_updated', handleChatUpdate);
+    window.addEventListener('storage', fetchAllMessages);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('medicore_chat_updated', handleChatUpdate);
+      window.removeEventListener('storage', fetchAllMessages);
+    };
+  }, [selectedPatient?.id, patients]);
+
+  // Auto-select patient with newest message if available
+  useEffect(() => {
+    const lastPatientId = localStorage.getItem('medicore_last_chat_patient');
+    if (lastPatientId) {
+      const found = patients.find(p => p.id === lastPatientId);
+      if (found && found.id !== selectedPatient?.id) {
+        setSelectedPatient(found);
+      }
+    } else if (unreadPatientIds.size > 0 && selectedPatient && !unreadPatientIds.has(selectedPatient.id)) {
+      const firstUnreadId = Array.from(unreadPatientIds)[0];
+      const found = patients.find(p => p.id === firstUnreadId);
+      if (found) setSelectedPatient(found);
+    }
+  }, [allDoctorMessages.length]);
 
   const handleSendReply = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -235,6 +330,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
     };
 
     setMessages(prev => [...prev, newReply]);
+    setAllDoctorMessages(prev => [...prev, newReply]);
     setReplyText('');
 
     try {
@@ -247,10 +343,21 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
         senderName: 'Dr. Roger S.',
         text: newReply.text
       });
+
+      // Broadcast update across windows & tabs
+      localStorage.setItem('medicore_last_chat_patient', selectedPatient.id);
+      window.dispatchEvent(new CustomEvent('medicore_chat_updated', { 
+        detail: { patientId: selectedPatient.id, sender: 'doctor' } 
+      }));
+
       sound.playSuccess();
       showToast(`Reply transmitted directly to ${selectedPatient.name}'s Patient Portal!`);
     } catch {
-      showToast('Reply saved locally to clinical consultation record.');
+      localStorage.setItem('medicore_last_chat_patient', selectedPatient.id);
+      window.dispatchEvent(new CustomEvent('medicore_chat_updated', { 
+        detail: { patientId: selectedPatient.id, sender: 'doctor' } 
+      }));
+      showToast('Reply saved to clinical consultation record.');
     } finally {
       setIsSending(false);
     }
@@ -721,7 +828,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
 
   // Module navigation items
   const doctorModules = [
-    { id: 'doctor-chat', label: 'Patient Inquiries & Tele-Chat', icon: Stethoscope, badge: messages.filter(m => m.sender === 'patient').length || undefined },
+    { id: 'doctor-chat', label: 'Patient Inquiries & Tele-Chat', icon: Stethoscope, badge: unreadInquiriesCount || undefined },
     { id: 'doctor-patients', label: 'Inpatient Rounds & Rosters', icon: BedIcon, badge: patients.length },
     { id: 'doctor-rx', label: 'E-Prescriptions & Refills', icon: Pill, badge: prescriptions.flatMap(p => p.items).length },
     { id: 'doctor-labs', label: 'Lab & Imaging Orders', icon: Activity, badge: labOrders.length },
@@ -1142,6 +1249,10 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
               <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-0">
                 {filteredChatPatients.map(pat => {
                   const isSelected = pat.id === selectedPatient?.id;
+                  const patMsgs = messagesByPatient[pat.id] || [];
+                  const lastMsg = patMsgs[patMsgs.length - 1];
+                  const hasUnread = unreadPatientIds.has(pat.id);
+
                   return (
                     <button
                       key={pat.id}
@@ -1149,31 +1260,50 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                         sound.playClick();
                         setSelectedPatient(pat);
                       }}
-                      className={`w-full p-3 rounded-2xl border text-left transition-all flex items-start gap-3 ${
+                      className={`w-full p-3 rounded-2xl border text-left transition-all flex items-start gap-3 relative cursor-pointer ${
                         isSelected
-                          ? 'border-teal-500 bg-teal-500/10 shadow-xs'
-                          : isDark
-                            ? 'border-slate-800 bg-slate-900/60 hover:border-slate-700'
-                            : 'border-slate-200 bg-slate-50 hover:bg-slate-100'
+                          ? 'border-teal-500 bg-teal-500/10 shadow-sm ring-1 ring-teal-500/40'
+                          : hasUnread
+                            ? 'border-rose-400 bg-rose-50/50 hover:bg-rose-50 shadow-xs'
+                            : isDark
+                              ? 'border-slate-800 bg-slate-900/60 hover:border-slate-700'
+                              : 'border-slate-200 bg-slate-50 hover:bg-slate-100'
                       }`}
                     >
-                      <img
-                        src={pat.avatar}
-                        alt={pat.name}
-                        className="w-9 h-9 rounded-xl object-cover ring-2 ring-teal-500/30 shrink-0"
-                      />
+                      <div className="relative shrink-0">
+                        <img
+                          src={pat.avatar}
+                          alt={pat.name}
+                          className="w-10 h-10 rounded-xl object-cover ring-2 ring-teal-500/30"
+                        />
+                        {hasUnread && (
+                          <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-rose-500 ring-2 ring-white animate-pulse" />
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <span className="font-extrabold text-xs truncate">{pat.name}</span>
-                          <span className="font-mono text-[10px] text-teal-600 font-bold">{pat.patientCode}</span>
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="font-extrabold text-xs truncate">{pat.name}</span>
+                            {hasUnread && (
+                              <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-rose-500 text-white animate-pulse shrink-0">
+                                NEW
+                              </span>
+                            )}
+                          </div>
+                          <span className="font-mono text-[10px] text-teal-600 font-bold shrink-0">{pat.patientCode}</span>
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                          {pat.diagnosis}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1 text-[10px]">
+                        {lastMsg ? (
+                          <p className={`text-[11px] truncate mt-0.5 ${hasUnread ? 'text-rose-600 font-bold' : 'text-slate-600 dark:text-slate-400'}`}>
+                            {lastMsg.sender === 'doctor' ? '👨‍⚕️ You: ' : '💬 '}{lastMsg.text}
+                          </p>
+                        ) : (
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                            {pat.diagnosis}
+                          </p>
+                        )}
+                        <div className="flex items-center justify-between mt-1 text-[10px]">
+                          <span className="text-slate-400">{lastMsg ? lastMsg.timestamp : `${pat.age} yrs • ${pat.gender}`}</span>
                           <span className="text-emerald-500 font-bold">BP: {pat.vitals?.bloodPressure || '120/80'}</span>
-                          <span>•</span>
-                          <span className="text-slate-400">{pat.age} yrs</span>
                         </div>
                       </div>
                     </button>
@@ -1247,6 +1377,17 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 >
                   <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-teal-500' : ''}`} />
                 </button>
+
+                {onSwitchToPatientPortal && (
+                  <button
+                    onClick={onSwitchToPatientPortal}
+                    className="px-3 py-1.5 rounded-xl border border-teal-500/30 text-teal-700 bg-teal-50/70 hover:bg-teal-100 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    title="Switch to Patient Portal"
+                  >
+                    <User className="w-3.5 h-3.5 text-teal-600" />
+                    <span className="hidden sm:inline">View Patient View</span>
+                  </button>
+                )}
               </div>
             </div>
 
