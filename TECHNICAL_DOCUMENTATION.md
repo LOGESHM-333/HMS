@@ -8,7 +8,14 @@
 
 ---
 
-## 1. Executive Technology Summary
+## 1. Executive 3D System Architecture
+
+![MediCore 3D Multi-Tier Layered Isometric Architecture](/public/medicore_architecture_diagram_3d.jpg)
+
+### 3D Layered Infrastructure:
+* **Tier 1: Client Presentation Tier (Top Floating Glass Slab)**: 5 interactive 3D terminals (Doctor, Nurse, Admin, Super Admin, Patient 3D Anatomy) rendered with live telemetry widgets (ECG waves, organ telemetry, bed status indicators, and E-Rx creators). Built with React 19, TypeScript, and Three.js WebGL.
+* **Tier 2: API & Clinical Intelligence Tier (Middle Compute Layer)**: Express.js RESTful API engine, Web Audio clinical chime synthesizer, bidirectional real-time consultation chat bridge, and Google Gemini clinical AI core connected via illuminated cyan and medical blue data conduits.
+* **Tier 3: Enterprise Data Tier (Bottom Storage Platform)**: PostgreSQL 16 database cluster with glowing cyan rings, 20 relational clinical tables, JSONB telemetry memory cubes, and dual-sync replication to MySQL on port 5432.
 
 ```mermaid
 graph TD
