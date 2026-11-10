@@ -54,67 +54,27 @@ interface AuthorizedStaffAccount {
 const AUTHORIZED_MANAGEMENT_ACCOUNTS: Record<Exclude<AuthPortalCategory, 'patient'>, AuthorizedStaffAccount[]> = {
   doctor: [
     {
-      allowedEmails: [
-        'medicore.doctor@gmail.com',
-        'doctor@medicore.in',
-        'doctor@medicore.org',
-        'roger.s@medicore.org',
-        'dr.roger.s@gmail.com'
-      ],
-      allowedPasswords: ['Doctor@2026', 'doctor123', 'Roger@2026'],
+      allowedEmails: ['medicore.doctor@gmail.com'],
+      allowedPasswords: ['Doctor@2026'],
       role: 'DOCTOR',
       portalCategory: 'doctor',
       name: 'Dr. Roger S., MD (Chief of Cardiology)',
       doctorData: (docs) => docs.find(d => d.id === 'doc-1' || d.name.toLowerCase().includes('roger')) || docs[0],
-    },
-    {
-      allowedEmails: [
-        'medicore.dr.sophia@gmail.com',
-        'sophia.chen@medicore.org',
-        'dr.sophia.chen@gmail.com'
-      ],
-      allowedPasswords: ['Doctor@2026', 'doctor123', 'Sophia@2026'],
-      role: 'DOCTOR',
-      portalCategory: 'doctor',
-      name: 'Dr. Sophia Chen, MD (Cardiovascular Surgery)',
-      doctorData: (docs) => docs.find(d => d.id === 'doc-2' || d.name.toLowerCase().includes('sophia')),
     }
   ],
   nurse: [
     {
-      allowedEmails: [
-        'medicore.nurse@gmail.com',
-        'nurse@medicore.in',
-        'nurse@medicore.org',
-        'sarah.j@medicore.org',
-        'nurse.sarah@gmail.com'
-      ],
-      allowedPasswords: ['Nurse@2026', 'nurse123', 'Sarah@2026'],
+      allowedEmails: ['medicore.nurse@gmail.com'],
+      allowedPasswords: ['Nurse@2026'],
       role: 'NURSE',
       portalCategory: 'nurse',
       name: 'Nurse Sarah Jenkins, RN, BSN',
-    },
-    {
-      allowedEmails: [
-        'medicore.nurse.elena@gmail.com',
-        'nurse.elena@gmail.com',
-        'elena.n@medicore.org'
-      ],
-      allowedPasswords: ['Nurse@2026', 'nurse123'],
-      role: 'NURSE',
-      portalCategory: 'nurse',
-      name: 'Head Nurse Elena Rostova, RN',
     }
   ],
   admin: [
     {
-      allowedEmails: [
-        'medicore.admin@gmail.com',
-        'admin@medicore.in',
-        'admin@medicore.org',
-        'hospital.admin@gmail.com'
-      ],
-      allowedPasswords: ['Admin@2026', 'admin123', 'Management@2026'],
+      allowedEmails: ['medicore.admin@gmail.com'],
+      allowedPasswords: ['Admin@2026'],
       role: 'HOSPITAL_ADMIN',
       portalCategory: 'admin',
       name: 'Marcus Vance, MHA (Hospital Administrator)',
@@ -122,13 +82,8 @@ const AUTHORIZED_MANAGEMENT_ACCOUNTS: Record<Exclude<AuthPortalCategory, 'patien
   ],
   'super-admin': [
     {
-      allowedEmails: [
-        'medicore.superadmin@gmail.com',
-        'superadmin@medicore.in',
-        'superadmin@medicore.org',
-        'director.superadmin@gmail.com'
-      ],
-      allowedPasswords: ['SuperAdmin@2026', 'enterprise123', 'Governance@2026'],
+      allowedEmails: ['medicore.superadmin@gmail.com'],
+      allowedPasswords: ['SuperAdmin@2026'],
       role: 'SUPER_ADMIN',
       portalCategory: 'super-admin',
       name: 'Dr. Eleanor Vance, MD, CISSP (Enterprise Command)',
@@ -209,6 +164,10 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
   const [portalCategory, setPortalCategory] = useState<AuthPortalCategory>(initialCategory);
 
   React.useEffect(() => {
+    localStorage.removeItem('medicore_authenticated');
+  }, []);
+
+  React.useEffect(() => {
     if (initialCategory) setPortalCategory(initialCategory);
   }, [initialCategory]);
 
@@ -269,38 +228,48 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
     sound.playClick();
 
     setTimeout(() => {
-      // 1. PATIENT PORTAL LOGIN (Exception as requested)
+      // 1. PATIENT PORTAL LOGIN
       if (portalCategory === 'patient') {
-        const found = existingPatients.find(
-          p => p.email.toLowerCase() === inputEmail ||
-               p.patientCode.toLowerCase() === inputEmail ||
-               p.id.toLowerCase() === inputEmail
-        );
+        const isDemo = inputEmail === 'medicore.patient@gmail.com' || inputEmail === 'p-10001' || inputEmail === 'pat-1';
 
-        if (found || inputEmail === 'medicore.patient@gmail.com' || inputEmail === 'patient@medicore.in') {
-          const patient = found || existingPatients[0];
+        if (isDemo) {
+          if (inputPass !== 'patient123') {
+            setLoading(false);
+            sound.playWarning();
+            setErrorMessage('Gmail or password incorrect. Please enter the valid credentials.');
+            return;
+          }
+          const patient = existingPatients[0];
           sound.playSuccess();
           setSuccessMessage(`Welcome back, ${patient.name}! Launching Patient Portal...`);
-          setTimeout(() => onLoginPatient(patient), 500);
-        } else {
-          // Check local registered accounts
-          try {
-            const registered = JSON.parse(localStorage.getItem('medicore_registered_patients') || '[]');
-            const matched = registered.find((p: any) => p.email?.toLowerCase() === inputEmail);
-            if (matched) {
-              sound.playSuccess();
-              setSuccessMessage(`Welcome back, ${matched.name}! Launching Patient Portal...`);
-              setTimeout(() => onLoginPatient(matched), 500);
-              setLoading(false);
-              return;
-            }
-          } catch {}
-
+          setTimeout(() => onLoginPatient(patient), 400);
           setLoading(false);
-          sound.playWarning();
-          setErrorMessage('Patient email or code not found. Please verify your credentials or register a new patient account below.');
           return;
         }
+
+        // Check local registered accounts
+        try {
+          const registered = JSON.parse(localStorage.getItem('medicore_registered_patients') || '[]');
+          const matched = registered.find((p: any) => p.email?.toLowerCase() === inputEmail);
+          if (matched) {
+            if (matched.password && matched.password !== inputPass) {
+              setLoading(false);
+              sound.playWarning();
+              setErrorMessage('Gmail or password incorrect. Please enter the valid credentials.');
+              return;
+            }
+            sound.playSuccess();
+            setSuccessMessage(`Welcome back, ${matched.name}! Launching Patient Portal...`);
+            setTimeout(() => onLoginPatient(matched), 400);
+            setLoading(false);
+            return;
+          }
+        } catch {}
+
+        setLoading(false);
+        sound.playWarning();
+        setErrorMessage('Gmail or password incorrect. No patient account found with this email. Please register below.');
+        return;
       } 
       // 2. MANAGEMENT ROLES (Doctor, Nurse, Admin, Super Admin)
       else {
@@ -314,7 +283,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
         if (!matchedAccount) {
           setLoading(false);
           sound.playWarning();
-          setErrorMessage(`Access Denied: "${email}" is not an authorized management Gmail for ${config.label}. Only management-issued credentials can access this portal.`);
+          setErrorMessage('Gmail or password incorrect. Only management-issued credentials can access this portal.');
           return;
         }
 
@@ -332,20 +301,20 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
         if (portalCategory === 'doctor') {
           const doctorObj = (matchedAccount.doctorData && matchedAccount.doctorData(existingDoctors)) || existingDoctors[0];
           setSuccessMessage(`Access Granted: Welcome, ${matchedAccount.name}! Opening Doctor Clinical Station...`);
-          setTimeout(() => onLoginDoctor(doctorObj), 500);
+          setTimeout(() => onLoginDoctor(doctorObj), 400);
         } else if (portalCategory === 'nurse') {
           setSuccessMessage(`Access Granted: Welcome, ${matchedAccount.name}! Opening Head Nurse Station...`);
-          setTimeout(() => onLoginNurse(matchedAccount.name), 500);
+          setTimeout(() => onLoginNurse(matchedAccount.name), 400);
         } else if (portalCategory === 'admin') {
           setSuccessMessage(`Access Granted: Welcome, ${matchedAccount.name}! Opening Hospital Operations Portal...`);
-          setTimeout(() => { if (onLoginAdmin) onLoginAdmin(matchedAccount.name); }, 500);
+          setTimeout(() => { if (onLoginAdmin) onLoginAdmin(matchedAccount.name); }, 400);
         } else if (portalCategory === 'super-admin') {
           setSuccessMessage(`Enterprise Clearance Verified: Welcome, ${matchedAccount.name}! Accessing Governance Command...`);
-          setTimeout(() => { if (onLoginSuperAdmin) onLoginSuperAdmin(matchedAccount.name); }, 500);
+          setTimeout(() => { if (onLoginSuperAdmin) onLoginSuperAdmin(matchedAccount.name); }, 400);
         }
       }
       setLoading(false);
-    }, 700);
+    }, 500);
   };
 
   const handleSignUp = (e: React.FormEvent) => {
@@ -361,7 +330,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
     sound.playClick();
 
     setTimeout(() => {
-      const newPatient: Patient = {
+      const newPatient: Patient & { password?: string } = {
         id: `pat-${Date.now()}`,
         patientCode: `P-${Math.floor(10000 + Math.random() * 90000)}`,
         name: signUpName.trim(),
@@ -369,7 +338,8 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
         gender: 'Other',
         bloodGroup: 'A+',
         phone: signUpPhone.trim(),
-        email: signUpEmail.trim(),
+        email: signUpEmail.trim().toLowerCase(),
+        password: signUpPassword,
         avatar: '',
         admissionStatus: 'Outpatient',
         primaryDoctorId: 'doc-1',
@@ -394,12 +364,18 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
         allergies: [],
         medicalHistory: [],
       };
+      
+      try {
+        const existingReg = JSON.parse(localStorage.getItem('medicore_registered_patients') || '[]');
+        localStorage.setItem('medicore_registered_patients', JSON.stringify([...existingReg, newPatient]));
+      } catch {}
+
       db.addPatient(newPatient);
       sound.playSuccess();
       setSuccessMessage(`Account created for ${newPatient.name}! Redirecting to your portal...`);
-      setTimeout(() => onLoginPatient(newPatient), 600);
+      setTimeout(() => onLoginPatient(newPatient), 500);
       setLoading(false);
-    }, 1000);
+    }, 600);
   };
 
   const handleForgotPassword = (e: React.FormEvent) => {
