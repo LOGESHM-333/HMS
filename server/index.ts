@@ -302,6 +302,34 @@ app.get(['/database', '/db', '/admin/database'], (_req: Request, res: Response) 
 // Health check
 app.get('/api/health', async (_req: Request, res: Response) => {
   const dbStatus = getDbStatus();
+  let livePatients = fallbackStore.patients.length;
+  let liveDoctors = fallbackStore.doctors.length;
+  let liveStaff = fallbackStore.staff.length;
+  let liveBeds = fallbackStore.beds.length;
+  let liveAppointments = fallbackStore.appointments.length;
+  let liveMedicines = fallbackStore.medicines.length;
+  let liveInvoices = fallbackStore.invoices.length;
+
+  if (isDbConnected()) {
+    try {
+      const p = getPool();
+      const [pRows]: any = await p.query('SELECT COUNT(*) as cnt FROM patients');
+      if (pRows && pRows[0]) livePatients = Number(pRows[0].cnt);
+      const [dRows]: any = await p.query('SELECT COUNT(*) as cnt FROM doctors');
+      if (dRows && dRows[0]) liveDoctors = Number(dRows[0].cnt);
+      const [sRows]: any = await p.query('SELECT COUNT(*) as cnt FROM staff');
+      if (sRows && sRows[0]) liveStaff = Number(sRows[0].cnt);
+      const [bRows]: any = await p.query('SELECT COUNT(*) as cnt FROM beds');
+      if (bRows && bRows[0]) liveBeds = Number(bRows[0].cnt);
+      const [aRows]: any = await p.query('SELECT COUNT(*) as cnt FROM appointments');
+      if (aRows && aRows[0]) liveAppointments = Number(aRows[0].cnt);
+      const [mRows]: any = await p.query('SELECT COUNT(*) as cnt FROM medicines');
+      if (mRows && mRows[0]) liveMedicines = Number(mRows[0].cnt);
+      const [iRows]: any = await p.query('SELECT COUNT(*) as cnt FROM invoices');
+      if (iRows && iRows[0]) liveInvoices = Number(iRows[0].cnt);
+    } catch (e) {}
+  }
+
   res.json({
     status: 'ONLINE',
     system: 'MediCore Enterprise Clinical Backend (Dual PostgreSQL & MySQL)',
@@ -315,14 +343,14 @@ app.get('/api/health', async (_req: Request, res: Response) => {
     },
     timestamp: new Date().toISOString(),
     records: {
-      totalMembers: dbStatus.totalMembers,
-      patients: fallbackStore.patients.length,
-      doctors: fallbackStore.doctors.length,
-      staff: fallbackStore.staff.length,
-      beds: fallbackStore.beds.length,
-      medicines: fallbackStore.medicines.length,
-      invoices: fallbackStore.invoices.length,
-      appointments: fallbackStore.appointments.length
+      totalMembers: (livePatients + liveDoctors + liveStaff),
+      patients: livePatients,
+      doctors: liveDoctors,
+      staff: liveStaff,
+      beds: liveBeds,
+      medicines: liveMedicines,
+      invoices: liveInvoices,
+      appointments: liveAppointments
     }
   });
 });
@@ -496,7 +524,7 @@ app.put('/api/patients/:id', async (req: Request, res: Response) => {
 
 // ===================== DISCHARGE PATIENT =====================
 // POST /api/patients/:id/discharge
-// Sets admission_status = 'Discharged', clears room_bed, releases bed, adds history entry
+// Releases bed, deletes patient from active patients table, decrements database census
 app.post('/api/patients/:id/discharge', async (req: Request, res: Response) => {
   try {
     const p = getPool();
@@ -508,24 +536,7 @@ app.post('/api/patients/:id/discharge', async (req: Request, res: Response) => {
     const dischargeDate = new Date().toISOString().split('T')[0];
     const dischargeTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-    // 1. Update patient: set Discharged status, clear bed
-    await p.query(
-      `UPDATE patients SET admission_status = 'Discharged', room_bed = NULL, attending_doctor = ? WHERE id = ?`,
-      [patient.primaryDoctorName || null, req.params.id]
-    );
-
-    // 2. Add discharge entry to medical_history
-    const newHistEntry = {
-      date: dischargeDate,
-      event: `Patient Discharged — ${req.body.reason || 'Recovered & Released to Home Care'}`,
-      doctor: req.body.dischargedBy || patient.primaryDoctorName || 'Dr. Roger S.',
-      facility: 'MediCore Discharge Unit',
-      notes: req.body.notes || `Discharged at ${dischargeTime}. Follow-up in 7 days.`
-    };
-    const updatedHistory = [newHistEntry, ...patient.medicalHistory];
-    await p.query('UPDATE patients SET medical_history = ? WHERE id = ?', [JSON.stringify(updatedHistory), req.params.id]);
-
-    // 3. Release the occupied bed (set to Cleaning -> Available)
+    // 1. Release the occupied bed (set to Cleaning -> Available)
     if (prevBed) {
       const [bedRows]: any = await p.query(
         'SELECT * FROM beds WHERE bed_number = ? OR patient_id = ?',
@@ -539,23 +550,55 @@ app.post('/api/patients/:id/discharge', async (req: Request, res: Response) => {
       }
     }
 
-    // 4. Fetch and return the updated patient record
-    const [updatedRows]: any = await p.query('SELECT * FROM patients WHERE id = ?', [req.params.id]);
-    const updatedPatient = mapPatientRow(updatedRows[0]);
-    updatedPatient.medicalHistory = updatedHistory;
+    // 2. Archive to discharged_patients table so records remain searchable in historical audit
+    try {
+      await p.query(`
+        CREATE TABLE IF NOT EXISTS discharged_patients (
+          id VARCHAR(64) PRIMARY KEY,
+          patient_code VARCHAR(32),
+          name VARCHAR(255),
+          discharge_date VARCHAR(64),
+          discharge_reason TEXT,
+          discharged_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      await p.query(
+        `INSERT INTO discharged_patients (id, patient_code, name, discharge_date, discharge_reason)
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT (id) DO UPDATE SET discharge_date = EXCLUDED.discharge_date`,
+        [patient.id, patient.patientCode, patient.name, dischargeDate, req.body.reason || 'Discharged / Released to Home Care']
+      );
+    } catch (archiveErr) {
+      // Archive table is non-blocking
+    }
+
+    // 3. REMOVE / DELETE patient from active patients table so total count decrements!
+    await p.query('DELETE FROM patients WHERE id = ?', [req.params.id]);
+
+    // 4. Update in-memory fallback store
+    const fbIdx = fallbackStore.patients.findIndex((pat: any) => pat.id === req.params.id);
+    if (fbIdx !== -1) {
+      fallbackStore.patients.splice(fbIdx, 1);
+      persistFallbackStore();
+    }
+
+    // 5. Query live remaining count
+    const [cntRows]: any = await p.query('SELECT COUNT(*) as count FROM patients');
+    const remainingCount = Number(cntRows[0]?.count || fallbackStore.patients.length);
 
     await logAudit(
-      'Patient Discharged',
+      'Patient Discharged & Removed',
       'Patients',
-      `Discharged ${patient.name} (${patient.patientCode}) on ${dischargeDate}. ${prevBed ? 'Bed ' + prevBed + ' released for sanitization.' : ''}`
+      `Discharged & removed ${patient.name} (${patient.patientCode}). Remaining patients: ${remainingCount}.`
     );
 
     res.json({
       success: true,
-      patient: updatedPatient,
+      removedPatient: patient,
+      remainingCount,
       dischargeDate,
       dischargeTime,
-      message: `${patient.name} has been successfully discharged and their bed has been released.`
+      message: `${patient.name} has been discharged and removed. Total patients in database is now ${remainingCount}.`
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

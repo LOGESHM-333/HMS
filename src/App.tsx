@@ -63,6 +63,9 @@ const PAGE_TITLES: Record<string, string> = {
   dashboard: 'Dashboard',
   overview: 'Enterprise Overview',
   ward: 'Ward Overview',
+  monitoring: 'Continuous Telemetry & Monitoring',
+  admissions: 'Inpatient Admissions',
+  discharges: 'Patient Discharges',
   analytics: 'Analytics & Reports',
   patients: 'Patient Directory',
   doctors: 'Doctor Directory',
@@ -128,7 +131,7 @@ export default function App() {
     return db.getRole();
   });
 
-  const [theme, setTheme] = useState<ThemeMode>(db.getTheme());
+  const [theme] = useState<ThemeMode>('mint');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(db.getSelectedPatient());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -145,17 +148,13 @@ export default function App() {
     return 'admin';
   });
 
-  // Sync theme with document
+  // Permanently enforce white / daylight mode
   useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.body.style.backgroundColor = '#07111E';
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.body.style.backgroundColor = '#F4F7F8';
-    }
-    db.setTheme(theme);
-  }, [theme]);
+    document.documentElement.classList.remove('dark');
+    document.body.style.backgroundColor = '#F4F7F8';
+    localStorage.setItem('medicore_theme', 'mint');
+    db.setTheme('mint');
+  }, []);
 
   // Cmd+K global search
   useEffect(() => {
@@ -225,8 +224,7 @@ export default function App() {
   };
 
   const handleToggleTheme = () => {
-    sound.playClick();
-    setTheme(prev => (prev === 'dark' ? 'mint' : 'dark'));
+    // Disabled - permanently in white mode
   };
 
   // User info from db
@@ -264,7 +262,7 @@ export default function App() {
     return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
   };
 
-  const isDark = theme === 'dark';
+  const isDark = false;
 
   // ============================================================
   // AUTH GATE
@@ -331,7 +329,7 @@ export default function App() {
   // AUTHENTICATED LAYOUT
   // ============================================================
   return (
-    <div className={`docr-layout ${isDark ? 'dark' : ''} ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+    <div className={`docr-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
 
       {/* ===== SIDEBAR ===== */}
       <Sidebar
@@ -357,7 +355,6 @@ export default function App() {
           currentRole={currentRole}
           portalMode={portalMode}
           theme={theme}
-          onToggleTheme={handleToggleTheme}
           onOpenSearch={() => setIsSearchOpen(true)}
           onMobileMenuOpen={() => setMobileMenuOpen(true)}
           pageTitle={PAGE_TITLES[currentTab] || 'MediCore'}
@@ -383,7 +380,16 @@ export default function App() {
                 />
               )}
               {currentTab === 'ward' && (
-                <WardOverview theme={theme} currentRole={currentRole} onNavigateTab={handleTabChange} />
+                <WardOverview theme={theme} currentRole={currentRole} initialView="ward-overview" onNavigateTab={handleTabChange} />
+              )}
+              {currentTab === 'monitoring' && (
+                <WardOverview theme={theme} currentRole={currentRole} initialView="monitoring" onNavigateTab={handleTabChange} />
+              )}
+              {currentTab === 'admissions' && (
+                <WardOverview theme={theme} currentRole={currentRole} initialView="admissions" onNavigateTab={handleTabChange} />
+              )}
+              {currentTab === 'discharges' && (
+                <WardOverview theme={theme} currentRole={currentRole} initialView="discharges" onNavigateTab={handleTabChange} />
               )}
               {currentTab === 'analytics' && (
                 <AnalyticsReports theme={theme} />

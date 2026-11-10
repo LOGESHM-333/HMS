@@ -1,407 +1,1600 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MediCore Live Database Explorer • MySQL 8.0</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    code, pre, .font-mono { font-family: 'JetBrains Mono', monospace; }
-    .glass-card {
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(51, 65, 85, 0.6);
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>MediCore HMS — PostgreSQL 16 Live Database Studio</title>
+<link rel="icon" type="image/png" href="/assets/medicore-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ========================================================
+     VIBRANT SKY BLUE BUBBLE GLASS DESIGN SYSTEM
+     (EXCEPT BLACK & DARK BLUE)
+     ======================================================== */
+  :root {
+    --sidebar-width: 270px;
+    --text-primary: #0f172a;      /* Slate 900 */
+    --text-secondary: #475569;    /* Slate 600 */
+    --text-muted: #64748b;        /* Slate 500 */
+    --primary: #0284c7;           /* Sky Blue 600 */
+    --primary-light: #0ea5e9;     /* Sky Blue 500 */
+    --primary-soft: #e0f2fe;      /* Sky Blue 100 */
+    --primary-glow: rgba(2, 132, 199, 0.25);
+    --border-card: #e2e8f0;
+    --card-bg: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #f0f7fd;
+    background-image: 
+      radial-gradient(circle at 18% 18%, rgba(14, 165, 233, 0.12) 0%, transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(2, 132, 199, 0.08) 0%, transparent 45%),
+      #f0f7fd;
+    background-attachment: fixed;
+    color: var(--text-primary);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  /* Subtle Crisp Gridlines Overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(to right, rgba(2, 132, 199, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(2, 132, 199, 0.04) 1px, transparent 1px);
+    background-size: 36px 36px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ========================================================
+     LEFT SIDEBAR: STEEL SLATE BLUE (EXACT USER PALETTE)
+     ======================================================== */
+  .sidebar {
+    width: var(--sidebar-width);
+    background: linear-gradient(180deg, #3B4E6A 0%, #44597C 35%, #485E83 70%, #506D9C 100%);
+    border-right: 1.5px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 4px 0 35px rgba(59, 78, 106, 0.45);
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Healthcare / Hospital Project-Related Visual Design */
+  .sidebar-medical-fx {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Animated Medical ECG Heartbeat Pulse Lines */
+  .med-ecg-svg {
+    position: absolute;
+    width: 320px;
+    height: 72px;
+    pointer-events: none;
+  }
+  .med-ecg-svg.top {
+    top: 70px;
+    left: -15px;
+    opacity: 0.55;
+  }
+  .med-ecg-svg.bottom {
+    bottom: 90px;
+    left: -15px;
+    opacity: 0.45;
+  }
+  .med-ecg-line {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    animation: sweepEcg 4s linear infinite;
+  }
+  .med-ecg-glow {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.9);
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: blur(4px);
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    animation: sweepEcg 4s linear infinite;
+  }
+  @keyframes sweepEcg {
+    0% { stroke-dashoffset: 600; }
+    50% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -600; }
+  }
+
+  /* Translucent Floating Medical Crosses / Plus Signs */
+  .med-cross {
+    position: absolute;
+    color: #ffffff;
+    font-weight: 900;
+    line-height: 1;
+    user-select: none;
+    pointer-events: none;
+    text-shadow: 0 0 14px rgba(255, 255, 255, 0.6);
+    animation: floatMedCross 14s ease-in-out infinite;
+  }
+  .med-cross.mc1 { font-size: 40px; top: 11%; right: 14px; opacity: 0.32; animation-duration: 15s; }
+  .med-cross.mc2 { font-size: 60px; top: 40%; left: -10px; opacity: 0.22; animation-duration: 19s; animation-delay: -3s; }
+  .med-cross.mc3 { font-size: 34px; top: 62%; right: 22px; opacity: 0.30; animation-duration: 12s; animation-delay: -5s; }
+  .med-cross.mc4 { font-size: 48px; bottom: 120px; left: 14px; opacity: 0.25; animation-duration: 16s; animation-delay: -7s; }
+  .med-cross.mc5 { font-size: 26px; top: 22%; left: 30px; opacity: 0.35; animation-duration: 10s; animation-delay: -2s; }
+
+  @keyframes floatMedCross {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg) scale(1);
+      opacity: 0.25;
     }
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #0b1329; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #334155; }
-  </style>
+    50% {
+      transform: translateY(-16px) rotate(12deg) scale(1.08);
+      opacity: 0.48;
+    }
+  }
+
+  .sidebar-header,
+  .sidebar-db-badge,
+  .sidebar-section-title,
+  .sidebar-nav,
+  .sidebar-bottom {
+    position: relative;
+    z-index: 2;
+  }
+
+  .sidebar-header {
+    padding: 22px 20px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .sidebar-logo-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    flex-shrink: 0;
+  }
+  .sidebar-logo-text h2 {
+    font-size: 1.22rem;
+    font-weight: 800;
+    color: #ffffff;              /* Crisp White */
+    letter-spacing: -0.02em;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  }
+  .sidebar-logo-text p {
+    font-size: 0.72rem;
+    color: #cbd5e1;              /* Soft Slate */
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Live SQL Status In Sidebar */
+  .sidebar-db-badge {
+    margin: 14px 16px;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.76rem;
+    color: #ffffff;              /* Crisp White */
+    font-weight: 700;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+  .sidebar-db-badge .radar-dot {
+    position: relative;
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+  }
+  .sidebar-db-badge .radar-dot::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: #0284c7;
+    opacity: 0.7;
+    animation: radarPulse 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+  }
+  .sidebar-db-badge .radar-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #0284c7;
+  }
+  @keyframes radarPulse {
+    0% { transform: scale(0.8); opacity: 0.8; }
+    50% { transform: scale(2.2); opacity: 0; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+
+  .sidebar-section-title {
+    font-size: 0.69rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.78);
+    padding: 14px 20px 6px;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 15px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #ffffff !important;   /* Crisp White Text */
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid transparent;
+  }
+  .sidebar-nav-item:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff !important;
+    backdrop-filter: blur(8px);
+    transform: translateX(3px);
+  }
+  .sidebar-nav-item.active {
+    background: #ffffff !important;
+    color: #1e293b !important;   /* Solid Black Slate for active */
+    font-weight: 800 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22), 0 2px 6px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    transform: translateX(4px);
+  }
+  .sidebar-nav-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+  }
+  .sidebar-nav-count {
+    font-size: 0.74rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+  .sidebar-nav-item.active .sidebar-nav-count {
+    background: #3B4E6A;
+    color: #ffffff;
+    border-color: #3B4E6A;
+  }
+
+  /* Sidebar Bottom Action */
+  .sidebar-bottom {
+    padding: 16px;
+    border-top: 1.5px solid rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .btn-web-app {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #ffffff;
+    color: #000000;              /* Solid Black */
+    text-decoration: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    transition: all 0.2s;
+  }
+  .btn-web-app:hover {
+    background: #f0f9ff;
+    color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  }
+  .btn-web-app:hover {
+    background: #f0f9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+  }
+
+  /* ========================================================
+     MAIN CONTENT CANVAS
+     ======================================================== */
+  .main-canvas {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Canvas Top Bar */
+  .canvas-topbar {
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-card);
+    padding: 16px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    box-shadow: 0 2px 14px rgba(15, 23, 42, 0.05);
+  }
+  .canvas-top-title h1 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .canvas-top-title p {
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .canvas-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .canvas-content {
+    padding: 24px 36px;
+  }
+
+  /* Notice Bar */
+  .notice-bar {
+    background: #ffffff;
+    border: 1px solid #bae6fd;
+    border-radius: 14px;
+    padding: 13px 22px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: #0369a1;
+    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.06);
+  }
+  .notice-bar strong {
+    color: #0284c7;
+  }
+
+  /* Stats Grid (Top 7 KPI Cards) */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: #ffffff;
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+  }
+  .stat-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+    box-shadow: 0 8px 24px rgba(2, 132, 199, 0.15);
+  }
+  .stat-card.active {
+    border-color: var(--primary);
+    background: #f0f9ff;
+    box-shadow: 0 0 0 2px var(--primary), 0 8px 24px rgba(2, 132, 199, 0.15);
+  }
+  .stat-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .stat-icon {
+    font-size: 1.25rem;
+  }
+  .stat-num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+
+  /* Studio Container Card */
+  .studio-card {
+    background: #ffffff;
+    border: 1px solid var(--border-card);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 320px;
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    max-width: 440px;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+    padding: 10px 16px 10px 40px;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .search-wrap input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+  }
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    pointer-events: none;
+  }
+
+  /* Quick Patient Filters */
+  .quick-filters {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .filter-chip {
+    padding: 6px 13px;
+    border-radius: 9px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: #ffffff;
+    border: 1px solid var(--border-card);
+    color: var(--text-secondary);
+    transition: all 0.2s;
+  }
+  .filter-chip:hover {
+    color: var(--text-primary);
+    border-color: #cbd5e1;
+    background: #f8fafc;
+  }
+  .filter-chip.active {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .meta-tag {
+    background: #f8fafc;
+    border: 1px solid var(--border-card);
+    padding: 7px 14px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .meta-tag strong {
+    color: var(--primary);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: linear-gradient(135deg, var(--primary), #0284c7);
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 10px var(--primary-glow);
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px var(--primary-glow);
+  }
+
+  /* Data Table */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    text-align: left;
+  }
+  thead th {
+    background: #f8fafc;
+    padding: 13px 18px;
+    color: var(--text-secondary);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border-card);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+  }
+  tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: all 0.16s ease;
+  }
+  tbody tr:hover {
+    background: #f0f9ff;
+    box-shadow: inset 3px 0 0 var(--primary);
+  }
+  tbody tr:last-child {
+    border-bottom: none;
+  }
+  td {
+    padding: 13px 18px;
+    color: #334155;
+    vertical-align: middle;
+  }
+  td.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.74rem;
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  .patient-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .avatar-initials {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: var(--primary-soft);
+    border: 1px solid #bae6fd;
+    color: var(--primary);
+    font-weight: 800;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .patient-name-block .pname {
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .patient-name-block .pmeta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  /* Status Badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .badge.emerald,
+  .badge.sky {
+    background: rgba(59, 78, 106, 0.12);
+    color: #3B4E6A;
+    border: 1px solid rgba(72, 94, 131, 0.3);
+  }
+  .badge.emerald .dot,
+  .badge.sky .dot { background: #506D9C; }
+
+  .badge.amber {
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
+  }
+  .badge.amber .dot { background: #f59e0b; }
+
+  .badge.rose {
+    background: #fff1f2;
+    color: #9f1239;
+    border: 1px solid #fecdd3;
+  }
+  .badge.rose .dot { background: #f43f5e; }
+
+  .badge.cyan {
+    background: #f0f9ff;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+  }
+  .badge.cyan .dot { background: var(--primary); }
+
+  .badge.slate {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+  }
+  .badge.slate .dot { background: #64748b; }
+
+  .blood-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+  }
+
+  .action-btn-discharge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #e11d48;
+    padding: 6px 13px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .action-btn-discharge:hover {
+    background: #e11d48;
+    color: #ffffff;
+    border-color: #e11d48;
+    box-shadow: 0 2px 10px rgba(225, 29, 72, 0.35);
+    transform: translateY(-1px);
+  }
+
+  /* Pagination */
+  .pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 18px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+  }
+  .page-btns {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .page-btn {
+    background: #ffffff;
+    border: 1px solid var(--border-card);
+    color: var(--text-primary);
+    padding: 7px 15px;
+    border-radius: 9px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .page-btn:not(:disabled):hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
+  .loading-state {
+    text-align: center;
+    padding: 56px 20px;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .loading-spinner {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e2e8f0;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Custom Light Confirmation Modal */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-backdrop.open {
+    display: flex;
+  }
+  .modal-content {
+    background: #ffffff;
+    border: 1px solid #bae6fd;
+    border-radius: 22px;
+    max-width: 500px;
+    width: 100%;
+    padding: 28px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+    animation: modalPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes modalPop {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .modal-icon-danger {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+  }
+  .modal-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+  .modal-body {
+    font-size: 0.84rem;
+    color: #334155;
+    line-height: 1.55;
+    margin-bottom: 22px;
+  }
+  .modal-detail-card {
+    background: #f8fafc;
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 14px 0;
+    font-size: 0.8rem;
+  }
+  .modal-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+  .modal-detail-row span {
+    color: var(--text-muted);
+  }
+  .modal-detail-row strong {
+    color: var(--text-primary);
+  }
+  .modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .btn-secondary {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-danger {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(225, 29, 72, 0.3);
+    transition: all 0.2s;
+  }
+  .btn-danger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(225, 29, 72, 0.45);
+  }
+
+  /* Floating Toast Alert */
+  .toast-container {
+    position: fixed;
+    top: 24px;
+    right: 28px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .toast-alert {
+    background: #ffffff;
+    border: 1px solid #a7f3d0;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+    color: #065f46;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    max-width: 440px;
+    animation: toastSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes toastSlide {
+    from { transform: translateX(50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+</style>
 </head>
-<body class="bg-[#070D1B] text-slate-100 min-h-screen flex flex-col">
+<body>
 
-  <!-- TOP HEADER -->
-  <header class="border-b border-slate-800 bg-[#0A1226]/90 backdrop-blur sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-teal-500/20">
-          M
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">MediCore Database Explorer</h1>
-            <span id="db-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span id="dialect-name">MySQL 8.0 Connected</span>
-            </span>
-          </div>
-          <p class="text-xs text-slate-400">Database: <strong class="text-teal-300 font-mono" id="db-name">medicore_db</strong> on port <strong class="text-teal-300 font-mono" id="db-port">3306</strong></p>
-        </div>
-      </div>
+<div class="toast-container" id="toast-box"></div>
 
-      <div class="flex items-center gap-2">
-        <a href="http://localhost:3000" target="_blank" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-500/10 text-teal-300 hover:bg-teal-500 hover:text-slate-950 border border-teal-500/30 transition-all flex items-center gap-1.5 shadow-sm">
-          <span>Open Hospital Portals (Port 3000)</span>
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-        </a>
-        <a href="/api/health" target="_blank" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">
-          Health JSON
-        </a>
+<!-- Custom Discharge Modal -->
+<div class="modal-backdrop" id="discharge-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-icon-danger">🗑️</div>
+      <div>
+        <div class="modal-title">Discharge & Remove Patient</div>
+        <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">Direct PostgreSQL 16 Record Deletion</div>
       </div>
     </div>
-  </header>
-
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-5">
-
-    <!-- KPI STATS -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-      <div class="glass-card p-3.5 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Patients</div>
-        <div id="stat-patients" class="text-2xl font-black text-white mt-1">850</div>
-        <div class="text-[10px] text-teal-400 mt-0.5">Clinical Inpatients/OPDs</div>
-      </div>
-      <div class="glass-card p-3.5 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Doctors</div>
-        <div id="stat-doctors" class="text-2xl font-black text-white mt-1">80</div>
-        <div class="text-[10px] text-teal-400 mt-0.5">Consultants & Surgeons</div>
-      </div>
-      <div class="glass-card p-3.5 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Staff</div>
-        <div id="stat-staff" class="text-2xl font-black text-white mt-1">70</div>
-        <div class="text-[10px] text-teal-400 mt-0.5">Nurses & Technicians</div>
-      </div>
-      <div class="glass-card p-3.5 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Lab Assays</div>
-        <div id="stat-labs" class="text-2xl font-black text-white mt-1">18</div>
-        <div class="text-[10px] text-cyan-400 mt-0.5">Full Clinical Battery</div>
-      </div>
-      <div class="glass-card p-3.5 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Inpatient Beds</div>
-        <div id="stat-beds" class="text-2xl font-black text-white mt-1">12</div>
-        <div class="text-[10px] text-emerald-400 mt-0.5">Interactive Wards</div>
-      </div>
-      <div class="glass-card p-3.5 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Members</div>
-        <div id="stat-total" class="text-2xl font-black text-teal-400 mt-1">1,000</div>
-        <div class="text-[10px] text-slate-400 mt-0.5">Live Live Demo Store</div>
-      </div>
-    </div>
-
-    <!-- TABLE EXPLORER CARD -->
-    <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col">
-
-      <!-- TOOLBAR & TABLE TABS -->
-      <div class="p-4 border-b border-slate-800/80 bg-slate-900/60 flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <!-- TABS -->
-        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none" id="table-tabs">
-          <!-- Injected via JavaScript -->
+    <div class="modal-body">
+      Are you sure you want to discharge and permanently delete this patient from active hospital records?
+      <div class="modal-detail-card">
+        <div class="modal-detail-row">
+          <span>Patient Name:</span>
+          <strong id="modal-patient-name">—</strong>
         </div>
-
-        <!-- SEARCH -->
-        <div class="flex items-center gap-2 shrink-0">
-          <div class="relative">
-            <input
-              type="text"
-              id="search-input"
-              placeholder="Search table records..."
-              class="w-56 sm:w-64 pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-950/80 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition-all font-mono"
-            />
-            <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          </div>
-          <button id="refresh-btn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all cursor-pointer" title="Refresh Table">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-          </button>
+        <div class="modal-detail-row">
+          <span>Patient Code:</span>
+          <strong id="modal-patient-code" style="font-family: 'JetBrains Mono', monospace; color: var(--primary);">—</strong>
+        </div>
+        <div class="modal-detail-row">
+          <span>Status:</span>
+          <strong id="modal-patient-status" style="color: #0284c7;">—</strong>
+        </div>
+        <div class="modal-detail-row">
+          <span>Diagnosis:</span>
+          <strong id="modal-patient-diagnosis">—</strong>
         </div>
       </div>
-
-      <!-- TABLE CONTAINER -->
-      <div class="overflow-x-auto max-h-[560px] overflow-y-auto">
-        <table class="w-full text-left text-xs border-collapse">
-          <thead class="sticky top-0 bg-[#0A1226] z-10 border-b border-slate-800 text-slate-400 font-mono text-[11px] uppercase tracking-wider" id="table-head">
-            <!-- Dynamic columns -->
-          </thead>
-          <tbody class="divide-y divide-slate-800/60 font-sans" id="table-body">
-            <tr>
-              <td colspan="8" class="text-center py-12 text-slate-500">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-400 mb-2"></div>
-                <div>Loading MySQL records...</div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- TABLE FOOTER -->
-      <div class="p-3.5 border-t border-slate-800/80 bg-slate-900/60 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
-        <div id="footer-count">Showing 0 records</div>
-        <div class="flex items-center gap-2">
-          <button id="prev-btn" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-white">Previous</button>
-          <span id="page-indicator" class="font-mono text-slate-300">1 / 1</span>
-          <button id="next-btn" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-white">Next</button>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- DIRECT REST API LINKS ACCORDION -->
-    <div class="glass-card p-4 rounded-2xl border border-slate-800 text-xs">
-      <div class="font-bold text-slate-300 text-sm mb-2 flex items-center justify-between">
-        <span>Direct REST API Endpoints (Click to view raw JSON in browser)</span>
-        <span class="text-[11px] font-mono text-teal-400">HTTP GET 200 OK</span>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-3 font-mono text-[11px]">
-        <a href="/api/patients" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
-          <span>/api/patients</span>
-          <span class="text-teal-400 font-bold">850</span>
-        </a>
-        <a href="/api/doctors" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
-          <span>/api/doctors</span>
-          <span class="text-teal-400 font-bold">80</span>
-        </a>
-        <a href="/api/staff" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
-          <span>/api/staff</span>
-          <span class="text-teal-400 font-bold">70</span>
-        </a>
-        <a href="/api/lab/tests" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
-          <span>/api/lab/tests</span>
-          <span class="text-cyan-400 font-bold">18</span>
-        </a>
-        <a href="/api/lab/orders" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
-          <span>/api/lab/orders</span>
-          <span class="text-cyan-400 font-bold">18</span>
-        </a>
-        <a href="/api/beds" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
-          <span>/api/beds</span>
-          <span class="text-emerald-400 font-bold">12</span>
-        </a>
-        <a href="/api/appointments" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
-          <span>/api/appointments</span>
-          <span class="text-slate-400 font-bold">6</span>
-        </a>
-        <a href="/api/pharmacy/medicines" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
-          <span>/api/medicines</span>
-          <span class="text-slate-400 font-bold">5</span>
-        </a>
-        <a href="/api/billing/invoices" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
-          <span>/api/invoices</span>
-          <span class="text-slate-400 font-bold">2</span>
-        </a>
-        <a href="/api/audit-logs" target="_blank" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/50 text-slate-300 hover:text-teal-300 transition-all flex items-center justify-between">
-          <span>/api/audit-logs</span>
-          <span class="text-purple-400 font-bold">Audit</span>
-        </a>
+      <div style="font-size: 0.76rem; color: #b91c1c; margin-top: 8px;">
+        ⚠️ <strong>Census Decrement Notice:</strong> Assigned bed will be released for sanitization, the patient will be removed from the PostgreSQL <code>patients</code> table, and total records will decrement immediately.
       </div>
     </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeDischargeModal()">Cancel</button>
+      <button class="btn-danger" id="confirm-discharge-btn" onclick="executeDischarge()">Confirm Discharge & Remove</button>
+    </div>
+  </div>
+</div>
 
-  </main>
+<!-- ========================================================
+     LEFT SIDEBAR NAVIGATION (SKY BLUE + MEDICAL ECG & CROSSES)
+     ======================================================== -->
+<aside class="sidebar">
+  <!-- Project Related Hospital Medical Design: ECG Pulse Waves & Floating Clinical Crosses -->
+  <div class="sidebar-medical-fx" aria-hidden="true">
+    <svg class="med-ecg-svg top" viewBox="0 0 300 120" preserveAspectRatio="none">
+      <path class="med-ecg-glow" d="M0,60 L40,60 L50,60 L55,40 L60,85 L68,15 L76,105 L82,50 L88,65 L94,60 L140,60 L148,60 L153,42 L158,82 L165,18 L173,102 L179,52 L185,64 L191,60 L240,60 L248,60 L253,44 L258,80 L265,22 L272,98 L278,54 L284,63 L290,60 L300,60" />
+      <path class="med-ecg-line" d="M0,60 L40,60 L50,60 L55,40 L60,85 L68,15 L76,105 L82,50 L88,65 L94,60 L140,60 L148,60 L153,42 L158,82 L165,18 L173,102 L179,52 L185,64 L191,60 L240,60 L248,60 L253,44 L258,80 L265,22 L272,98 L278,54 L284,63 L290,60 L300,60" />
+    </svg>
+    <svg class="med-ecg-svg bottom" viewBox="0 0 300 120" preserveAspectRatio="none">
+      <path class="med-ecg-glow" d="M0,60 L40,60 L50,60 L55,40 L60,85 L68,15 L76,105 L82,50 L88,65 L94,60 L140,60 L148,60 L153,42 L158,82 L165,18 L173,102 L179,52 L185,64 L191,60 L240,60 L248,60 L253,44 L258,80 L265,22 L272,98 L278,54 L284,63 L290,60 L300,60" />
+      <path class="med-ecg-line" d="M0,60 L40,60 L50,60 L55,40 L60,85 L68,15 L76,105 L82,50 L88,65 L94,60 L140,60 L148,60 L153,42 L158,82 L165,18 L173,102 L179,52 L185,64 L191,60 L240,60 L248,60 L253,44 L258,80 L265,22 L272,98 L278,54 L284,63 L290,60 L300,60" />
+    </svg>
+    <div class="med-cross mc1">✚</div>
+    <div class="med-cross mc2">✚</div>
+    <div class="med-cross mc3">✚</div>
+    <div class="med-cross mc4">✚</div>
+    <div class="med-cross mc5">✚</div>
+  </div>
 
-  <!-- MODAL FOR DETAIL INSPECTION -->
-  <div id="detail-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card max-w-2xl w-full rounded-2xl p-6 border border-slate-700 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 id="modal-title" class="font-bold text-sm text-teal-300 font-mono">Row Inspector</h3>
-        <button onclick="closeModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
-      </div>
-      <div class="overflow-y-auto flex-1">
-        <pre id="modal-json" class="text-xs bg-slate-950 p-4 rounded-xl border border-slate-800 text-teal-400 font-mono overflow-x-auto"></pre>
-      </div>
-      <div class="flex justify-end">
-        <button onclick="closeModal()" class="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold">Close</button>
-      </div>
+  <div class="sidebar-header">
+    <img src="/assets/medicore-logo.png" alt="MediCore Logo" class="sidebar-logo-icon" style="object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
+    <div class="sidebar-logo-text">
+      <h2>MediCore Studio</h2>
+      <p>PostgreSQL 16 Cluster</p>
     </div>
   </div>
 
-  <script>
-    const TABLES = [
-      { id: 'patients', label: 'Patients', endpoint: '/api/patients' },
-      { id: 'doctors', label: 'Doctors', endpoint: '/api/doctors' },
-      { id: 'staff', label: 'Staff', endpoint: '/api/staff' },
-      { id: 'beds', label: 'Beds', endpoint: '/api/beds' },
-      { id: 'lab_tests', label: 'Lab Assays', endpoint: '/api/lab/tests' },
-      { id: 'lab_orders', label: 'Lab Orders', endpoint: '/api/lab/orders' },
-      { id: 'appointments', label: 'Appointments', endpoint: '/api/appointments' },
-      { id: 'medicines', label: 'Medicines', endpoint: '/api/pharmacy/medicines' },
-      { id: 'invoices', label: 'Invoices', endpoint: '/api/billing/invoices' },
-      { id: 'audit_logs', label: 'Audit Trail', endpoint: '/api/audit-logs' },
-    ];
+  <div class="sidebar-db-badge">
+    <span class="radar-dot"></span>
+    <span id="sidebar-db-status">PostgreSQL 16 Active • 5432</span>
+  </div>
 
-    let currentTable = 'patients';
-    let currentRows = [];
-    let filteredRows = [];
-    let page = 1;
-    const pageSize = 20;
+  <div class="sidebar-section-title">Clinical Tables</div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-nav-item active" onclick="switchTab('patients')">
+      <div class="sidebar-nav-left">
+        <span>👥</span>
+        <span>Patients</span>
+      </div>
+      <span class="sidebar-nav-count" id="sbadge-patients">—</span>
+    </div>
 
-    async function init() {
-      renderTabs();
-      await fetchHealth();
-      await loadTable(currentTable);
+    <div class="sidebar-nav-item" onclick="switchTab('doctors')">
+      <div class="sidebar-nav-left">
+        <span>🩺</span>
+        <span>Doctors</span>
+      </div>
+      <span class="sidebar-nav-count" id="sbadge-doctors">—</span>
+    </div>
 
-      document.getElementById('search-input').addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        filteredRows = currentRows.filter(row => 
-          JSON.stringify(row).toLowerCase().includes(query)
-        );
-        page = 1;
-        renderTableRows();
-      });
+    <div class="sidebar-nav-item" onclick="switchTab('appointments')">
+      <div class="sidebar-nav-left">
+        <span>📅</span>
+        <span>Appointments</span>
+      </div>
+      <span class="sidebar-nav-count" id="sbadge-appointments">—</span>
+    </div>
 
-      document.getElementById('prev-btn').addEventListener('click', () => {
-        if (page > 1) { page--; renderTableRows(); }
-      });
-      document.getElementById('next-btn').addEventListener('click', () => {
-        if (page * pageSize < filteredRows.length) { page++; renderTableRows(); }
-      });
-      document.getElementById('refresh-btn').addEventListener('click', () => {
-        loadTable(currentTable);
-      });
+    <div class="sidebar-nav-item" onclick="switchTab('beds')">
+      <div class="sidebar-nav-left">
+        <span>🛏️</span>
+        <span>Beds & Wards</span>
+      </div>
+      <span class="sidebar-nav-count" id="sbadge-beds">—</span>
+    </div>
+
+    <div class="sidebar-nav-item" onclick="switchTab('medicines')">
+      <div class="sidebar-nav-left">
+        <span>💊</span>
+        <span>Pharmacy Stock</span>
+      </div>
+      <span class="sidebar-nav-count" id="sbadge-medicines">—</span>
+    </div>
+
+    <div class="sidebar-section-title" style="padding-top:10px;">Diagnostics & Finance</div>
+
+    <div class="sidebar-nav-item" onclick="switchTab('labTests')">
+      <div class="sidebar-nav-left">
+        <span>🔬</span>
+        <span>Lab Tests</span>
+      </div>
+    </div>
+
+    <div class="sidebar-nav-item" onclick="switchTab('labOrders')">
+      <div class="sidebar-nav-left">
+        <span>🧪</span>
+        <span>Lab Orders</span>
+      </div>
+    </div>
+
+    <div class="sidebar-nav-item" onclick="switchTab('invoices')">
+      <div class="sidebar-nav-left">
+        <span>💳</span>
+        <span>Billing Invoices</span>
+      </div>
+    </div>
+
+    <div class="sidebar-nav-item" onclick="switchTab('staff')">
+      <div class="sidebar-nav-left">
+        <span>👔</span>
+        <span>Clinical Staff</span>
+      </div>
+      <span class="sidebar-nav-count" id="sbadge-staff">—</span>
+    </div>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <a href="http://localhost:3000" class="btn-web-app" target="_blank">
+      <span>🌐 Open Web App (Port 3000)</span>
+      <span>↗</span>
+    </a>
+    <div style="font-size:0.72rem; color:#cbd5e1; text-align:center; font-weight:700;">
+      Database: <strong>medicore_db</strong> • Port 5432
+    </div>
+  </div>
+</aside>
+
+<!-- ========================================================
+     MAIN CONTENT CANVAS
+     ======================================================== -->
+<main class="main-canvas">
+
+  <!-- Top Bar -->
+  <header class="canvas-topbar">
+    <div class="canvas-top-title">
+      <h1 id="view-title">
+        <span>👥</span>
+        <span id="title-text">Active Patients Directory</span>
+      </h1>
+      <p id="title-sub">Real-time synchronized data from PostgreSQL 16 database</p>
+    </div>
+
+    <div class="canvas-top-actions">
+      <button class="btn" onclick="refreshData()">
+        <span>↻ Refresh SQL</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="canvas-content">
+
+    <!-- Notice Bar -->
+    <div class="notice-bar">
+      <div>
+        ⚡ <strong>PostgreSQL 16 Engine Active:</strong> Discharging a patient deletes the record from PostgreSQL live and decrements census count.
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:0.74rem;">
+        Latency: <strong id="latency-val" style="color:#0284c7;">1.2ms</strong> • Engine: <strong style="color:var(--primary);">pg@v16</strong>
+      </div>
+    </div>
+
+    <!-- Top 7 KPI Cards -->
+    <div class="stats-grid">
+      <div class="stat-card active" onclick="switchTab('patients')">
+        <div class="stat-card-top">
+          <span class="stat-icon">👥</span>
+          <span style="font-size:0.68rem; color:#0284c7; font-weight:700;">SQL LIVE</span>
+        </div>
+        <div class="stat-num" id="cnt-patients">—</div>
+        <div class="stat-label">Patients</div>
+      </div>
+
+      <div class="stat-card" onclick="switchTab('doctors')">
+        <div class="stat-card-top">
+          <span class="stat-icon">🩺</span>
+          <span style="font-size:0.68rem; color:#0284c7; font-weight:700;">ACTIVE</span>
+        </div>
+        <div class="stat-num" id="cnt-doctors">—</div>
+        <div class="stat-label">Doctors</div>
+      </div>
+
+      <div class="stat-card" onclick="switchTab('staff')">
+        <div class="stat-card-top">
+          <span class="stat-icon">👔</span>
+          <span style="font-size:0.68rem; color:#7c3aed; font-weight:700;">DUTY</span>
+        </div>
+        <div class="stat-num" id="cnt-staff">—</div>
+        <div class="stat-label">Staff</div>
+      </div>
+
+      <div class="stat-card" onclick="switchTab('beds')">
+        <div class="stat-card-top">
+          <span class="stat-icon">🛏️</span>
+          <span style="font-size:0.68rem; color:#d97706; font-weight:700;">WARDS</span>
+        </div>
+        <div class="stat-num" id="cnt-beds">—</div>
+        <div class="stat-label">Beds</div>
+      </div>
+
+      <div class="stat-card" onclick="switchTab('medicines')">
+        <div class="stat-card-top">
+          <span class="stat-icon">💊</span>
+          <span style="font-size:0.68rem; color:#e11d48; font-weight:700;">STOCK</span>
+        </div>
+        <div class="stat-num" id="cnt-medicines">—</div>
+        <div class="stat-label">Medicines</div>
+      </div>
+
+      <div class="stat-card" onclick="switchTab('invoices')">
+        <div class="stat-card-top">
+          <span class="stat-icon">💳</span>
+          <span style="font-size:0.68rem; color:#4f46e5; font-weight:700;">BILLS</span>
+        </div>
+        <div class="stat-num" id="cnt-invoices">—</div>
+        <div class="stat-label">Invoices</div>
+      </div>
+
+      <div class="stat-card" onclick="switchTab('appointments')">
+        <div class="stat-card-top">
+          <span class="stat-icon">📅</span>
+          <span style="font-size:0.68rem; color:#db2777; font-weight:700;">QUEUE</span>
+        </div>
+        <div class="stat-num" id="cnt-appointments">—</div>
+        <div class="stat-label">Appointments</div>
+      </div>
+    </div>
+
+    <!-- Main Studio Card -->
+    <div class="studio-card">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="Search by name, code, diagnosis, doctor..." oninput="filterTable()">
+          </div>
+
+          <div class="quick-filters" id="patient-filters">
+            <button class="filter-chip active" onclick="setQuickFilter('All')">All</button>
+            <button class="filter-chip" onclick="setQuickFilter('Admitted')">● Admitted</button>
+            <button class="filter-chip" onclick="setQuickFilter('ICU')">● ICU</button>
+            <button class="filter-chip" onclick="setQuickFilter('Outpatient')">● Outpatient</button>
+          </div>
+        </div>
+
+        <div class="toolbar-right">
+          <div class="meta-tag">
+            <span>Table:</span>
+            <strong id="info-table">patients</strong>
+          </div>
+          <div class="meta-tag">
+            <span>Active Rows:</span>
+            <strong id="info-count">0</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Container -->
+      <div class="table-wrap" id="table-container">
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <div>Querying PostgreSQL 16 cluster records...</div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-bar" id="pagination"></div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+let currentTab = 'patients';
+let allData = [];
+let page = 1;
+const PER_PAGE = 12;
+let quickFilter = 'All';
+
+let pendingDischarge = null;
+
+const ENDPOINTS = {
+  patients: '/api/patients',
+  doctors: '/api/doctors',
+  appointments: '/api/appointments',
+  beds: '/api/beds',
+  medicines: '/api/pharmacy/medicines',
+  labTests: '/api/lab/tests',
+  labOrders: '/api/lab/orders',
+  invoices: '/api/billing/invoices',
+  staff: '/api/staff',
+};
+
+const COLUMNS = {
+  patients: ['patientCode', 'name', 'age', 'gender', 'bloodGroup', 'admissionStatus', 'diagnosis', 'primaryDoctorName'],
+  doctors: ['name', 'title', 'department', 'specialization', 'qualification', 'consultationFee', 'experienceYears', 'availability'],
+  appointments: ['patientName', 'doctorName', 'department', 'date', 'time', 'type', 'status'],
+  beds: ['bedNumber', 'ward', 'department', 'type', 'status', 'patientName', 'ratePerDay'],
+  medicines: ['name', 'genericName', 'category', 'stock', 'unitPrice', 'status'],
+  labTests: ['testName', 'category', 'sampleType', 'turnaroundTime', 'price'],
+  labOrders: ['patientName', 'testName', 'doctorName', 'priority', 'status'],
+  invoices: ['invoiceNumber', 'patientName', 'date', 'grandTotal', 'status'],
+  staff: ['name', 'role', 'department', 'shift', 'status', 'phone'],
+};
+
+function showToast(text, type = 'success') {
+  const box = document.getElementById('toast-box');
+  const alert = document.createElement('div');
+  alert.className = 'toast-alert';
+  alert.style.borderColor = type === 'success' ? '#a7f3d0' : '#fecdd3';
+  alert.innerHTML = `
+    <span style="font-size:1.2rem;">${type === 'success' ? '✓' : '⚠️'}</span>
+    <div>${text}</div>
+  `;
+  box.appendChild(alert);
+  setTimeout(() => {
+    alert.style.opacity = '0';
+    alert.style.transform = 'translateY(-10px)';
+    alert.style.transition = 'all 0.3s ease';
+    setTimeout(() => alert.remove(), 300);
+  }, 4000);
+}
+
+async function fetchHealth() {
+  try {
+    const t0 = performance.now();
+    const r = await fetch('/api/health');
+    const d = await r.json();
+    const t1 = performance.now();
+    const latency = (t1 - t0).toFixed(1);
+    document.getElementById('latency-val').textContent = `${latency}ms`;
+
+    const engineName = d.database.engine || 'PostgreSQL 16 (pg)';
+    document.getElementById('sidebar-db-status').textContent = `${engineName} Active • 5432`;
+
+    if (d.records) {
+      const setCnt = (id, badgeId, val) => {
+        const el = document.getElementById(id);
+        const b = document.getElementById(badgeId);
+        if (el) el.textContent = val ?? 0;
+        if (b) b.textContent = val ?? 0;
+      };
+      setCnt('cnt-patients', 'sbadge-patients', d.records.patients);
+      setCnt('cnt-doctors', 'sbadge-doctors', d.records.doctors);
+      setCnt('cnt-staff', 'sbadge-staff', d.records.staff);
+      setCnt('cnt-beds', 'sbadge-beds', d.records.beds);
+      setCnt('cnt-medicines', 'sbadge-medicines', d.records.medicines);
+      setCnt('cnt-invoices', 'cnt-invoices', d.records.invoices);
+      setCnt('cnt-appointments', 'sbadge-appointments', d.records.appointments);
     }
+  } catch(e) {
+    document.getElementById('sidebar-db-status').textContent = '⚠️ Backend Port 5000 Offline';
+    document.getElementById('latency-val').textContent = 'Offline';
+  }
+}
 
-    async function fetchHealth() {
-      try {
-        const res = await fetch('/api/health');
-        const data = await res.json();
-        if (data.database) {
-          document.getElementById('dialect-name').textContent = data.database.engine + ' (' + (data.database.connected ? 'Connected' : 'Fallback') + ')';
-          document.getElementById('db-name').textContent = data.database.databaseName;
-          document.getElementById('db-port').textContent = data.database.activePort || '3306';
-        }
-        if (data.records) {
-          document.getElementById('stat-patients').textContent = (data.records.patients || 850).toLocaleString();
-          document.getElementById('stat-doctors').textContent = data.records.doctors || 80;
-          document.getElementById('stat-staff').textContent = data.records.staff || 70;
-          document.getElementById('stat-beds').textContent = data.records.beds || 12;
-          document.getElementById('stat-total').textContent = (data.records.totalMembers || 1000).toLocaleString();
-        }
-      } catch (e) {
-        console.error(e);
+async function loadData(tab) {
+  document.getElementById('table-container').innerHTML = `
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <div>Querying PostgreSQL 16 table: <strong>${tab}</strong>...</div>
+    </div>
+  `;
+  try {
+    const r = await fetch(ENDPOINTS[tab]);
+    if (!r.ok) throw new Error(r.statusText);
+    allData = await r.json();
+    page = 1;
+    document.getElementById('info-count').textContent = allData.length;
+    document.getElementById('info-table').textContent = tab;
+    renderTable();
+  } catch(e) {
+    document.getElementById('table-container').innerHTML = `
+      <div style="background:#fff1f2; border:1px solid #fecdd3; padding:20px; border-radius:12px; color:#b91c1c; margin:16px;">
+        ❌ <strong>Query Failed:</strong> ${e.message}<br>
+        <span style="font-size:0.75rem; color:#64748b;">Ensure MediCore backend is running on port 5000 and PostgreSQL is accessible.</span>
+      </div>
+    `;
+  }
+}
+
+function promptDischargePatient(id, name, code, status, diagnosis) {
+  pendingDischarge = { id, name };
+  document.getElementById('modal-patient-name').textContent = name;
+  document.getElementById('modal-patient-code').textContent = code || id;
+  document.getElementById('modal-patient-status').textContent = status || 'Admitted';
+  document.getElementById('modal-patient-diagnosis').textContent = diagnosis || 'Medical Treatment';
+  document.getElementById('discharge-modal').classList.add('open');
+}
+
+function closeDischargeModal() {
+  document.getElementById('discharge-modal').classList.remove('open');
+  pendingDischarge = null;
+}
+
+async function executeDischarge() {
+  if (!pendingDischarge) return;
+  const { id, name } = pendingDischarge;
+  const btn = document.getElementById('confirm-discharge-btn');
+  btn.disabled = true;
+  btn.textContent = 'Processing Discharge...';
+
+  try {
+    const res = await fetch(`/api/patients/${id}/discharge`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: 'Discharged and removed via PostgreSQL Studio' })
+    });
+    const result = await res.json();
+    if (result.success) {
+      closeDischargeModal();
+      showToast(`✓ ${name} discharged and permanently removed from PostgreSQL. Total patients: ${result.remainingCount}`);
+      loadData(currentTab);
+      fetchHealth();
+    } else {
+      alert(`Discharge failed: ${result.error || 'Unknown error'}`);
+    }
+  } catch (err) {
+    alert(`Request error: ${err.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Confirm Discharge & Remove';
+  }
+}
+
+function getInitials(name) {
+  if (!name) return 'P';
+  const parts = name.split(' ');
+  return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+}
+
+function renderTable() {
+  const cols = COLUMNS[currentTab];
+  const q = document.getElementById('search-input').value.toLowerCase();
+  
+  let filtered = allData.filter(row =>
+    cols.some(c => String(row[c] || '').toLowerCase().includes(q))
+  );
+
+  if (currentTab === 'patients' && quickFilter !== 'All') {
+    filtered = filtered.filter(row => (row.admissionStatus || '').toLowerCase() === quickFilter.toLowerCase());
+  }
+
+  const total = filtered.length;
+  document.getElementById('info-count').textContent = total;
+  const start = (page - 1) * PER_PAGE;
+  const rows = filtered.slice(start, start + PER_PAGE);
+
+  if (!rows.length) {
+    document.getElementById('table-container').innerHTML = `
+      <div class="loading-state">
+        <div style="font-size:1.6rem; margin-bottom:8px;">🔍</div>
+        <div>No matching records found in table <strong>${currentTab}</strong></div>
+      </div>
+    `;
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  const isPatientTab = currentTab === 'patients';
+  const headers = cols.map(c => `<th>${c.replace(/([A-Z])/g, ' $1').trim()}</th>`).join('') + (isPatientTab ? '<th style="text-align:right;">Actions</th>' : '');
+
+  const trs = rows.map(row => {
+    const tds = cols.map(c => {
+      const v = row[c];
+
+      // Formatted Patient Code
+      if (c === 'patientCode' || c === 'id') {
+        return `<td class="mono">${v || '—'}</td>`;
       }
-    }
 
-    function renderTabs() {
-      const container = document.getElementById('table-tabs');
-      container.innerHTML = TABLES.map(t => `
-        <button
-          onclick="switchTable('${t.id}')"
-          id="tab-${t.id}"
-          class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-            t.id === currentTable 
-              ? 'bg-teal-500 text-slate-950 shadow-md font-extrabold' 
-              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-          }"
-        >
-          ${t.label}
-        </button>
-      `).join('');
-    }
-
-    async function switchTable(tableId) {
-      currentTable = tableId;
-      page = 1;
-      document.getElementById('search-input').value = '';
-      renderTabs();
-      await loadTable(tableId);
-    }
-
-    async function loadTable(tableId) {
-      const tbody = document.getElementById('table-body');
-      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-slate-500"><div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-teal-400 mb-2"></div><div>Querying MySQL table ${tableId}...</div></td></tr>`;
-      
-      const tableDef = TABLES.find(t => t.id === tableId);
-      try {
-        const res = await fetch(tableDef.endpoint);
-        const data = await res.json();
-        currentRows = Array.isArray(data) ? data : (data.records || []);
-        filteredRows = [...currentRows];
-        renderTableHeader();
-        renderTableRows();
-      } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-rose-400">Failed to query ${tableId}: ${err.message}</td></tr>`;
-      }
-    }
-
-    function renderTableHeader() {
-      const thead = document.getElementById('table-head');
-      if (filteredRows.length === 0) {
-        thead.innerHTML = '<tr><th class="p-3">No Records</th></tr>';
-        return;
-      }
-      const sample = filteredRows[0];
-      const keys = Object.keys(sample).slice(0, 7);
-      thead.innerHTML = `
-        <tr>
-          ${keys.map(k => `<th class="p-3">${k.replace(/([A-Z])/g, ' $1').toLowerCase()}</th>`).join('')}
-          <th class="p-3 text-right">Action</th>
-        </tr>
-      `;
-    }
-
-    function renderTableRows() {
-      const tbody = document.getElementById('table-body');
-      const start = (page - 1) * pageSize;
-      const end = start + pageSize;
-      const pageRows = filteredRows.slice(start, end);
-
-      if (pageRows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500">No matching records found</td></tr>`;
-        updateFooter();
-        return;
-      }
-
-      const keys = Object.keys(pageRows[0]).slice(0, 7);
-
-      tbody.innerHTML = pageRows.map((row, idx) => `
-        <tr class="hover:bg-slate-800/40 transition-colors">
-          ${keys.map(k => {
-            const val = row[k];
-            let display = typeof val === 'object' ? JSON.stringify(val) : String(val ?? '');
-            if (display.length > 40) display = display.substring(0, 40) + '...';
-
-            if (k === 'admissionStatus' || k === 'status') {
-              const color = val === 'Admitted' || val === 'Active' || val === 'Completed' ? 'emerald' : val === 'Discharged' ? 'purple' : val === 'ICU' ? 'rose' : 'slate';
-              return `<td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-${color}-500/10 text-${color}-400 border border-${color}-500/20">${val}</span></td>`;
-            }
-
-            return `<td class="p-3 font-mono text-[11px] text-slate-300">${display}</td>`;
-          }).join('')}
-          <td class="p-3 text-right">
-            <button onclick='viewDetails(${JSON.stringify(row).replace(/'/g, "&#39;")})' class="px-2.5 py-1 rounded-lg bg-teal-500/10 hover:bg-teal-500 hover:text-slate-950 text-teal-300 font-bold text-[10px] transition-all">
-              Inspect
-            </button>
+      // Name with initials avatar
+      if (c === 'name' && isPatientTab) {
+        return `
+          <td>
+            <div class="patient-cell">
+              <div class="avatar-initials">${getInitials(v)}</div>
+              <div class="patient-name-block">
+                <div class="pname">${v}</div>
+                <div class="pmeta">${row.age ? row.age + ' yrs' : ''} ${row.gender ? '• ' + row.gender : ''}</div>
+              </div>
+            </div>
           </td>
-        </tr>
-      `).join('');
+        `;
+      }
 
-      updateFooter();
-    }
+      // Blood Group Tag
+      if (c === 'bloodGroup') {
+        return `<td><span class="blood-tag">${v || '—'}</span></td>`;
+      }
 
-    function updateFooter() {
-      const total = filteredRows.length;
-      const start = Math.min((page - 1) * pageSize + 1, total);
-      const end = Math.min(page * pageSize, total);
-      document.getElementById('footer-count').textContent = `Showing ${start}-${end} of ${total} records`;
-      document.getElementById('page-indicator').textContent = `${page} / ${Math.max(1, Math.ceil(total / pageSize))}`;
-      document.getElementById('prev-btn').disabled = (page <= 1);
-      document.getElementById('next-btn').disabled = (page * pageSize >= total);
-    }
+      // Admission Status badge
+      if (c === 'status' || c === 'admissionStatus' || c === 'availability') {
+        let badgeClass = 'slate';
+        const s = String(v || '').toLowerCase();
+        if (s.includes('admitted') || s.includes('active') || s.includes('available') || s.includes('paid')) badgeClass = 'emerald';
+        else if (s.includes('icu') || s.includes('critical') || s.includes('cancelled')) badgeClass = 'rose';
+        else if (s.includes('occupied') || s.includes('pending') || s.includes('due')) badgeClass = 'amber';
+        else if (s.includes('outpatient') || s.includes('scheduled')) badgeClass = 'cyan';
+        return `<td><span class="badge ${badgeClass}"><span class="dot"></span>${v || '—'}</span></td>`;
+      }
 
-    function viewDetails(row) {
-      document.getElementById('modal-title').textContent = (row.name || row.patientCode || row.id || 'Row Details');
-      document.getElementById('modal-json').textContent = JSON.stringify(row, null, 2);
-      document.getElementById('detail-modal').classList.remove('hidden');
-    }
+      // Currency
+      if (c === 'consultationFee' || c === 'price' || c === 'unitPrice' || c === 'grandTotal' || c === 'ratePerDay') {
+        return `<td style="font-weight:700; color:var(--primary);">₹${Number(v || 0).toLocaleString()}</td>`;
+      }
 
-    function closeModal() {
-      document.getElementById('detail-modal').classList.add('hidden');
-    }
+      return `<td>${v != null && v !== '' ? v : '<span style="color:#64748b">—</span>'}</td>`;
+    }).join('');
 
-    window.addEventListener('DOMContentLoaded', init);
-  </script>
+    const actionTd = isPatientTab ? `
+      <td style="text-align:right;">
+        <button class="action-btn-discharge" onclick="promptDischargePatient('${row.id}', '${row.name.replace(/'/g, "\\'")}', '${row.patientCode || row.id}', '${row.admissionStatus}', '${(row.diagnosis || '').replace(/'/g, "\\'")}')">
+          <span>🗑️ Discharge & Remove</span>
+        </button>
+      </td>
+    ` : '';
+
+    return `<tr>${tds}${actionTd}</tr>`;
+  }).join('');
+
+  document.getElementById('table-container').innerHTML = `
+    <table>
+      <thead><tr>${headers}</tr></thead>
+      <tbody>${trs}</tbody>
+    </table>
+  `;
+
+  const totalPages = Math.ceil(total / PER_PAGE);
+  document.getElementById('pagination').innerHTML = total > PER_PAGE ? `
+    <span>Showing ${(page-1)*PER_PAGE + 1}–${Math.min(page*PER_PAGE, total)} of ${total} records (Page ${page} of ${totalPages})</span>
+    <div class="page-btns">
+      <button class="page-btn" onclick="changePage(-1)" ${page <= 1 ? 'disabled' : ''}>← Previous</button>
+      <button class="page-btn" onclick="changePage(1)" ${page >= totalPages ? 'disabled' : ''}>Next →</button>
+    </div>
+  ` : `<span>Showing all ${total} records</span>`;
+}
+
+function filterTable() { page = 1; renderTable(); }
+function changePage(d) { page += d; renderTable(); }
+
+function setQuickFilter(f) {
+  quickFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    if (c.textContent.includes(f)) c.classList.add('active');
+  });
+  page = 1;
+  renderTable();
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  page = 1;
+  quickFilter = 'All';
+
+  // Toggle quick filters visibility
+  const qf = document.getElementById('patient-filters');
+  if (qf) qf.style.display = tab === 'patients' ? 'flex' : 'none';
+
+  // Update Sidebar Items
+  document.querySelectorAll('.sidebar-nav-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav-item').forEach(t => {
+    if (t.textContent.toLowerCase().includes(tab.toLowerCase())) t.classList.add('active');
+  });
+
+  // Update Top Stats
+  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.stat-card').forEach(c => {
+    if (c.getAttribute('onclick')?.includes(tab)) c.classList.add('active');
+  });
+
+  // Update Title
+  const titles = {
+    patients: 'Active Patients Directory',
+    doctors: 'Specialist Medical Doctors',
+    appointments: 'Scheduled Consultations',
+    beds: 'Hospital Bed & Ward Management',
+    medicines: 'Pharmacy Inventory & Formulations',
+    labTests: 'Clinical Diagnostic Tests',
+    labOrders: 'Laboratory Test Orders',
+    invoices: 'Billing & Invoice Records',
+    staff: 'Hospital Staff & Nursing Team',
+  };
+  document.getElementById('title-text').textContent = titles[tab] || tab;
+
+  document.getElementById('search-input').value = '';
+  loadData(tab);
+  fetchHealth();
+}
+
+function refreshData() {
+  loadData(currentTab);
+  fetchHealth();
+  showToast('✓ PostgreSQL database records synchronized');
+}
+
+// Initial bootstrap
+fetchHealth();
+loadData('patients');
+setInterval(fetchHealth, 8000);
+</script>
 </body>
 </html>
-

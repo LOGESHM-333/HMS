@@ -32,8 +32,6 @@ import {
   Video,
   UserPlus,
   Search,
-  Sun,
-  Moon,
   Bell,
   RotateCw,
   Download,
@@ -52,6 +50,7 @@ import {
 interface WardOverviewProps {
   theme: ThemeMode;
   currentRole: UserRole;
+  initialView?: string;
   onNavigateTab?: (tab: string) => void;
   onOpenSearch?: () => void;
   onToggleTheme?: () => void;
@@ -61,6 +60,7 @@ interface WardOverviewProps {
 export const WardOverview: React.FC<WardOverviewProps> = ({
   theme,
   currentRole,
+  initialView = 'ward-overview',
   onNavigateTab,
   onOpenSearch,
   onToggleTheme,
@@ -69,8 +69,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
   const isDark = theme === 'dark';
 
   // Navigation state inside ward overview
-  const [activeSidebarItem, setActiveSidebarItem] = useState<string>('ward-overview');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [activeSidebarItem, setActiveSidebarItem] = useState<string>(initialView);
   const [selectedWard, setSelectedWard] = useState('Ward 4, Level 2');
   const [dateFilter, setDateFilter] = useState('Today');
   const [periodFilter, setPeriodFilter] = useState('vs Previous period');
@@ -80,6 +79,12 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
   const [alertDismissed, setAlertDismissed] = useState(false);
   const [exportNotice, setExportNotice] = useState<string | null>(null);
   const [, setDbVersion] = useState(0);
+
+  useEffect(() => {
+    if (initialView) {
+      setActiveSidebarItem(initialView);
+    }
+  }, [initialView]);
 
   useEffect(() => {
     const unsub = db.subscribe(() => setDbVersion(v => v + 1));
@@ -127,318 +132,23 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
       )}
 
       {/* MAIN CONTAINER (UNIFIED CLINICAL CONSOLE) */}
-      <div className={`rounded-[32px] overflow-hidden border transition-all duration-200 flex flex-col lg:flex-row shadow-xl min-h-[820px] relative ${
+      <div className={`rounded-[32px] overflow-hidden border transition-all duration-200 flex flex-col shadow-xl min-h-[820px] relative ${
         isDark 
           ? 'bg-[#0B1726] border-slate-800 text-white' 
           : 'bg-white border-slate-200/90 text-slate-900'
       }`}>
-        {/* ================= LEFT SIDEBAR (ALL MODULES UNIFIED) ================= */}
-        <aside className={`transition-all duration-300 border-r shrink-0 flex flex-col justify-between relative z-10 ${
-          sidebarCollapsed ? 'lg:w-20' : 'lg:w-64'
-        } ${
-          isDark 
-            ? 'bg-[#0E1A2A]/80 backdrop-blur-md border-slate-800' 
-            : 'bg-white/80 backdrop-blur-md border-slate-200/80'
-        } p-4`}>
-          <div className="space-y-5">
-            {/* BRAND HEADER */}
-            <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
-              <div className="flex items-center gap-3 overflow-hidden">
-                <div className="w-9 h-9 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold shrink-0 shadow-sm shadow-teal-700/30">
-                  <Plus className="w-5 h-5 stroke-[2.5]" />
-                </div>
-                {!sidebarCollapsed && (
-                  <div className="truncate">
-                    <div className="font-bold text-base tracking-tight text-teal-600 dark:text-teal-400 leading-tight">
-                      Medi<span className="text-cyan-600 dark:text-cyan-300">Core</span>
-                    </div>
-                    <div className="text-xs text-slate-400 font-medium">
-                      Clinical Ward 4
-                    </div>
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  setSidebarCollapsed(!sidebarCollapsed);
-                }}
-                className="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              >
-                {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* WARD OPERATIONS SECTION */}
-            <div className="space-y-1">
-              {!sidebarCollapsed && (
-                <div className="px-3 text-[10px] font-bold text-slate-400 tracking-wider uppercase mb-1.5">
-                  WARD OPERATIONS
-                </div>
-              )}
-
-              {/* Ward overview */}
-              <button
-                onClick={() => handleSidebarClick('ward-overview')}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all ${
-                  activeSidebarItem === 'ward-overview'
-                    ? 'bg-[#0C4E44] text-white shadow-sm shadow-teal-950/20'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <LayoutGrid className="w-4 h-4 shrink-0" />
-                  {!sidebarCollapsed && <span>Ward overview</span>}
-                </div>
-              </button>
-
-              {/* Patients */}
-              <button
-                onClick={() => handleSidebarClick('patients')}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-                  activeSidebarItem === 'patients'
-                    ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Users className="w-4 h-4 shrink-0 text-slate-500" />
-                  {!sidebarCollapsed && <span>Patients</span>}
-                </div>
-                {!sidebarCollapsed && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                    {patientsCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Beds */}
-              <button
-                onClick={() => handleSidebarClick('beds')}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-                  activeSidebarItem === 'beds'
-                    ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Bed className="w-4 h-4 shrink-0 text-slate-500" />
-                  {!sidebarCollapsed && <span>Beds & ICU</span>}
-                </div>
-                {!sidebarCollapsed && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                    {occupiedBeds}/{totalBeds}
-                  </span>
-                )}
-              </button>
-
-              {/* Monitoring */}
-              <button
-                onClick={() => handleSidebarClick('monitoring')}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-                  activeSidebarItem === 'monitoring'
-                    ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Activity className="w-4 h-4 shrink-0 text-slate-500" />
-                  {!sidebarCollapsed && <span>Monitoring</span>}
-                </div>
-                {!sidebarCollapsed && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-600 dark:bg-rose-950/80 dark:text-rose-300">
-                    {alertsCount || 3}
-                  </span>
-                )}
-              </button>
-
-              {/* Admissions */}
-              <button
-                onClick={() => handleSidebarClick('admissions')}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-                  activeSidebarItem === 'admissions'
-                    ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <LogIn className="w-4 h-4 shrink-0 text-slate-500" />
-                  {!sidebarCollapsed && <span>Admissions</span>}
-                </div>
-              </button>
-
-              {/* Discharges */}
-              <button
-                onClick={() => handleSidebarClick('discharges')}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
-                  activeSidebarItem === 'discharges'
-                    ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <LogOut className="w-4 h-4 shrink-0 text-slate-500" />
-                  {!sidebarCollapsed && <span>Discharges</span>}
-                </div>
-                {!sidebarCollapsed && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                    5
-                  </span>
-                )}
-              </button>
-            </div>
-
-            {/* CLINICAL SERVICES SECTION */}
-            <div className="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-              {!sidebarCollapsed && (
-                <div className="px-3 text-[10px] font-bold text-slate-400 tracking-wider uppercase mb-1.5">
-                  CLINICAL SERVICES
-                </div>
-              )}
-
-              {/* Appointments */}
-              <button
-                onClick={() => handleSidebarClick('appointments')}
-                className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl font-medium text-sm transition-all ${
-                  activeSidebarItem === 'appointments'
-                    ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-4 h-4 shrink-0 text-slate-500" />
-                  {!sidebarCollapsed && <span>Appointments</span>}
-                </div>
-                {!sidebarCollapsed && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                    {appointmentsCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Doctors Directory */}
-              <button
-                onClick={() => handleSidebarClick('doctors')}
-                className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl font-medium text-sm transition-all ${
-                  activeSidebarItem === 'doctors'
-                    ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <UserCheck className="w-4 h-4 shrink-0 text-slate-500" />
-                  {!sidebarCollapsed && <span>Doctors</span>}
-                </div>
-              </button>
-
-              {/* EMR Clinical Records */}
-              <button
-                onClick={() => handleSidebarClick('emr')}
-                className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl font-medium text-sm transition-all ${
-                  activeSidebarItem === 'emr'
-                    ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <FileText className="w-4 h-4 shrink-0 text-slate-500" />
-                  {!sidebarCollapsed && <span>EMR Records</span>}
-                </div>
-              </button>
-
-              {/* Pharmacy Formulary */}
-              <button
-                onClick={() => handleSidebarClick('pharmacy')}
-                className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl font-medium text-sm transition-all ${
-                  activeSidebarItem === 'pharmacy'
-                    ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Pill className="w-4 h-4 shrink-0 text-slate-500" />
-                  {!sidebarCollapsed && <span>Pharmacy</span>}
-                </div>
-              </button>
-
-              {/* Laboratory & Scans */}
-              <button
-                onClick={() => handleSidebarClick('laboratory')}
-                className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl font-medium text-sm transition-all ${
-                  activeSidebarItem === 'laboratory'
-                    ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Activity className="w-4 h-4 shrink-0 text-slate-500" />
-                  {!sidebarCollapsed && <span>Laboratory</span>}
-                </div>
-              </button>
-
-              {/* Financial Billing */}
-              <button
-                onClick={() => handleSidebarClick('billing')}
-                className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl font-medium text-sm transition-all ${
-                  activeSidebarItem === 'billing'
-                    ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <CreditCard className="w-4 h-4 shrink-0 text-slate-500" />
-                  {!sidebarCollapsed && <span>Billing</span>}
-                </div>
-              </button>
-
-              {/* Staff Management */}
-              <button
-                onClick={() => handleSidebarClick('staff')}
-                className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl font-medium text-sm transition-all ${
-                  activeSidebarItem === 'staff'
-                    ? 'bg-teal-50 text-teal-800 dark:bg-slate-800 dark:text-white font-semibold'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Users className="w-4 h-4 shrink-0 text-slate-500" />
-                  {!sidebarCollapsed && <span>Staff Rosters</span>}
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* BOTTOM WARD SELECTOR PILL */}
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80">
-            <button
-              onClick={() => sound.playClick()}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-all"
-            >
-              <div className="flex items-center gap-2 truncate">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-                {!sidebarCollapsed && <span className="truncate">{selectedWard}</span>}
-              </div>
-              {!sidebarCollapsed && <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
-            </button>
-          </div>
-        </aside>
-
         {/* ================= MAIN CONTENT VIEWPORT ================= */}
         <main className="flex-1 p-5 lg:p-8 space-y-6 overflow-x-hidden relative z-10">
           
           {/* HEADER STRIP WITH ACTIVE MODULE BREADCRUMB */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => handleSidebarClick('ward-overview')}
-                className="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400 hover:underline"
-              >
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
                 Ward 4 Console
-              </button>
+              </span>
               <span className="text-slate-300 dark:text-slate-700">/</span>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                {activeSidebarItem.replace('-', ' ')}
+              <span className="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
+                {activeSidebarItem === 'ward-overview' ? 'Ward Overview' : activeSidebarItem.replace('-', ' ')}
               </span>
             </div>
 
@@ -456,16 +166,6 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                 </kbd>
               </div>
 
-              {/* Theme toggle */}
-              {onToggleTheme && (
-                <button
-                  onClick={onToggleTheme}
-                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-teal-600 transition-colors shadow-xs"
-                  title="Toggle theme"
-                >
-                  {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-                </button>
-              )}
 
               {/* Bell */}
               <button

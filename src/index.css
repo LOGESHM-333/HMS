@@ -2,24 +2,110 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ============================================================
+   USER BRAND PALETTE HARMONIZATION: STEEL SLATE BLUE
+   Exact signature shade sampled from user reference:
+   Primary: #3B4E6A | Hover: #2E3E55 | Mid Accent: #485E83 | Light: #506D9C
+   Harmonizes all portals and all buttons with the sidebar shade
+   ============================================================ */
+@theme {
+  --color-brand-primary: #3B4E6A;
+  --color-brand-primary-hover: #2E3E55;
+  --color-brand-accent: #485E83;
+  --color-brand-accent-hover: #3B4E6A;
+  --color-brand-light: #506D9C;
+
+  /* Harmonize teal scale across all portals and buttons */
+  --color-teal-50: #F1F4F9;
+  --color-teal-100: #E2E8F1;
+  --color-teal-200: #C5D2E3;
+  --color-teal-300: #9CB3CF;
+  --color-teal-400: #6D8EB7;
+  --color-teal-500: #506D9C;
+  --color-teal-600: #3B4E6A;
+  --color-teal-700: #2E3E55;
+  --color-teal-800: #233042;
+  --color-teal-900: #1A2433;
+  --color-teal-950: #0F1620;
+
+  /* Harmonize sky scale across all portals and buttons */
+  --color-sky-50: #F1F4F9;
+  --color-sky-100: #E2E8F1;
+  --color-sky-200: #C5D2E3;
+  --color-sky-300: #9CB3CF;
+  --color-sky-400: #6D8EB7;
+  --color-sky-500: #506D9C;
+  --color-sky-600: #3B4E6A;
+  --color-sky-700: #2E3E55;
+  --color-sky-800: #233042;
+  --color-sky-900: #1A2433;
+  --color-sky-950: #0F1620;
+
+  /* Harmonize cyan scale across all portals and buttons */
+  --color-cyan-500: #506D9C;
+  --color-cyan-600: #485E83;
+  --color-cyan-700: #3B4E6A;
+
+  /* Harmonize emerald scale to left sidebar Steel Slate Blue across all modules & portals */
+  --color-emerald-50: #F1F4F9;
+  --color-emerald-100: #E2E8F1;
+  --color-emerald-200: #C5D2E3;
+  --color-emerald-300: #9CB3CF;
+  --color-emerald-400: #6D8EB7;
+  --color-emerald-500: #506D9C;
+  --color-emerald-600: #3B4E6A;
+  --color-emerald-700: #2E3E55;
+  --color-emerald-800: #233042;
+  --color-emerald-900: #1A2433;
+  --color-emerald-950: #0F1620;
+
+  /* Harmonize green scale to left sidebar Steel Slate Blue across all modules & portals */
+  --color-green-50: #F1F4F9;
+  --color-green-100: #E2E8F1;
+  --color-green-200: #C5D2E3;
+  --color-green-300: #9CB3CF;
+  --color-green-400: #6D8EB7;
+  --color-green-500: #506D9C;
+  --color-green-600: #3B4E6A;
+  --color-green-700: #2E3E55;
+  --color-green-800: #233042;
+  --color-green-900: #1A2433;
+  --color-green-950: #0F1620;
+
+  /* Harmonize lime scale to left sidebar Steel Slate Blue */
+  --color-lime-50: #F1F4F9;
+  --color-lime-100: #E2E8F1;
+  --color-lime-200: #C5D2E3;
+  --color-lime-300: #9CB3CF;
+  --color-lime-400: #6D8EB7;
+  --color-lime-500: #506D9C;
+  --color-lime-600: #3B4E6A;
+  --color-lime-700: #2E3E55;
+  --color-lime-800: #233042;
+  --color-lime-900: #1A2433;
+  --color-lime-950: #0F1620;
+}
+
+/* ============================================================
    DOCR-INSPIRED MEDICORE DESIGN SYSTEM
    Professional Healthcare SaaS — CSS Custom Properties
    ============================================================ */
 
 @layer base {
   :root {
-    /* Brand Colors */
-    --color-brand-primary: #0F52BA;
-    --color-brand-primary-hover: #0D47A8;
-    --color-brand-accent: #00A896;
-    --color-brand-accent-hover: #008E7E;
+    /* Brand Colors - Harmonized Steel Slate Blue Palette (Exact User Reference) */
+    --color-brand-primary: #3B4E6A;
+    --color-brand-primary-hover: #2E3E55;
+    --color-brand-accent: #485E83;
+    --color-brand-accent-hover: #3B4E6A;
+    --color-brand-light: #506D9C;
+    --color-brand-glow: rgba(59, 78, 106, 0.35);
 
     /* Surfaces (Light Mode) */
-    --color-bg: #F4F7F8;
+    --color-bg: #F4F7FA;
     --color-surface: #FFFFFF;
     --color-surface-2: #F8FAFC;
-    --color-surface-3: #F0F4F8;
-    --color-border: #E2E8F0;
+    --color-surface-3: #E8EEF5;
+    --color-border: #DDE3EA;
     --color-border-light: #EDF2F7;
 
     /* Text (Light Mode) */
@@ -28,9 +114,9 @@
     --color-text-muted: #94A3B8;
     --color-text-inverse: #FFFFFF;
 
-    /* Semantic Colors */
-    --color-success: #10B981;
-    --color-success-bg: #ECFDF5;
+    /* Semantic Colors - Harmonized with Left Sidebar Steel Slate Blue */
+    --color-success: #3B4E6A;
+    --color-success-bg: rgba(59, 78, 106, 0.12);
     --color-warning: #F59E0B;
     --color-warning-bg: #FFFBEB;
     --color-danger: #EF4444;
@@ -54,9 +140,9 @@
     --shadow-lg: 0 12px 32px -4px rgba(15,23,42,0.10), 0 4px 12px -2px rgba(15,23,42,0.05);
     --shadow-xl: 0 20px 48px -8px rgba(15,23,42,0.14), 0 8px 20px -4px rgba(15,23,42,0.06);
     --shadow-card: 0 1px 3px 0 rgba(15,23,42,0.03), 0 4px 14px 0 rgba(15,23,42,0.04);
-    --shadow-card-hover: 0 8px 24px -4px rgba(13,148,136,0.10), 0 2px 8px -1px rgba(15,23,42,0.04);
-    --shadow-glow-teal: 0 0 18px -2px rgba(13,148,136,0.22);
-    --shadow-glow-emerald: 0 0 18px -2px rgba(16,185,129,0.22);
+    --shadow-card-hover: 0 8px 24px -4px rgba(59, 78, 106, 0.15), 0 2px 8px -1px rgba(15,23,42,0.04);
+    --shadow-glow-teal: 0 0 18px -2px rgba(59, 78, 106, 0.28);
+    --shadow-glow-emerald: 0 0 18px -2px rgba(59, 78, 106, 0.28);
 
     /* Radius */
     --radius-sm: 8px;
@@ -83,7 +169,7 @@
     --color-text-inverse: #1E293B;
 
     /* Semantic Colors Dark Surfaces */
-    --color-success-bg: rgba(16,185,129,0.12);
+    --color-success-bg: rgba(80, 109, 156, 0.20);
     --color-warning-bg: rgba(245,158,11,0.12);
     --color-danger-bg: rgba(239,68,68,0.12);
     --color-info-bg: rgba(59,130,246,0.12);
@@ -96,9 +182,9 @@
     --shadow-lg: 0 10px 30px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3);
     --shadow-xl: 0 20px 50px rgba(0,0,0,0.6), 0 8px 16px rgba(0,0,0,0.4);
     --shadow-card: 0 2px 10px 0 rgba(0,0,0,0.4), 0 1px 3px 0 rgba(0,0,0,0.3);
-    --shadow-card-hover: 0 6px 22px -2px rgba(13,148,136,0.2), 0 2px 8px 0 rgba(0,0,0,0.4);
-    --shadow-glow-teal: 0 0 20px -2px rgba(13,148,136,0.35);
-    --shadow-glow-emerald: 0 0 20px -2px rgba(16,185,129,0.35);
+    --shadow-card-hover: 0 6px 22px -2px rgba(59, 78, 106, 0.3), 0 2px 8px 0 rgba(0,0,0,0.4);
+    --shadow-glow-teal: 0 0 20px -2px rgba(80, 109, 156, 0.4);
+    --shadow-glow-emerald: 0 0 20px -2px rgba(80, 109, 156, 0.4);
   }
 
   * {
@@ -152,12 +238,18 @@
 }
 
 /* ============================================================
-   DOCR SIDEBAR
+   DOCR SIDEBAR - STEEL SLATE BLUE GRADIENT (EXACT USER PALETTE)
    ============================================================ */
 .docr-sidebar {
+  --color-surface: rgba(255, 255, 255, 0.16);
+  --color-surface-2: rgba(255, 255, 255, 0.22);
+  --color-border: rgba(255, 255, 255, 0.18);
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #e2e8f0;
+  --color-text-muted: #cbd5e1;
   width: var(--sidebar-width);
-  background: var(--color-surface);
-  border-right: 1px solid var(--color-border);
+  background: linear-gradient(180deg, #3B4E6A 0%, #44597C 35%, #485E83 70%, #506D9C 100%) !important;
+  border-right: 1.5px solid rgba(255, 255, 255, 0.22) !important;
   transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
   flex-shrink: 0;
   position: fixed;
@@ -167,44 +259,118 @@
   z-index: 30;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 4px 0 35px rgba(59, 78, 106, 0.45) !important;
+  color: #ffffff;
+  overflow: hidden;
 }
 .docr-sidebar.collapsed {
   width: var(--sidebar-collapsed-width);
 }
 
+/* Healthcare / Hospital Project-Related Visual Design */
+.sidebar-medical-fx {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.med-ecg-svg {
+  position: absolute;
+  width: 320px;
+  height: 72px;
+  pointer-events: none;
+}
+.med-ecg-svg.top {
+  top: 70px;
+  left: -15px;
+  opacity: 0.55;
+}
+.med-ecg-svg.bottom {
+  bottom: 85px;
+  left: -15px;
+  opacity: 0.45;
+}
+.med-ecg-line {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: sweepEcg 4s linear infinite;
+}
+.med-ecg-glow {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: blur(4px);
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: sweepEcg 4s linear infinite;
+}
+
+.med-cross {
+  position: absolute;
+  color: #ffffff;
+  font-weight: 900;
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.6);
+  animation: floatMedCross 14s ease-in-out infinite;
+}
+.med-cross.mc1 { font-size: 38px; top: 12%; right: 12px; opacity: 0.32; animation-duration: 15s; }
+.med-cross.mc2 { font-size: 58px; top: 42%; left: -10px; opacity: 0.22; animation-duration: 19s; animation-delay: -3s; }
+.med-cross.mc3 { font-size: 32px; top: 65%; right: 20px; opacity: 0.30; animation-duration: 12s; animation-delay: -5s; }
+.med-cross.mc4 { font-size: 46px; bottom: 110px; left: 12px; opacity: 0.25; animation-duration: 16s; animation-delay: -7s; }
+
 .docr-sidebar-nav-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
-  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  border-radius: 12px;
   font-size: 13.5px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
+  font-weight: 700;
+  color: #ffffff !important;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
+  border: 1px solid transparent;
 }
 .docr-sidebar-nav-item:hover {
-  background: var(--color-surface-2);
-  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(8px);
+  transform: translateX(3px);
 }
 .docr-sidebar-nav-item.active {
-  background: rgba(15, 82, 186, 0.08);
-  color: var(--color-brand-primary);
-  font-weight: 600;
+  background: #ffffff !important;
+  color: #1e293b !important;
+  font-weight: 800 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  transform: translateX(4px);
 }
 .dark .docr-sidebar-nav-item.active {
-  background: rgba(59, 130, 246, 0.12);
-  color: #60A5FA;
+  background: #ffffff !important;
+  color: #1e293b !important;
+  font-weight: 800 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
 }
 .docr-sidebar-nav-item .nav-icon {
   flex-shrink: 0;
   width: 18px;
   height: 18px;
+  color: inherit;
 }
 
 /* ============================================================
@@ -299,27 +465,27 @@
 }
 
 /* ============================================================
-   DOCR BUTTONS
+   DOCR BUTTONS (HARMONIZED STEEL SLATE BLUE)
    ============================================================ */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 9px 18px;
-  background: var(--color-brand-primary);
-  color: #fff;
+  background: linear-gradient(135deg, #3B4E6A 0%, #485E83 100%) !important;
+  color: #fff !important;
   border-radius: var(--radius-md);
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   transition: all 0.15s ease;
-  box-shadow: 0 2px 8px rgba(15,82,186,0.3);
+  box-shadow: 0 4px 14px rgba(59, 78, 106, 0.35);
 }
 .btn-primary:hover {
-  background: var(--color-brand-primary-hover);
+  background: linear-gradient(135deg, #2E3E55 0%, #3B4E6A 100%) !important;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(15,82,186,0.4);
+  box-shadow: 0 6px 18px rgba(59, 78, 106, 0.45);
 }
 
 .btn-accent {
@@ -327,19 +493,20 @@
   align-items: center;
   gap: 8px;
   padding: 9px 18px;
-  background: var(--color-brand-accent);
-  color: #fff;
+  background: linear-gradient(135deg, #485E83 0%, #506D9C 100%) !important;
+  color: #fff !important;
   border-radius: var(--radius-md);
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   transition: all 0.15s ease;
-  box-shadow: 0 2px 8px rgba(0,168,150,0.3);
+  box-shadow: 0 4px 14px rgba(72, 94, 131, 0.35);
 }
 .btn-accent:hover {
-  background: var(--color-brand-accent-hover);
+  background: linear-gradient(135deg, #3B4E6A 0%, #485E83 100%) !important;
   transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(72, 94, 131, 0.45);
 }
 
 .btn-ghost {
@@ -394,8 +561,16 @@
   font-weight: 600;
   line-height: 1.4;
 }
-.badge-success { background: var(--color-success-bg); color: #059669; }
-.dark .badge-success { color: #34D399; }
+.badge-success {
+  background: rgba(59, 78, 106, 0.12) !important;
+  color: #3B4E6A !important;
+  border: 1px solid rgba(72, 94, 131, 0.25) !important;
+}
+.dark .badge-success {
+  background: rgba(80, 109, 156, 0.20) !important;
+  color: #c5d2e3 !important;
+  border-color: rgba(80, 109, 156, 0.35) !important;
+}
 .badge-warning { background: var(--color-warning-bg); color: #D97706; }
 .dark .badge-warning { color: #FBBF24; }
 .badge-danger { background: var(--color-danger-bg); color: #DC2626; }
@@ -408,7 +583,7 @@
 .dark .badge-orange { color: #FB923C; }
 .badge-neutral { background: var(--color-surface-2); color: var(--color-text-secondary); border: 1px solid var(--color-border); }
 
-/* Executive Healthcare Badges */
+/* Executive Healthcare Badges - Harmonized Steel Slate Blue */
 .badge-optimal {
   display: inline-flex;
   align-items: center;
@@ -419,14 +594,14 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  background: rgba(16, 185, 129, 0.10);
-  color: #047857;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: rgba(59, 78, 106, 0.12) !important;
+  color: #3B4E6A !important;
+  border: 1px solid rgba(72, 94, 131, 0.30) !important;
 }
 .dark .badge-optimal {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34D399;
-  border-color: rgba(16, 185, 129, 0.30);
+  background: rgba(80, 109, 156, 0.20) !important;
+  color: #c5d2e3 !important;
+  border-color: rgba(80, 109, 156, 0.40) !important;
 }
 
 .badge-elevated {
@@ -479,14 +654,14 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  background: rgba(13, 148, 136, 0.10);
-  color: #0F766E;
-  border: 1px solid rgba(13, 148, 136, 0.25);
+  background: rgba(59, 78, 106, 0.12);
+  color: #3B4E6A;
+  border: 1px solid rgba(72, 94, 131, 0.30);
 }
 .dark .badge-teal {
-  background: rgba(13, 148, 136, 0.15);
-  color: #2DD4BF;
-  border-color: rgba(13, 148, 136, 0.30);
+  background: rgba(80, 109, 156, 0.20);
+  color: #9cb3cf;
+  border-color: rgba(80, 109, 156, 0.40);
 }
 
 /* Micro-label utility */
@@ -656,8 +831,14 @@
   padding: 2px 8px;
   border-radius: var(--radius-full);
 }
-.stat-trend-up { background: var(--color-success-bg); color: #059669; }
-.dark .stat-trend-up { color: #34D399; }
+.stat-trend-up {
+  background: rgba(59, 78, 106, 0.12) !important;
+  color: #3B4E6A !important;
+}
+.dark .stat-trend-up {
+  background: rgba(80, 109, 156, 0.20) !important;
+  color: #c5d2e3 !important;
+}
 .stat-trend-down { background: var(--color-danger-bg); color: #DC2626; }
 .dark .stat-trend-down { color: #F87171; }
 
@@ -712,7 +893,11 @@
   display: inline-block;
   flex-shrink: 0;
 }
-.status-dot.online { background: var(--color-success); animation: pulse-green 2s infinite; }
+.status-dot.online {
+  background: #506D9C !important;
+  box-shadow: 0 0 8px rgba(80, 109, 156, 0.7) !important;
+  animation: pulse-sidebar-blue 2s infinite !important;
+}
 .status-dot.warning { background: var(--color-warning); }
 .status-dot.offline { background: var(--color-text-muted); }
 .status-dot.critical { background: var(--color-danger); animation: pulse-red 1.5s infinite; }
@@ -740,9 +925,13 @@
   from { opacity: 0; transform: translateX(-16px); }
   to { opacity: 1; transform: translateX(0); }
 }
+@keyframes pulse-sidebar-blue {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(80, 109, 156, 0.55); }
+  50% { box-shadow: 0 0 0 6px rgba(80, 109, 156, 0); }
+}
 @keyframes pulse-green {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
-  50% { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(80, 109, 156, 0.55); }
+  50% { box-shadow: 0 0 0 6px rgba(80, 109, 156, 0); }
 }
 @keyframes pulse-red {
   0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
@@ -784,8 +973,8 @@
    GLOW EFFECTS
    ============================================================ */
 .glow-blue { box-shadow: 0 0 20px rgba(15, 82, 186, 0.15); }
-.glow-teal { box-shadow: 0 0 20px rgba(0, 168, 150, 0.15); }
-.glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); }
+.glow-teal { box-shadow: 0 0 20px rgba(59, 78, 106, 0.25); }
+.glow-green { box-shadow: 0 0 20px rgba(59, 78, 106, 0.25); }
 .glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.15); }
 
 /* ============================================================
@@ -883,8 +1072,8 @@
   border-left: 3px solid;
   font-size: 13px;
 }
-.docr-alert-success { background: var(--color-success-bg); border-color: var(--color-success); color: #047857; }
-.dark .docr-alert-success { color: #6EE7B7; }
+.docr-alert-success { background: var(--color-success-bg); border-color: var(--color-success); color: #3B4E6A; }
+.dark .docr-alert-success { color: #c5d2e3; }
 .docr-alert-warning { background: var(--color-warning-bg); border-color: var(--color-warning); color: #B45309; }
 .dark .docr-alert-warning { color: #FCD34D; }
 .docr-alert-danger { background: var(--color-danger-bg); border-color: var(--color-danger); color: #B91C1C; }
@@ -984,34 +1173,36 @@
    GLASSMORPHIC BUTTON SUITE (MEDICORE / DOCR EXECUTIVE)
    ============================================================ */
 
-/* 1. Frosted Teal Crystal (Primary Clinical Action) */
+/* 1. Frosted Steel Slate Blue Crystal (Primary Clinical Action) */
 .glass-btn-teal {
   position: relative;
-  background: rgba(13, 148, 136, 0.14);
-  color: #0f766e;
+  background: rgba(59, 78, 106, 0.14);
+  color: #3B4E6A;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(45, 212, 191, 0.35);
-  box-shadow: 0 4px 16px -2px rgba(20, 184, 166, 0.18), inset 0 1px 1px 0 rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(72, 94, 131, 0.35);
+  box-shadow: 0 4px 16px -2px rgba(59, 78, 106, 0.22), inset 0 1px 1px 0 rgba(255, 255, 255, 0.6);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 700;
 }
 .dark .glass-btn-teal {
-  background: rgba(13, 148, 136, 0.22);
-  color: #5eead4;
-  border-color: rgba(45, 212, 191, 0.3);
-  box-shadow: 0 4px 20px -2px rgba(13, 148, 136, 0.28), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+  background: rgba(80, 109, 156, 0.25);
+  color: #c5d2e3;
+  border-color: rgba(80, 109, 156, 0.45);
+  box-shadow: 0 4px 20px -2px rgba(59, 78, 106, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
 }
 .glass-btn-teal:hover {
-  background: rgba(13, 148, 136, 0.24);
-  border-color: rgba(45, 212, 191, 0.6);
-  box-shadow: 0 8px 24px -2px rgba(20, 184, 166, 0.28);
+  background: linear-gradient(135deg, #3B4E6A 0%, #485E83 100%);
+  color: #ffffff;
+  border-color: #3B4E6A;
+  box-shadow: 0 8px 24px -2px rgba(59, 78, 106, 0.45);
   transform: translateY(-1px);
 }
 .dark .glass-btn-teal:hover {
-  background: rgba(13, 148, 136, 0.32);
-  border-color: rgba(45, 212, 191, 0.55);
-  box-shadow: 0 8px 26px -2px rgba(20, 184, 166, 0.4);
+  background: linear-gradient(135deg, #485E83 0%, #506D9C 100%);
+  color: #ffffff;
+  border-color: #506D9C;
+  box-shadow: 0 8px 26px -2px rgba(80, 109, 156, 0.50);
 }
 .glass-btn-teal:active {
   transform: scale(0.97);
@@ -1125,15 +1316,32 @@
 
 .glass-pill-active {
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #0f766e;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 1);
+  background: linear-gradient(135deg, #3B4E6A 0%, #485E83 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 2px 10px 0 rgba(59, 78, 106, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.4) !important;
   font-weight: 700;
 }
 .dark .glass-pill-active {
-  background: rgba(13, 148, 136, 0.25);
-  color: #5eead4;
-  border-color: rgba(45, 212, 191, 0.4);
-  box-shadow: 0 2px 10px 0 rgba(13, 148, 136, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #485E83 0%, #506D9C 100%) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 2px 12px 0 rgba(59, 78, 106, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ============================================================
+   GLOBAL PORTAL BUTTON SUITE (HARMONIZED STEEL SLATE BLUE)
+   Applies user's exact shade across every portal & button
+   ============================================================ */
+.btn-steel-slate {
+  background: linear-gradient(135deg, #3B4E6A 0%, #485E83 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 4px 14px rgba(59, 78, 106, 0.35) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.btn-steel-slate:hover {
+  background: linear-gradient(135deg, #2E3E55 0%, #3B4E6A 100%) !important;
+  box-shadow: 0 6px 20px rgba(59, 78, 106, 0.48) !important;
+  transform: translateY(-1px);
 }

@@ -56,8 +56,8 @@ const PORTAL_CONFIG: Record<AuthPortalCategory, {
     label: 'Patient Portal',
     desc: 'Access your health records, appointments, and test results',
     icon: Heart,
-    color: '#10B981',
-    gradient: 'linear-gradient(135deg, #10B981, #059669)',
+    color: '#3B4E6A',
+    gradient: 'linear-gradient(135deg, #3B4E6A, #485E83)',
     demoEmail: 'patient@medicore.in',
     demoPassword: 'patient123',
     badge: 'Self Service',
@@ -66,8 +66,8 @@ const PORTAL_CONFIG: Record<AuthPortalCategory, {
     label: 'Doctor Portal',
     desc: 'Clinical consultation desk, prescriptions, and SOAP notes',
     icon: Stethoscope,
-    color: '#3B82F6',
-    gradient: 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
+    color: '#3B4E6A',
+    gradient: 'linear-gradient(135deg, #3B4E6A, #506D9C)',
     demoEmail: 'doctor@medicore.in',
     demoPassword: 'doctor123',
     badge: 'Clinical',
@@ -76,8 +76,8 @@ const PORTAL_CONFIG: Record<AuthPortalCategory, {
     label: 'Nursing Station',
     desc: 'Ward rounds, patient vitals, and SBAR handovers',
     icon: Activity,
-    color: '#F59E0B',
-    gradient: 'linear-gradient(135deg, #F59E0B, #D97706)',
+    color: '#44597C',
+    gradient: 'linear-gradient(135deg, #44597C, #506D9C)',
     demoEmail: 'nurse@medicore.in',
     demoPassword: 'nurse123',
     badge: 'Clinical',
@@ -86,8 +86,8 @@ const PORTAL_CONFIG: Record<AuthPortalCategory, {
     label: 'Admin Portal',
     desc: 'Hospital operations, bed management, and staff oversight',
     icon: Building2,
-    color: '#0F52BA',
-    gradient: 'linear-gradient(135deg, #0F52BA, #1E40AF)',
+    color: '#3B4E6A',
+    gradient: 'linear-gradient(135deg, #3B4E6A, #485E83)',
     demoEmail: 'admin@medicore.in',
     demoPassword: 'admin123',
     badge: 'Operations',
@@ -96,8 +96,8 @@ const PORTAL_CONFIG: Record<AuthPortalCategory, {
     label: 'Enterprise Command',
     desc: 'Multi-facility governance, security, and system configuration',
     icon: ShieldCheck,
-    color: '#8B5CF6',
-    gradient: 'linear-gradient(135deg, #8B5CF6, #6D28D9)',
+    color: '#2E3E55',
+    gradient: 'linear-gradient(135deg, #2E3E55, #44597C)',
     demoEmail: 'superadmin@medicore.in',
     demoPassword: 'enterprise123',
     badge: 'Enterprise',
@@ -288,14 +288,16 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
             backgroundImage: `url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&auto=format&fit=crop&q=80')`,
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#07111E] via-[#0F52BA]/65 to-[#07111E]/80 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#07111E] via-[#3B4E6A]/75 to-[#07111E]/80 backdrop-blur-[1px]" />
 
         {/* Top Logo */}
         <div className="relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-md">
-              <Activity size={22} className="text-white" />
-            </div>
+            <img
+              src="/assets/medicore-logo.png"
+              alt="MediCore Logo"
+              className="w-12 h-12 rounded-2xl object-cover border border-white/30 shadow-xl drop-shadow-md flex-shrink-0"
+            />
             <div>
               <div className="text-white font-extrabold text-lg tracking-tight">MediCore Health</div>
               <div className="text-white/70 text-xs">Clinical Hospital Operating Network</div>
@@ -326,10 +328,15 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
       <div className="flex-1 flex flex-col">
         {/* Mobile logo */}
         <div className="lg:hidden flex items-center gap-2.5 px-6 py-5 border-b" style={{ borderColor: 'var(--color-border)' }}>
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: config.gradient }}>
-            <Activity size={16} color="white" />
+          <img
+            src="/assets/medicore-logo.png"
+            alt="MediCore Logo"
+            className="w-9 h-9 rounded-xl object-contain shadow-sm flex-shrink-0"
+          />
+          <div>
+            <span className="font-800 text-sm block" style={{ fontWeight: 800, color: 'var(--color-text-primary)' }}>MediCore OS</span>
+            <span className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>Hospital Intelligence System</span>
           </div>
-          <span className="font-800 text-sm" style={{ fontWeight: 800, color: 'var(--color-text-primary)' }}>MediCore OS</span>
         </div>
 
         <div className="flex-1 flex items-center justify-center p-6 lg:p-12 overflow-y-auto">
@@ -369,19 +376,18 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
 
             {/* Form Header */}
             <div className="mb-7">
-              <div className="flex items-center gap-3 mb-2">
-                <div
-                  className="w-10 h-10 rounded-2xl flex items-center justify-center"
-                  style={{ background: config.gradient }}
-                >
-                  <Icon size={20} color="white" />
-                </div>
+              <div className="flex items-center gap-3.5 mb-2">
+                <img
+                  src="/assets/medicore-logo.png"
+                  alt="MediCore Logo"
+                  className="w-11 h-11 rounded-2xl object-cover shadow-md border border-slate-200 dark:border-slate-700/60 flex-shrink-0"
+                />
                 <div>
                   <h2 className="text-xl font-800" style={{ color: 'var(--color-text-primary)', fontWeight: 800 }}>
                     {authView === 'login' ? 'Sign In' : authView === 'signup' ? 'Create Account' : 'Reset Password'}
                   </h2>
                   <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                    {config.label}
+                    {config.label} • MediCore OS
                   </p>
                 </div>
               </div>
@@ -403,7 +409,7 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                 style={{ background: 'var(--color-success-bg)', borderLeft: '3px solid var(--color-success)' }}
               >
                 <CheckCircle2 size={16} style={{ color: 'var(--color-success)', flexShrink: 0, marginTop: 1 }} />
-                <span style={{ color: '#047857' }}>{successMessage}</span>
+                <span style={{ color: '#3B4E6A' }}>{successMessage}</span>
               </div>
             )}
 
@@ -517,8 +523,15 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
             )}
 
             {/* ===== SIGNUP FORM ===== */}
-            {authView === 'signup' && portalCategory === 'patient' && (
+            {authView === 'signup' && (
               <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-slate-50 to-slate-100/60 dark:from-slate-800/80 dark:to-slate-800/40 border border-slate-200 dark:border-slate-700/60 mb-2 shadow-xs">
+                  <img src="/assets/medicore-logo.png" alt="MediCore Logo" className="w-10 h-10 rounded-xl object-contain shadow-xs flex-shrink-0" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-800 dark:text-slate-100">MediCore Registration</div>
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400">Join the HIPAA-compliant clinical care network</div>
+                  </div>
+                </div>
                 <div>
                   <label className="docr-label">Full Name</label>
                   <div className="relative flex items-center">

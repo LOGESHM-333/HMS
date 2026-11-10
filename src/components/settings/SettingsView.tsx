@@ -1133,41 +1133,27 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {activeTab === 'preferences' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
           {/* THEME & APPEARANCE */}
-          <div className={`p-6 rounded-3xl border ${
-            isDark ? 'bg-[#0E2035]/80 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-xs'
-          }`}>
+          <div className="p-6 rounded-3xl border bg-white border-slate-200/80 text-[#142C43] shadow-xs">
             <div className="flex items-center justify-between mb-3">
               <div>
                 <h4 className="font-extrabold text-base">Interface Theme</h4>
-                <p className="text-xs text-slate-400">Toggle between high-contrast clinical dark mode and light theme.</p>
+                <p className="text-xs text-slate-400">Standard clinical daylight white mode interface.</p>
               </div>
               <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-600">
-                {isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                <Sun className="w-5 h-5" />
               </div>
             </div>
 
             <div className="space-y-3 mt-4">
-              <div className={`p-4 rounded-2xl border flex items-center justify-between ${
-                isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200'
-              }`}>
+              <div className="p-4 rounded-2xl border flex items-center justify-between bg-slate-50 border-slate-200">
                 <div>
                   <div className="text-xs font-bold">Current Visual Theme</div>
-                  <div className="text-[11px] text-teal-600 font-semibold">{isDark ? 'DocR Deep Navy Dark' : 'DocR Mint Daylight'}</div>
+                  <div className="text-[11px] text-teal-600 font-semibold">MediCore Daylight (White Mode Active)</div>
                 </div>
-
-                {onThemeToggle && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onThemeToggle();
-                      showToast(`Theme switched to ${!isDark ? 'Dark Mode' : 'Light Mode'}.`);
-                    }}
-                    className="px-4 py-2 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
-                  >
-                    {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-                    <span>Switch to {isDark ? 'Light' : 'Dark'} Mode</span>
-                  </button>
-                )}
+                <div className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200/70 text-slate-700 flex items-center gap-1.5">
+                  <Sun className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Permanent White Mode</span>
+                </div>
               </div>
             </div>
           </div>

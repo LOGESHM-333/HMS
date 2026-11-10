@@ -14,8 +14,6 @@ import { sound } from '../../services/audioService';
 import { 
   Bell, 
   Search, 
-  Moon, 
-  Sun, 
   Volume2, 
   VolumeX, 
   ShieldCheck, 
@@ -48,8 +46,8 @@ interface HeaderProps {
   onSwitchPortal?: (mode: HeaderPortalMode) => void;
   currentRole: UserRole;
   onRoleChange: (role: UserRole) => void;
-  theme: ThemeMode;
-  onToggleTheme: () => void;
+  theme?: ThemeMode;
+  onToggleTheme?: () => void;
   onOpenSearch?: () => void;
   onLogout?: () => void;
 }
@@ -99,7 +97,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className={`sticky top-0 z-40 w-full transition-colors duration-300 border-b backdrop-blur-xl ${
       isDark 
         ? 'bg-[#0B1725]/90 border-slate-800 text-white' 
-        : 'bg-[#F3FAF8]/90 border-teal-100/80 text-[#142C43]'
+        : 'bg-[#F0F7FD]/90 border-sky-100/80 text-[#142C43]'
     }`}>
       {/* TOP STATUS / PORTAL SWITCHER BAR */}
       <div className={`px-4 lg:px-8 py-2 border-b text-xs flex items-center justify-between ${
@@ -110,7 +108,7 @@ export const Header: React.FC<HeaderProps> = ({
           <span className="font-semibold text-slate-600 dark:text-slate-300 hidden sm:inline">
             Active Workspace:
           </span>
-          <span className="font-bold text-teal-600 dark:text-teal-400">
+          <span className="font-bold text-sky-600 dark:text-sky-400">
             {portalMode === 'super-admin'
               ? 'Enterprise Super Admin Governance Command'
               : (portalMode === 'admin' || portalMode === 'management')
@@ -146,10 +144,10 @@ export const Header: React.FC<HeaderProps> = ({
                   if (onSwitchPortal) onSwitchPortal('admin');
                   else onPortalModeChange('admin');
                 }}
-                className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-teal-500/10 hover:bg-teal-500/20 text-teal-700 dark:text-teal-300 border border-teal-500/20 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/20 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
                 title="Switch & Login to Hospital Admin Portal"
               >
-                <Building2 className="w-2.5 h-2.5 text-teal-500" />
+                <Building2 className="w-2.5 h-2.5 text-sky-500" />
                 <span>Hospital Admin</span>
               </button>
             )}
@@ -201,18 +199,10 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-3 text-slate-500">
           <button
             onClick={toggleMute}
-            className="p-1 rounded-lg hover:text-teal-600 transition-colors"
+            className="p-1 rounded-lg hover:text-sky-600 transition-colors"
             title={isMuted ? 'Unmute Audio Vitals' : 'Mute Audio Vitals'}
           >
-            {isMuted ? <VolumeX className="w-4 h-4 text-rose-500" /> : <Volume2 className="w-4 h-4 text-teal-600" />}
-          </button>
-          <span>•</span>
-          <button
-            onClick={onToggleTheme}
-            className="p-1 rounded-lg hover:text-teal-600 transition-colors"
-            title="Toggle Light / Dark theme"
-          >
-            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+            {isMuted ? <VolumeX className="w-4 h-4 text-rose-500" /> : <Volume2 className="w-4 h-4 text-sky-600" />}
           </button>
         </div>
       </div>
@@ -234,10 +224,12 @@ export const Header: React.FC<HeaderProps> = ({
           className="flex items-center gap-2.5 cursor-pointer shrink-0 select-none group"
         >
           {/* MediCore Logo Icon */}
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-teal-600 via-teal-500 to-cyan-500 flex items-center justify-center shadow-md shadow-teal-500/25 group-hover:scale-105 transition-transform">
-            <Activity className="w-5 h-5 text-white" />
-          </div>
-          <span className="font-black text-2xl tracking-tight text-teal-600 dark:text-teal-400">
+          <img
+            src="/assets/medicore-logo.png"
+            alt="MediCore Logo"
+            className="w-9 h-9 rounded-xl object-contain shadow-md group-hover:scale-105 transition-transform flex-shrink-0"
+          />
+          <span className="font-black text-2xl tracking-tight text-sky-600 dark:text-sky-400">
             Medi<span className="text-cyan-600 dark:text-cyan-300">Core</span>
           </span>
         </div>
@@ -290,8 +282,8 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         {portalMode === 'patient' && (
-          <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-xs font-bold text-teal-600 dark:text-teal-400">
-            <User className="w-4 h-4 text-teal-500" />
+          <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-xs font-bold text-sky-600 dark:text-sky-400">
+            <User className="w-4 h-4 text-sky-500" />
             <span>Patient Telehealth & Health Portal • Magnus Stephenson</span>
           </div>
         )}
@@ -309,9 +301,9 @@ export const Header: React.FC<HeaderProps> = ({
                 className="hidden md:flex items-center gap-2.5 px-4 py-2 rounded-full glass-btn-neutral text-xs cursor-pointer shadow-xs transition-all"
                 title="Global Search (Ctrl+K / Cmd+K)"
               >
-                <Search className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <Search className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                 <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300">Search patients, beds, doctors...</span>
-                <kbd className="ml-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-white/80 dark:bg-slate-800 text-teal-700 dark:text-teal-300 border border-teal-500/20 shadow-2xs">Ctrl+K</kbd>
+                <kbd className="ml-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-white/80 dark:bg-slate-800 text-sky-700 dark:text-sky-300 border border-sky-500/20 shadow-2xs">Ctrl+K</kbd>
               </button>
 
               <button
@@ -322,7 +314,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className="md:hidden w-10 h-10 rounded-full glass-btn-neutral flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all shadow-xs cursor-pointer"
                 title="Global Search (Ctrl+K / Cmd+K)"
               >
-                <Search className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                <Search className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               </button>
             </>
           )}
@@ -347,7 +339,7 @@ export const Header: React.FC<HeaderProps> = ({
               }`}>
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
                   <span className="font-bold text-xs">Live Telemetry Alerts</span>
-                  <span className="text-[10px] text-teal-500 font-bold">{alerts.length} active</span>
+                  <span className="text-[10px] text-sky-500 font-bold">{alerts.length} active</span>
                 </div>
                 <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-64 overflow-y-auto mt-2">
                   {alerts.map((al) => (
@@ -384,7 +376,7 @@ export const Header: React.FC<HeaderProps> = ({
                 sound.playClick();
                 setRoleMenuOpen(!roleMenuOpen);
               }}
-              className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 via-orange-400 to-rose-400 p-0.5 overflow-hidden flex items-center justify-center ring-2 ring-transparent hover:ring-teal-500 transition-all shadow-xs"
+              className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 via-orange-400 to-rose-400 p-0.5 overflow-hidden flex items-center justify-center ring-2 ring-transparent hover:ring-sky-500 transition-all shadow-xs"
             >
               <img
                 src={portalMode === 'super-admin'
@@ -419,7 +411,7 @@ export const Header: React.FC<HeaderProps> = ({
                             ? 'Nurse Sarah Jenkins, RN, BSN'
                             : 'Marcus Vance, MHA'}
                   </div>
-                  <div className="text-xs text-teal-600 dark:text-teal-400 font-bold mt-0.5">
+                  <div className="text-xs text-sky-600 dark:text-sky-400 font-bold mt-0.5">
                     {portalMode === 'super-admin'
                       ? 'Enterprise Super Admin • Level 5 Root'
                       : portalMode === 'patient' 
@@ -513,7 +505,7 @@ export const Header: React.FC<HeaderProps> = ({
                           <div className={`font-extrabold text-xs ${isSelected ? 'text-white' : 'text-slate-800 dark:text-slate-200'}`}>
                             {r.label}
                           </div>
-                          <div className={`text-[11px] mt-0.5 ${isSelected ? 'text-teal-100' : 'text-slate-400'}`}>
+                          <div className={`text-[11px] mt-0.5 ${isSelected ? 'text-sky-100' : 'text-slate-400'}`}>
                             {r.desc}
                           </div>
                         </div>

@@ -674,7 +674,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                 sound.playClick();
                 setBookingModalOpen(true);
               }}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#0F52BA] hover:bg-[#0D47A8] text-white transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#3B4E6A] hover:bg-[#2E3E55] text-white transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Book Visit</span>

@@ -27,16 +27,18 @@ import {
   Layers,
   Syringe,
   ClipboardList,
+  LogIn,
   LogOut,
   X,
   Menu,
+  Database,
 } from 'lucide-react';
 import { UserRole, ThemeMode } from '../../types';
 import { Avatar, Badge } from '../ui';
 import { sound } from '../../services/audioService';
 
 export type NavTab =
-  | 'dashboard' | 'ward' | 'analytics' | 'overview'
+  | 'dashboard' | 'ward' | 'monitoring' | 'admissions' | 'discharges' | 'analytics' | 'overview'
   | 'patients' | 'doctors' | 'appointments' | 'beds'
   | 'pharmacy' | 'lab' | 'billing' | 'emr'
   | 'staff' | 'settings'
@@ -71,6 +73,9 @@ const NAV_GROUPS: NavGroup[] = [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'management'] },
       { id: 'overview', label: 'Enterprise Overview', icon: Building2, roles: ['super-admin'] },
       { id: 'ward', label: 'Ward Overview', icon: Layers, roles: ['admin', 'management'] },
+      { id: 'monitoring', label: 'Monitoring', icon: Activity, badge: '3', badgeVariant: 'danger', roles: ['admin', 'management'] },
+      { id: 'admissions', label: 'Admissions', icon: LogIn, roles: ['admin', 'management'] },
+      { id: 'discharges', label: 'Discharges', icon: LogOut, roles: ['admin', 'management'] },
       { id: 'analytics', label: 'Analytics & Reports', icon: BarChart3, roles: ['admin', 'management', 'super-admin'] },
     ],
   },
@@ -211,21 +216,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside
         className={`docr-sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}
       >
+        {/* Healthcare / Hospital Project-Related Visual Design: ECG Pulse Waves & Floating Clinical Crosses */}
+        <div className="sidebar-medical-fx" aria-hidden="true">
+          <svg className="med-ecg-svg top" viewBox="0 0 300 120" preserveAspectRatio="none">
+            <path className="med-ecg-glow" d="M0,60 L40,60 L50,60 L55,40 L60,85 L68,15 L76,105 L82,50 L88,65 L94,60 L140,60 L148,60 L153,42 L158,82 L165,18 L173,102 L179,52 L185,64 L191,60 L240,60 L248,60 L253,44 L258,80 L265,22 L272,98 L278,54 L284,63 L290,60 L300,60" />
+            <path className="med-ecg-line" d="M0,60 L40,60 L50,60 L55,40 L60,85 L68,15 L76,105 L82,50 L88,65 L94,60 L140,60 L148,60 L153,42 L158,82 L165,18 L173,102 L179,52 L185,64 L191,60 L240,60 L248,60 L253,44 L258,80 L265,22 L272,98 L278,54 L284,63 L290,60 L300,60" />
+          </svg>
+          <svg className="med-ecg-svg bottom" viewBox="0 0 300 120" preserveAspectRatio="none">
+            <path className="med-ecg-glow" d="M0,60 L40,60 L50,60 L55,40 L60,85 L68,15 L76,105 L82,50 L88,65 L94,60 L140,60 L148,60 L153,42 L158,82 L165,18 L173,102 L179,52 L185,64 L191,60 L240,60 L248,60 L253,44 L258,80 L265,22 L272,98 L278,54 L284,63 L290,60 L300,60" />
+            <path className="med-ecg-line" d="M0,60 L40,60 L50,60 L55,40 L60,85 L68,15 L76,105 L82,50 L88,65 L94,60 L140,60 L148,60 L153,42 L158,82 L165,18 L173,102 L179,52 L185,64 L191,60 L240,60 L248,60 L253,44 L258,80 L265,22 L272,98 L278,54 L284,63 L290,60 L300,60" />
+          </svg>
+          <span className="med-cross mc1">✚</span>
+          <span className="med-cross mc2">✚</span>
+          <span className="med-cross mc3">✚</span>
+          <span className="med-cross mc4">✚</span>
+        </div>
+
         {/* Header: Logo + Collapse */}
         <div
-          className="flex items-center px-4 py-4 border-b flex-shrink-0"
+          className="flex items-center px-4 py-4 border-b flex-shrink-0 relative z-10"
           style={{ borderColor: 'var(--color-border)', minHeight: 'var(--header-height)' }}
         >
           {!collapsed && (
             <div className="flex items-center gap-2.5 flex-1 min-w-0">
-              <div
-                className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{
-                  background: 'linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-accent))',
-                }}
-              >
-                <Activity size={16} color="white" />
-              </div>
+              <img
+                src="/assets/medicore-logo.png"
+                alt="MediCore Logo"
+                className="w-8 h-8 rounded-xl object-contain shadow-md flex-shrink-0"
+              />
               <div className="min-w-0">
                 <div className="font-800 text-sm leading-tight truncate" style={{ color: 'var(--color-text-primary)', fontWeight: 800 }}>
                   MediCore
@@ -237,14 +255,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           )}
           {collapsed && (
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center mx-auto"
-              style={{
-                background: 'linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-accent))',
-              }}
-            >
-              <Activity size={16} color="white" />
-            </div>
+            <img
+              src="/assets/medicore-logo.png"
+              alt="MediCore Logo"
+              className="w-8 h-8 rounded-xl object-contain shadow-md mx-auto"
+            />
           )}
 
           {/* Close on mobile */}
@@ -270,7 +285,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-3 px-2.5 space-y-0.5">
+        <nav className="flex-1 overflow-y-auto py-3 px-2.5 space-y-0.5 relative z-10">
           {visibleGroups.map(group => (
             <div key={group.label} className="mb-2">
               {/* Group Label */}
@@ -318,7 +333,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Footer: User + Logout */}
         <div
-          className="p-3 border-t flex-shrink-0"
+          className="p-3 border-t flex-shrink-0 relative z-10"
           style={{ borderColor: 'var(--color-border)' }}
         >
           {!collapsed ? (
@@ -330,10 +345,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 status="online"
               />
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-600 truncate" style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
+                <div className="text-xs font-800 truncate" style={{ color: '#000000', fontWeight: 800 }}>
                   {userName}
                 </div>
-                <span className={`badge ${roleDisplay.color} text-[10px] px-1.5 py-0.5`}>
+                <span className={`badge ${roleDisplay.color} text-[10px] px-1.5 py-0.5 font-bold`}>
                   {roleDisplay.label}
                 </span>
               </div>
@@ -341,7 +356,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   onClick={onLogout}
                   className="p-1.5 rounded-lg transition-colors flex-shrink-0"
-                  style={{ color: 'var(--color-text-muted)' }}
+                  style={{ color: '#000000' }}
                   title="Sign out"
                 >
                   <LogOut size={15} />
@@ -355,7 +370,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   onClick={onLogout}
                   className="p-1.5 rounded-lg transition-colors"
-                  style={{ color: 'var(--color-text-muted)' }}
+                  style={{ color: '#000000' }}
                   title="Sign out"
                 >
                   <LogOut size={15} />

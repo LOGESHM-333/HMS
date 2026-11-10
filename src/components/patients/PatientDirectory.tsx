@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -140,13 +140,18 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
 
   const handleDischargeSelected = () => {
     if (!selectedPatient) return;
+    const confirm = window.confirm(
+      `Discharge and remove ${selectedPatient.name} (${selectedPatient.patientCode})?\n\n• Patient will be discharged from hospital.\n• Bed ${selectedPatient.bedNumber || 'Inpatient Bed'} will be released for sanitization.\n• Total active records will decrease from ${patients.length} to ${patients.length - 1} in Web and PostgreSQL Database.`
+    );
+    if (!confirm) return;
+
     sound.playClick();
-    const updated = db.dischargePatient(selectedPatient.id);
+    const name = selectedPatient.name;
+    db.dischargePatient(selectedPatient.id);
     const refreshed = db.getPatients();
     setPatients(refreshed);
-    if (updated) setSelectedPatient(updated);
-    const remainingActive = refreshed.filter(p => p.admissionStatus === 'Admitted' || p.admissionStatus === 'ICU').length;
-    showToast(`Discharged ${selectedPatient.name} to Home Care. Active inpatients census updated to ${remainingActive}. Bed released.`);
+    setSelectedPatient(refreshed[0] || null);
+    showToast(`Discharged & removed ${name}. Bed released. Database count updated to ${refreshed.length}.`);
   };
 
   const handleAdmitSelected = () => {
@@ -264,8 +269,8 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Toast Notification Banner */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2.5 px-5 py-3.5 rounded-2xl bg-teal-600 text-white shadow-2xl animate-in slide-in-from-top-4 duration-200 text-xs font-bold border border-teal-400/40">
-          <CheckCircle2 className="w-4 h-4 text-teal-200" />
+        <div className="fixed top-20 right-6 z-50 flex items-center gap-2.5 px-5 py-3.5 rounded-2xl bg-sky-600 text-white shadow-2xl animate-in slide-in-from-top-4 duration-200 text-xs font-bold border border-sky-400/40">
+          <CheckCircle2 className="w-4 h-4 text-sky-200" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -284,7 +289,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
             sound.playClick();
             setIsRegisterOpen(true);
           }}
-          className="px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white shadow-md shadow-teal-500/20 active:scale-95 transition-all self-start sm:self-auto"
+          className="px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white shadow-md shadow-sky-500/20 active:scale-95 transition-all self-start sm:self-auto"
         >
           <UserPlus className="w-4 h-4" />
           <span>Register New Patient</span>
@@ -298,55 +303,55 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
           onClick={() => { sound.playClick(); setStatusFilter('All'); setCurrentPage(1); }}
           className={`p-4 rounded-2xl border cursor-pointer transition-all hover:scale-[1.01] ${
             statusFilter === 'All'
-              ? 'ring-2 ring-teal-500 bg-teal-500/10 border-teal-500/40'
+              ? 'ring-2 ring-sky-500 bg-sky-500/10 border-sky-500/40'
               : isDark ? 'bg-[#0E2035]/70 border-slate-800 hover:bg-slate-800/40' : 'bg-white border-slate-200/80 hover:bg-slate-50 shadow-xs'
           }`}
         >
           <div className="flex items-center justify-between text-slate-400 mb-1">
             <span className="text-[11px] font-semibold">Total Registered Records</span>
-            <Users className="w-3.5 h-3.5 text-teal-500" />
+            <Users className="w-3.5 h-3.5 text-sky-500" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-black">{totalCount}</span>
-            <span className="text-[10px] text-slate-400 font-semibold">All Records</span>
+            <span className="text-[10px] text-slate-400 font-semibold">Live in SQL</span>
           </div>
         </div>
 
-        {/* Active Inpatients */}
+        {/* Admitted Inpatients */}
         <div
-          onClick={() => { sound.playClick(); setStatusFilter('Active'); setCurrentPage(1); }}
+          onClick={() => { sound.playClick(); setStatusFilter('Admitted'); setCurrentPage(1); }}
           className={`p-4 rounded-2xl border cursor-pointer transition-all hover:scale-[1.01] ${
-            statusFilter === 'Active'
+            statusFilter === 'Admitted'
               ? 'ring-2 ring-amber-500 bg-amber-500/10 border-amber-500/40'
               : isDark ? 'bg-[#0E2035]/70 border-slate-800 hover:bg-slate-800/40' : 'bg-white border-slate-200/80 hover:bg-slate-50 shadow-xs'
           }`}
         >
           <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[11px] font-semibold text-amber-500">Active Inpatient Census</span>
+            <span className="text-[11px] font-semibold text-amber-500">General Ward Inpatients</span>
             <Activity className="w-3.5 h-3.5 text-amber-500" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-amber-500">{activeInpatientsCount}</span>
-            <span className="text-[10px] text-amber-600/80 dark:text-amber-400 font-semibold">Admitted + ICU</span>
+            <span className="text-2xl font-black text-amber-500">{admittedCount}</span>
+            <span className="text-[10px] text-amber-600/80 dark:text-amber-400 font-semibold">Occupying Beds</span>
           </div>
         </div>
 
-        {/* Discharged to Home Care */}
+        {/* ICU Critical Care */}
         <div
-          onClick={() => { sound.playClick(); setStatusFilter('Discharged'); setCurrentPage(1); }}
+          onClick={() => { sound.playClick(); setStatusFilter('ICU'); setCurrentPage(1); }}
           className={`p-4 rounded-2xl border cursor-pointer transition-all hover:scale-[1.01] ${
-            statusFilter === 'Discharged'
-              ? 'ring-2 ring-purple-500 bg-purple-500/10 border-purple-500/40'
+            statusFilter === 'ICU'
+              ? 'ring-2 ring-rose-500 bg-rose-500/10 border-rose-500/40'
               : isDark ? 'bg-[#0E2035]/70 border-slate-800 hover:bg-slate-800/40' : 'bg-white border-slate-200/80 hover:bg-slate-50 shadow-xs'
           }`}
         >
           <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[11px] font-semibold text-purple-400">Discharged Patients</span>
-            <LogOut className="w-3.5 h-3.5 text-purple-400" />
+            <span className="text-[11px] font-semibold text-rose-500">Critical Care (ICU)</span>
+            <Heart className="w-3.5 h-3.5 text-rose-500" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-purple-400">{dischargedCount}</span>
-            <span className="text-[10px] text-purple-500/80 dark:text-purple-300 font-semibold">Home Care</span>
+            <span className="text-2xl font-black text-rose-500">{icuCount}</span>
+            <span className="text-[10px] text-rose-600/80 dark:text-rose-400 font-semibold">High Acuity</span>
           </div>
         </div>
 
@@ -355,17 +360,17 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
           onClick={() => { sound.playClick(); setStatusFilter('Outpatient'); setCurrentPage(1); }}
           className={`p-4 rounded-2xl border cursor-pointer transition-all hover:scale-[1.01] ${
             statusFilter === 'Outpatient'
-              ? 'ring-2 ring-emerald-500 bg-emerald-500/10 border-emerald-500/40'
+              ? 'ring-2 ring-sky-500 bg-sky-500/10 border-sky-500/40'
               : isDark ? 'bg-[#0E2035]/70 border-slate-800 hover:bg-slate-800/40' : 'bg-white border-slate-200/80 hover:bg-slate-50 shadow-xs'
           }`}
         >
           <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[11px] font-semibold text-emerald-500">Outpatient Consults</span>
-            <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
+            <span className="text-[11px] font-semibold text-sky-600">Outpatient Consults</span>
+            <UserCheck className="w-3.5 h-3.5 text-sky-600" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-emerald-500">{outpatientCount}</span>
-            <span className="text-[10px] text-emerald-600/80 dark:text-emerald-400 font-semibold">Clinic Visits</span>
+            <span className="text-2xl font-black text-sky-600">{outpatientCount}</span>
+            <span className="text-[10px] text-sky-600/80 dark:text-sky-400 font-semibold">Clinic Visits</span>
           </div>
         </div>
       </div>
@@ -383,8 +388,8 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
             onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
             className={`w-full pl-10 pr-4 py-2 rounded-2xl text-xs border outline-none transition-all ${
               isDark 
-                ? 'bg-slate-900 border-slate-700 text-white focus:border-teal-400' 
-                : 'bg-slate-50 border-slate-200 text-[#142C43] focus:border-teal-500'
+                ? 'bg-slate-900 border-slate-700 text-white focus:border-sky-400' 
+                : 'bg-slate-50 border-slate-200 text-[#142C43] focus:border-sky-500'
             }`}
           />
         </div>
@@ -393,10 +398,9 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
         <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto">
           {[
             { key: 'All', label: 'All Records', count: totalCount },
-            { key: 'Active', label: 'Active Inpatients', count: activeInpatientsCount },
+            { key: 'Active', label: 'All Inpatients', count: activeInpatientsCount },
             { key: 'Admitted', label: 'Admitted', count: admittedCount },
-            { key: 'ICU', label: 'ICU', count: icuCount },
-            { key: 'Discharged', label: 'Discharged', count: dischargedCount },
+            { key: 'ICU', label: 'Critical ICU', count: icuCount },
             { key: 'Outpatient', label: 'Outpatient', count: outpatientCount }
           ].map((tab) => (
             <button
@@ -408,10 +412,10 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
               }}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                 statusFilter === tab.key
-                  ? 'bg-teal-500 text-white shadow-xs'
+                  ? 'bg-sky-500 text-white shadow-xs'
                   : isDark
                   ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  : 'text-slate-600 hover:text-teal-700 hover:bg-teal-50'
+                  : 'text-slate-600 hover:text-sky-700 hover:bg-sky-50'
               }`}
             >
               <span>{tab.label}</span>
@@ -445,8 +449,8 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                 className={`p-4 rounded-3xl border transition-all cursor-pointer hover:scale-[1.01] ${
                   isSelected
                     ? isDark
-                      ? 'bg-blue-950/70 border-teal-500/50 shadow-lg ring-1 ring-teal-500/30'
-                      : 'bg-teal-50/80 border-teal-300 shadow-md ring-1 ring-teal-400/30'
+                      ? 'bg-blue-950/70 border-sky-500/50 shadow-lg ring-1 ring-sky-500/30'
+                      : 'bg-sky-50/80 border-sky-300 shadow-md ring-1 ring-sky-400/30'
                     : isDark
                     ? 'bg-[#0E2035]/60 border-slate-800 hover:bg-slate-800/50 text-white'
                     : 'bg-white border-slate-200/80 hover:bg-slate-50 text-[#142C43] shadow-xs'
@@ -457,7 +461,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                     <img
                       src={pat.avatar}
                       alt={pat.name}
-                      className="w-11 h-11 rounded-2xl object-cover ring-2 ring-teal-500/20 shrink-0"
+                      className="w-11 h-11 rounded-2xl object-cover ring-2 ring-sky-500/20 shrink-0"
                     />
                     <div>
                       <div className="flex items-center gap-2">
@@ -469,13 +473,13 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                             ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
                             : pat.admissionStatus === 'Discharged'
                             ? 'bg-purple-500/10 text-purple-500 border border-purple-500/20'
-                            : 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                            : 'bg-sky-500/10 text-sky-600 border border-sky-500/20'
                         }`}>
                           {pat.admissionStatus}
                         </span>
                       </div>
                       <div className="text-[11px] text-slate-400 mt-0.5">
-                        MRN: <span className="font-mono text-teal-600 dark:text-teal-400">{pat.patientCode}</span> • {pat.age} yrs • {pat.gender} • {pat.bloodGroup}
+                        MRN: <span className="font-mono text-sky-600 dark:text-sky-400">{pat.patientCode}</span> • {pat.age} yrs • {pat.gender} • {pat.bloodGroup}
                       </div>
                     </div>
                   </div>
@@ -489,7 +493,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                     {pat.diagnosis}
                   </span>
                   <div className="flex items-center gap-3 font-mono text-[11px]">
-                    <span className="text-teal-600 dark:text-teal-400 font-bold">
+                    <span className="text-sky-600 dark:text-sky-400 font-bold">
                       {pat.vitals.pulseRate} bpm
                     </span>
                     <span className="text-slate-400">{pat.vitals.bloodPressure}</span>
@@ -511,14 +515,14 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                 <button
                   disabled={currentPage <= 1}
                   onClick={() => { sound.playClick(); setCurrentPage(p => Math.max(1, p - 1)); }}
-                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-teal-50 dark:hover:bg-slate-800 transition-all font-semibold"
+                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-sky-50 dark:hover:bg-slate-800 transition-all font-semibold"
                 >
                   Prev
                 </button>
                 <button
                   disabled={currentPage >= totalPages}
                   onClick={() => { sound.playClick(); setCurrentPage(p => Math.min(totalPages, p + 1)); }}
-                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-teal-50 dark:hover:bg-slate-800 transition-all font-semibold"
+                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-sky-50 dark:hover:bg-slate-800 transition-all font-semibold"
                 >
                   Next
                 </button>
@@ -539,12 +543,12 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                   <img
                     src={selectedPatient.avatar}
                     alt={selectedPatient.name}
-                    className="w-16 h-16 rounded-3xl object-cover ring-4 ring-teal-500/20 shadow-md"
+                    className="w-16 h-16 rounded-3xl object-cover ring-4 ring-sky-500/20 shadow-md"
                   />
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="text-xl font-extrabold">{selectedPatient.name}</h3>
-                      <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold">
+                      <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 font-bold">
                         {selectedPatient.patientCode}
                       </span>
                     </div>
@@ -565,7 +569,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                       sound.playClick();
                       setIsHealthCardOpen(true);
                     }}
-                    className="px-3 py-1.5 rounded-2xl border border-teal-500/30 bg-teal-500/10 hover:bg-teal-500/20 text-teal-700 dark:text-teal-300 font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs"
+                    className="px-3 py-1.5 rounded-2xl border border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-300 font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs"
                     title="View & Print Official Patient Smart Health ID Card"
                   >
                     <CreditCard className="w-3.5 h-3.5" />
@@ -580,7 +584,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                       setActiveTab('overview');
                     }}
                     className={`px-3 py-1.5 rounded-xl font-semibold transition-all ${
-                      activeTab === 'overview' ? 'bg-teal-500 text-white' : 'text-slate-400'
+                      activeTab === 'overview' ? 'bg-sky-500 text-white' : 'text-slate-400'
                     }`}
                   >
                     Clinical Overview
@@ -591,7 +595,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                       setActiveTab('3d_anatomy');
                     }}
                     className={`px-3 py-1.5 rounded-xl font-semibold transition-all flex items-center gap-1 ${
-                      activeTab === '3d_anatomy' ? 'bg-teal-500 text-white' : 'text-slate-400'
+                      activeTab === '3d_anatomy' ? 'bg-sky-500 text-white' : 'text-slate-400'
                     }`}
                   >
                     <Sparkles className="w-3 h-3" />
@@ -603,7 +607,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                       setActiveTab('history');
                     }}
                     className={`px-3 py-1.5 rounded-xl font-semibold transition-all ${
-                      activeTab === 'history' ? 'bg-teal-500 text-white' : 'text-slate-400'
+                      activeTab === 'history' ? 'bg-sky-500 text-white' : 'text-slate-400'
                     }`}
                   >
                     Medical Timeline
@@ -623,7 +627,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                       ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
                       : selectedPatient.admissionStatus === 'Discharged'
                       ? 'bg-purple-500/10 text-purple-600 border border-purple-500/20'
-                      : 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                      : 'bg-sky-500/10 text-sky-600 border border-sky-500/20'
                   }`}>
                     {selectedPatient.admissionStatus}
                   </span>
@@ -647,7 +651,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                   ) : (
                     <button
                       onClick={handleAdmitSelected}
-                      className="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-teal-500/10 text-teal-600 hover:bg-teal-600 hover:text-white border border-teal-500/30 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+                      className="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-sky-500/10 text-sky-600 hover:bg-sky-600 hover:text-white border border-sky-500/30 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
                       title="Admit Patient to Ward"
                     >
                       <UserCheck className="w-3.5 h-3.5" />
@@ -660,7 +664,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                     className="px-3.5 py-1.5 rounded-xl font-bold text-xs glass-btn-neutral flex items-center gap-1.5 cursor-pointer shadow-xs"
                     title="Edit Patient Clinical Profile & Vitals"
                   >
-                    <Edit3 className="w-3.5 h-3.5 text-teal-500" />
+                    <Edit3 className="w-3.5 h-3.5 text-sky-500" />
                     <span>Edit Chart</span>
                   </button>
 
@@ -679,11 +683,11 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                 <div className="space-y-6 animate-in fade-in duration-300">
                   {/* Primary Diagnosis Alert */}
                   <div className={`p-4 rounded-2xl border flex items-start gap-3 ${
-                    isDark ? 'bg-slate-900/60 border-slate-700' : 'bg-teal-50/60 border-teal-200'
+                    isDark ? 'bg-slate-900/60 border-slate-700' : 'bg-sky-50/60 border-sky-200'
                   }`}>
-                    <Stethoscope className="w-5 h-5 text-teal-500 shrink-0 mt-0.5" />
+                    <Stethoscope className="w-5 h-5 text-sky-500 shrink-0 mt-0.5" />
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400 block">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400 block">
                         Active Working Diagnosis
                       </span>
                       <p className="font-bold text-sm mt-0.5">{selectedPatient.diagnosis}</p>
@@ -699,11 +703,11 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                       <div className={`p-3.5 rounded-2xl border ${isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                         <span className="text-[10px] text-slate-400 block">Blood Pressure</span>
                         <div className="text-lg font-mono font-bold mt-1">{selectedPatient.vitals.bloodPressure}</div>
-                        <span className="text-[9px] text-emerald-500 font-semibold">mmHg</span>
+                        <span className="text-[9px] text-sky-600 font-semibold">mmHg</span>
                       </div>
                       <div className={`p-3.5 rounded-2xl border ${isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                         <span className="text-[10px] text-slate-400 block">Pulse Rate</span>
-                        <div className="text-lg font-mono font-bold mt-1 text-teal-600 dark:text-teal-400">
+                        <div className="text-lg font-mono font-bold mt-1 text-sky-600 dark:text-sky-400">
                           {selectedPatient.vitals.pulseRate}
                         </div>
                         <span className="text-[9px] text-slate-400">bpm</span>
@@ -713,7 +717,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                         <div className="text-lg font-mono font-bold mt-1 text-blue-500">
                           {selectedPatient.vitals.oxygenSaturation}%
                         </div>
-                        <span className="text-[9px] text-emerald-500 font-semibold">Optimal</span>
+                        <span className="text-[9px] text-sky-600 font-semibold">Optimal</span>
                       </div>
                       <div className={`p-3.5 rounded-2xl border ${isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                         <span className="text-[10px] text-slate-400 block">Body Temp</span>
@@ -769,15 +773,15 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
                     Chronological Clinical Interventions
                   </h4>
-                  <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-teal-500/30">
+                  <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-sky-500/30">
                     {selectedPatient.medicalHistory.map((hist, index) => (
                       <div key={index} className="relative">
-                        <div className="absolute -left-6 top-1 w-3 h-3 rounded-full bg-teal-500 ring-4 ring-teal-500/20" />
+                        <div className="absolute -left-6 top-1 w-3 h-3 rounded-full bg-sky-500 ring-4 ring-sky-500/20" />
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-bold">{hist.event}</span>
                           <span className="text-[11px] font-mono text-slate-400">{hist.date}</span>
                         </div>
-                        <div className="text-[11px] text-teal-600 dark:text-teal-400 font-medium mt-0.5">
+                        <div className="text-[11px] text-sky-600 dark:text-sky-400 font-medium mt-0.5">
                           {hist.doctor} • {hist.facility}
                         </div>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
@@ -806,7 +810,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
           }`}>
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-teal-500" />
+                <UserPlus className="w-5 h-5 text-sky-500" />
                 <h3 className="font-extrabold text-base">Register New Inpatient / Outpatient</h3>
               </div>
               <button
@@ -927,7 +931,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-teal-500 hover:bg-teal-600 text-white shadow-md active:scale-95 transition-all"
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-sky-500 hover:bg-sky-600 text-white shadow-md active:scale-95 transition-all"
                 >
                   Confirm & Generate MRN
                 </button>
@@ -944,7 +948,7 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
           }`}>
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <Edit3 className="w-5 h-5 text-teal-500" />
+                <Edit3 className="w-5 h-5 text-sky-500" />
                 <h3 className="font-extrabold text-base">Edit Patient Profile & Vitals</h3>
               </div>
               <button

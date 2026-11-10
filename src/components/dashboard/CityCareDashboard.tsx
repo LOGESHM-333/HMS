@@ -107,14 +107,14 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
           {/* SUB-HEADER SWITCHER BAR (Management Suite Access) */}
         <div className="flex flex-wrap items-center justify-between pb-6 mb-6 border-b border-slate-100 dark:border-slate-800 gap-4">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+            <span className="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping" />
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Hospital Executive Live Operating System
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-cyan-500/15 backdrop-blur-md text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 shadow-xs">
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-sky-500/15 backdrop-blur-md text-sky-700 dark:text-sky-300 border border-sky-500/30 shadow-xs">
               Holographic Diagnostic Active
             </span>
 
@@ -123,9 +123,9 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
                 sound.playClick();
                 onNavigateTab('ward');
               }}
-              className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-teal-500/15 hover:bg-teal-500/25 backdrop-blur-md text-[#0C4E44] dark:text-teal-300 border border-teal-500/30 flex items-center gap-1.5 transition-all shadow-xs"
+              className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-sky-500/15 hover:bg-sky-500/25 backdrop-blur-md text-sky-800 dark:text-sky-300 border border-sky-500/30 flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
             >
-              <LayoutGrid className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <LayoutGrid className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
               <span>Ward Overview (Scrub)</span>
             </button>
 
@@ -196,7 +196,7 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
                           cy="20"
                           r="16"
                           fill="none"
-                          stroke="#10B981"
+                          stroke="#506D9C"
                           strokeWidth="3.5"
                           strokeDasharray="100"
                           strokeDashoffset="14"
@@ -233,10 +233,10 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
 
               {/* CENTER SPACER - SHOWCASING THE CRISP HOLOGRAPHIC SCAN */}
               <div className="relative z-10 flex-1 my-8 flex items-center justify-between pointer-events-none px-2">
-                <div className="px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md border border-cyan-500/30 text-[10px] font-mono text-cyan-300">
+                <div className="px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md border border-sky-500/30 text-[10px] font-mono text-sky-300">
                   SYS: NEURO-SKELETAL CENSUS
                 </div>
-                <div className="px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md border border-teal-500/30 text-[10px] font-mono text-teal-300">
+                <div className="px-2.5 py-1 rounded-lg bg-black/40 backdrop-blur-md border border-sky-500/30 text-[10px] font-mono text-sky-300">
                   VITALS: 118 / 64 mmHg
                 </div>
               </div>
@@ -245,9 +245,9 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
               <div className="relative z-10 mt-2 rounded-2xl p-4 bg-black/60 dark:bg-slate-900/90 backdrop-blur-md border border-white/15 dark:border-slate-700 shadow-2xl text-white">
                 {/* 92% Care Efficiency Rising Circular Badge */}
                 <div className="absolute -top-7 left-1/2 -translate-x-1/2 flex flex-col items-center">
-                  <div className="w-14 h-14 rounded-full bg-[#0B1725] border-2 border-dashed border-teal-400 flex flex-col items-center justify-center shadow-lg text-white">
+                  <div className="w-14 h-14 rounded-full bg-[#0B1725] border-2 border-dashed border-sky-400 flex flex-col items-center justify-center shadow-lg text-white">
                     <span className="text-xs font-black text-white">92%</span>
-                    <span className="text-[7px] font-bold text-teal-400 uppercase tracking-tighter">Care</span>
+                    <span className="text-[7px] font-bold text-sky-400 uppercase tracking-tighter">Care</span>
                   </div>
                 </div>
 
@@ -318,7 +318,7 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
               >
                 <div className="flex items-center justify-between text-slate-400 mb-2">
                   <span className="text-xs font-semibold">Total Patients</span>
-                  <span className="text-[10px] font-mono font-bold text-teal-600 dark:text-teal-400">
+                  <span className="text-[10px] font-mono font-bold text-sky-600 dark:text-sky-400">
                     {activeInpatientsCount} Active
                   </span>
                 </div>
@@ -326,8 +326,8 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
                   <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                     {totalPatientsCount}
                   </span>
-                  <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-teal-500/10 text-teal-600">
-                    {dischargedCount} Discharged
+                  <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-sky-500/10 text-sky-600">
+                    Live in SQL
                   </span>
                 </div>
               </div>

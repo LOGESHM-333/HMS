@@ -100,9 +100,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const departments = [
     { name: 'Intensive Care Unit (ICU)', occupied: 12, total: 14, percent: 86, status: 'High Acuity', note: '2 Ventilators Active', color: 'bg-rose-500', text: 'text-rose-500', bg: 'bg-rose-500/10' },
     { name: 'Emergency & Trauma Center', occupied: 18, total: 20, percent: 90, status: 'Inflow Active', note: '4 in triage queue', color: 'bg-amber-500', text: 'text-amber-500', bg: 'bg-amber-500/10' },
-    { name: 'Surgical Recovery (Post-Op)', occupied: 24, total: 28, percent: 86, status: 'Post-Op Rounds', note: '6 OR Handovers today', color: 'bg-teal-500', text: 'text-teal-500', bg: 'bg-teal-500/10' },
-    { name: 'Cardiology & CCU Pavilion', occupied: 10, total: 12, percent: 83, status: 'Telemetry Active', note: 'All vitals monitored', color: 'bg-cyan-500', text: 'text-cyan-500', bg: 'bg-cyan-500/10' },
-    { name: 'General Medicine Wards', occupied: 36, total: 48, percent: 75, status: 'Normal Flow', note: '12 Beds Ready for Admission', color: 'bg-emerald-500', text: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+    { name: 'Surgical Recovery (Post-Op)', occupied: 24, total: 28, percent: 86, status: 'Post-Op Rounds', note: '6 OR Handovers today', color: 'bg-sky-500', text: 'text-sky-600', bg: 'bg-sky-500/10' },
+    { name: 'Cardiology & CCU Pavilion', occupied: 10, total: 12, percent: 83, status: 'Telemetry Active', note: 'All vitals monitored', color: 'bg-sky-400', text: 'text-sky-600', bg: 'bg-sky-500/10' },
+    { name: 'General Medicine Wards', occupied: 36, total: 48, percent: 75, status: 'Normal Flow', note: '12 Beds Ready for Admission', color: 'bg-sky-600', text: 'text-sky-700', bg: 'bg-sky-500/10' },
     { name: 'Pediatrics & Maternity Wing', occupied: 12, total: 18, percent: 67, status: 'Stable Flow', note: '6 Beds Available', color: 'bg-purple-500', text: 'text-purple-500', bg: 'bg-purple-500/10' },
   ];
 
@@ -118,7 +118,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
                 Hello, {db.getRoleName(currentRole).split(' ')[0]}
               </h1>
-              <span className="p-1 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400">
+              <span className="p-1 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400">
                 <Sparkles className="w-3.5 h-3.5" />
               </span>
             </div>
@@ -134,9 +134,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 sound.playClick();
                 onNavigateTab('patients');
               }}
-              className="px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border border-teal-500/30 hover:bg-teal-100 cursor-pointer"
+              className="px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-500/30 hover:bg-sky-100 cursor-pointer"
             >
-              <UserPlus className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <UserPlus className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
               <span>Admit Patient</span>
             </button>
 
@@ -145,7 +145,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 sound.playClick();
                 onNavigateTab('appointments');
               }}
-              className="px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-[#0F52BA] hover:bg-[#0D47A8] text-white shadow-xs transition-all cursor-pointer"
+              className="px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-[#3B4E6A] hover:bg-[#2E3E55] text-white shadow-xs transition-all cursor-pointer"
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Book Consultation</span>
@@ -166,7 +166,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="font-extrabold text-base tracking-tight">Hospital Facility Operations & Ward Census</h3>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600 border border-teal-500/20">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-600 border border-sky-500/20">
                     LIVE
                   </span>
                 </div>
@@ -178,7 +178,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   sound.playClick();
                   onNavigateTab('beds');
                 }}
-                className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-center"
+                className="text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-center"
               >
                 <span>Bed Manager</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -194,7 +194,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     sound.playClick();
                     onNavigateTab('beds');
                   }}
-                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer hover:border-teal-500/40 ${
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer hover:border-sky-500/40 ${
                     isDark ? 'bg-slate-900/50 border-slate-800' : 'bg-slate-50 border-slate-200/80'
                   }`}
                 >
@@ -223,13 +223,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             {/* Facility Highlights Bar */}
             <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-              <div className="p-2.5 rounded-xl bg-teal-500/5 border border-teal-500/15">
+              <div className="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20">
                 <span className="text-[10px] font-bold text-slate-400 block uppercase">Operating Theaters</span>
-                <span className="font-black text-sm text-teal-600">4 / 6 Active</span>
+                <span className="font-black text-sm text-sky-600">4 / 6 Active</span>
               </div>
-              <div className="p-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/15">
+              <div className="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20">
                 <span className="text-[10px] font-bold text-slate-400 block uppercase">ER Wait Time</span>
-                <span className="font-black text-sm text-emerald-500">14 min avg</span>
+                <span className="font-black text-sm text-sky-600">14 min avg</span>
               </div>
               <div className="p-2.5 rounded-xl bg-blue-500/5 border border-blue-500/15">
                 <span className="text-[10px] font-bold text-slate-400 block uppercase">Blood Bank</span>
@@ -255,11 +255,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   Overall Patient Recovery Rate
                 </span>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-black text-emerald-500">86</span>
+                  <span className="text-2xl font-black text-sky-600">86</span>
                   <span className="text-xs text-slate-400">/ 100%</span>
                 </div>
                 <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-2 overflow-hidden">
-                  <div className="bg-gradient-to-r from-teal-400 to-emerald-500 h-full rounded-full w-[86%]" />
+                  <div className="bg-gradient-to-r from-sky-400 to-sky-600 h-full rounded-full w-[86%]" />
                 </div>
               </div>
 
@@ -279,8 +279,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               {/* Care Efficiency Circle Badge */}
               <div className="flex items-center gap-3">
-                <div className="relative w-14 h-14 rounded-full border-4 border-teal-500/20 flex flex-col items-center justify-center shrink-0">
-                  <span className="text-sm font-black text-teal-600 dark:text-teal-400">92%</span>
+                <div className="relative w-14 h-14 rounded-full border-4 border-sky-500/25 flex flex-col items-center justify-center shrink-0">
+                  <span className="text-sm font-black text-sky-600 dark:text-sky-400">92%</span>
                 </div>
                 <div className="text-xs">
                   <span className="font-bold block">Care Efficiency</span>
@@ -308,15 +308,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             >
               <div className="flex items-center justify-between text-slate-400 mb-2">
                 <span className="text-xs font-semibold">Total Patients</span>
-                <Users className="w-4 h-4 text-teal-500" />
+                <Users className="w-4 h-4 text-sky-500" />
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-extrabold tracking-tight">{totalPatientsCount}</span>
-                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-teal-500/10 text-teal-600 flex items-center gap-0.5">
+                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-sky-500/10 text-sky-600 flex items-center gap-0.5">
                   {activeInpatientsCount} Active
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 mt-2">{activeInpatientsCount} Inpatients • {dischargedCount} Discharged</p>
+              <p className="text-[10px] text-slate-400 mt-2">{activeInpatientsCount} Active Inpatients • {totalPatientsCount - activeInpatientsCount} Outpatients</p>
             </div>
 
             {/* Available Beds */}
@@ -469,7 +469,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       }`}>
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
+            <div className="p-2.5 rounded-2xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
@@ -482,7 +482,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <div className="flex items-center gap-3">
             <span className="text-xs font-semibold text-slate-400">Hospital Accreditation Score:</span>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center gap-1.5">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-sky-500/10 text-sky-600 border border-sky-500/20 flex items-center gap-1.5">
               <Check className="w-3.5 h-3.5" />
               <span>NABH Level 5 (94.8% Optimal)</span>
             </span>
@@ -497,7 +497,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}>
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/10 text-emerald-600">
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-500/10 text-sky-600">
                   -0.4 Days
                 </span>
                 <span className="text-xs font-semibold text-slate-400">Avg Length of Stay (ALOS)</span>
@@ -519,13 +519,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="grid grid-cols-3 gap-2 mt-2">
               <div>
                 <span className="text-[10px] text-slate-400 block">Infection Rate</span>
-                <div className="text-xs font-bold mt-0.5 text-emerald-500">0.12%</div>
+                <div className="text-xs font-bold mt-0.5 text-sky-600">0.12%</div>
                 <span className="text-[9px] text-slate-400">Benchmark &lt; 0.5%</span>
               </div>
               <div>
                 <span className="text-[10px] text-slate-400 block">Med. Errors</span>
-                <div className="text-xs font-bold mt-0.5 text-teal-600">0.00%</div>
-                <span className="text-[9px] text-emerald-500 font-semibold">Zero Target</span>
+                <div className="text-xs font-bold mt-0.5 text-sky-600">0.00%</div>
+                <span className="text-[9px] text-sky-600 font-semibold">Zero Target</span>
               </div>
               <div>
                 <span className="text-[10px] text-slate-400 block">Readmissions</span>
@@ -541,17 +541,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}>
             <div>
               <span className="text-xs font-semibold text-slate-400 block">Patient Satisfaction (NPS)</span>
-              <div className="text-3xl font-black mt-1 text-teal-600 dark:text-teal-400">
+              <div className="text-3xl font-black mt-1 text-sky-600 dark:text-sky-400">
                 +78 <span className="text-xs font-normal text-slate-400">NPS</span>
               </div>
-              <span className="text-[10px] text-emerald-500 font-semibold">96.2% Positive Feedback</span>
+              <span className="text-[10px] text-sky-500 font-semibold">96.2% Positive Feedback</span>
             </div>
 
             <div className="space-y-1 text-right">
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600 block">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-600 block">
                 Discharge: 42m
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 block">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-600 block">
                 Quality: Excellent
               </span>
             </div>
@@ -563,7 +563,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       <div className="rounded-3xl p-6 bg-[#07111E] text-white border border-slate-800 shadow-2xl space-y-6">
         <div className="flex items-center justify-between pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-teal-400" />
+            <span className="w-2.5 h-2.5 rounded-full bg-sky-400" />
             <h3 className="font-extrabold text-sm uppercase tracking-wider text-slate-200">
               Department Operations & Patient Symptom Triage Center
             </h3>
@@ -576,7 +576,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="lg:col-span-4 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-300">Patients Symptoms</span>
-              <span className="text-[11px] text-teal-400">Interactive Triage</span>
+              <span className="text-[11px] text-sky-400">Interactive Triage</span>
             </div>
 
             {/* Clickable Symptom Pills */}
@@ -604,7 +604,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="flex items-center justify-between text-xs">
                 <span className="text-slate-400">Severity Level:</span>
                 <span className={`font-bold ${
-                  severityLevel === 'Severe' ? 'text-rose-500' : severityLevel === 'Moderate' ? 'text-amber-500' : 'text-teal-400'
+                  severityLevel === 'Severe' ? 'text-rose-500' : severityLevel === 'Moderate' ? 'text-amber-500' : 'text-sky-400'
                 }`}>
                   {severityLevel}
                 </span>
@@ -618,7 +618,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   const val = parseInt(e.target.value);
                   setSeverityLevel(val === 1 ? 'Mild' : val === 2 ? 'Moderate' : 'Severe');
                 }}
-                className="w-full accent-teal-500 cursor-pointer"
+                className="w-full accent-sky-500 cursor-pointer"
               />
             </div>
           </div>

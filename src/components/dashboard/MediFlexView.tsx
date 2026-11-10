@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -39,7 +39,7 @@ export const MediFlexView: React.FC<MediFlexViewProps> = ({ theme, onOpenDetails
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* TOP HEADER SUMMARY BAR */}
       <div className={`p-4 rounded-3xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
-        isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-teal-100/80 text-[#142C43] shadow-xs'
+        isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-sky-100/80 text-[#142C43] shadow-xs'
       }`}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
@@ -48,7 +48,7 @@ export const MediFlexView: React.FC<MediFlexViewProps> = ({ theme, onOpenDetails
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base font-extrabold tracking-tight">MediFlex Clinical Health Intelligence</h2>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600 border border-teal-500/20">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-600 border border-sky-500/20">
                 Live 3D Telemetry
               </span>
             </div>
@@ -60,7 +60,7 @@ export const MediFlexView: React.FC<MediFlexViewProps> = ({ theme, onOpenDetails
 
         <div className="flex items-center gap-3 text-xs">
           <span className="text-slate-400">Patient: <strong className="text-slate-700 dark:text-slate-200">{selectedPatient.name}</strong></span>
-          <span className="px-2.5 py-1 rounded-full font-mono font-bold bg-teal-50 dark:bg-slate-800 text-teal-600 dark:text-teal-400 border border-teal-100 dark:border-slate-700">
+          <span className="px-2.5 py-1 rounded-full font-mono font-bold bg-sky-50 dark:bg-slate-800 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-slate-700">
             {selectedPatient.patientCode}
           </span>
         </div>
@@ -118,7 +118,7 @@ export const MediFlexView: React.FC<MediFlexViewProps> = ({ theme, onOpenDetails
                   <span className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-white text-[11px] font-mono">
                     HR: 118 bpm
                   </span>
-                  <span className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-teal-300 text-[11px] font-mono">
+                  <span className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-sky-300 text-[11px] font-mono">
                     BP: 64 mmHg
                   </span>
                 </div>
@@ -130,7 +130,7 @@ export const MediFlexView: React.FC<MediFlexViewProps> = ({ theme, onOpenDetails
                   <span className="w-2 h-2 rounded-full bg-cyan-400" />
                   <span>Stomach & Gastric Acid: Normal</span>
                 </div>
-                <div className="px-3 py-1 rounded-full bg-teal-950/80 backdrop-blur-md border border-teal-400/40 text-teal-200 text-xs font-semibold shadow-md flex items-center gap-1.5">
+                <div className="px-3 py-1 rounded-full bg-sky-950/80 backdrop-blur-md border border-sky-400/40 text-sky-200 text-xs font-semibold shadow-md flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-teal-400" />
                   <span>Thoracic Spine: Aligned</span>
                 </div>
@@ -174,9 +174,9 @@ export const MediFlexView: React.FC<MediFlexViewProps> = ({ theme, onOpenDetails
               </div>
 
               <div className={`p-4 rounded-2xl border text-xs space-y-2 ${
-                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-[#F8FBFA] border-teal-100/60'
+                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-[#F0F7FD] border-sky-100/60'
               }`}>
-                <div className="flex items-center gap-2 text-teal-600 dark:text-teal-400 font-bold">
+                <div className="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-bold">
                   <ShieldCheck className="w-4 h-4" />
                   <span>Clinical Assessment</span>
                 </div>
@@ -207,7 +207,7 @@ export const MediFlexView: React.FC<MediFlexViewProps> = ({ theme, onOpenDetails
             {/* Heart Age Comparison */}
             <div className="grid grid-cols-2 gap-4">
               <div className={`p-4 rounded-2xl border ${
-                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-[#F4F9F7] border-teal-100/60'
+                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-[#F0F7FD] border-sky-100/60'
               }`}>
                 <div className="flex items-center gap-1.5 mb-1">
                   <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-rose-500/15 text-rose-500">
@@ -221,7 +221,7 @@ export const MediFlexView: React.FC<MediFlexViewProps> = ({ theme, onOpenDetails
               </div>
 
               <div className={`p-4 rounded-2xl border ${
-                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-[#F4F9F7] border-teal-100/60'
+                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-[#F0F7FD] border-sky-100/60'
               }`}>
                 <span className="text-xs text-slate-400 font-semibold block mb-1">Chronological</span>
                 <div className="text-3xl font-extrabold text-slate-600 dark:text-slate-300">
@@ -275,8 +275,8 @@ export const MediFlexView: React.FC<MediFlexViewProps> = ({ theme, onOpenDetails
                 <span className="text-[10px] font-semibold text-slate-400 block">HbA1c</span>
                 <div className="text-base font-extrabold mt-1 text-slate-900 dark:text-white">5.1%</div>
                 <div className="mt-2 flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-teal-500" />
-                  <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400">Optimal</span>
+                  <span className="w-2 h-2 rounded-full bg-sky-500" />
+                  <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400">Optimal</span>
                 </div>
               </div>
 
@@ -339,7 +339,7 @@ export const MediFlexView: React.FC<MediFlexViewProps> = ({ theme, onOpenDetails
                 <span className="text-xs font-semibold text-slate-400 block">Pulse Rate Radial Sensor</span>
                 <span className="text-[11px] text-slate-400">08:12 AM Sync</span>
               </div>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-500/10 text-teal-600 dark:text-teal-400">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400">
                 Optimal
               </span>
             </div>

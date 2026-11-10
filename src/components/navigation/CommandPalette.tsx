@@ -45,7 +45,7 @@ interface CommandResultItem {
   title: string;
   subtitle: string;
   tag: string;
-  tagType?: 'optimal' | 'elevated' | 'critical' | 'teal' | 'neutral';
+  tagType?: 'optimal' | 'elevated' | 'critical' | 'sky' | 'neutral';
   meta?: string;
   icon?: any;
   avatar?: string;
@@ -164,7 +164,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 title: it.medicineName,
                 subtitle: `${it.dosage} • ${it.frequency} (Duration: ${it.duration})`,
                 tag: it.dispensed ? 'Dispensed' : 'Active Regimen',
-                tagType: 'teal',
+                tagType: 'sky',
                 meta: `Prescribing Doctor: ${rx.doctorName}`,
                 icon: Pill,
                 onSelect: () => {
@@ -270,7 +270,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               title: m.title,
               subtitle: m.subtitle,
               tag: 'PATIENT VIEW',
-              tagType: 'teal',
+              tagType: 'sky',
               icon: m.icon,
               onSelect: () => {
                 sound.playClick();
@@ -324,7 +324,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               title: `${apt.patientName} (${apt.visitType})`,
               subtitle: `${apt.department} • Today at ${apt.time}`,
               tag: apt.status,
-              tagType: 'teal',
+              tagType: 'sky',
               icon: Calendar,
               onSelect: () => {
                 sound.playClick();
@@ -346,7 +346,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               title: `Rx #${rx.id} - ${rx.patientName}`,
               subtitle: `${rx.items.map(it => it.medicineName).join(', ')}`,
               tag: rx.status,
-              tagType: 'teal',
+              tagType: 'sky',
               icon: Pill,
               onSelect: () => {
                 sound.playClick();
@@ -378,7 +378,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               title: m.title,
               subtitle: m.subtitle,
               tag: 'DOCTOR STATION',
-              tagType: 'teal',
+              tagType: 'sky',
               icon: m.icon,
               onSelect: () => {
                 sound.playClick();
@@ -459,7 +459,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               title: m.title,
               subtitle: m.subtitle,
               tag: 'HEAD NURSE',
-              tagType: 'teal',
+              tagType: 'sky',
               icon: m.icon,
               onSelect: () => {
                 sound.playClick();
@@ -522,7 +522,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               title: m.title,
               subtitle: m.subtitle,
               tag: 'SUPER ADMIN',
-              tagType: 'teal',
+              tagType: 'sky',
               icon: m.icon,
               onSelect: () => {
                 sound.playClick();
@@ -646,7 +646,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             title: m.title,
             subtitle: m.subtitle,
             tag: 'ADMIN',
-            tagType: 'teal',
+            tagType: 'sky',
             icon: m.icon,
             onSelect: () => {
               sound.playClick();
@@ -726,8 +726,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       >
         {/* Top Search Input Box with Portal Scope Indicator */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-200/80 dark:border-slate-800">
-          <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 shrink-0">
-            <Search className="w-5 h-5" />
+          <img src="/assets/medicore-logo.png" alt="MediCore Logo" className="w-8 h-8 rounded-xl object-contain shadow-xs shrink-0" />
+          <div className="p-1.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 shrink-0">
+            <Search className="w-4 h-4" />
           </div>
           <input
             ref={inputRef}
@@ -746,7 +747,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             className="flex-1 bg-transparent outline-none text-sm sm:text-base font-semibold placeholder:text-slate-400"
           />
           <div className="hidden sm:flex items-center gap-1.5 shrink-0">
-            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20">
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-sky-500/10 text-sky-700 dark:text-sky-300 border border-sky-500/20">
               {portalNameLabel}
             </span>
             <button
@@ -771,7 +772,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 }}
                 className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                   isActive
-                    ? 'bg-teal-600 text-white shadow-xs'
+                    ? 'bg-sky-600 text-white shadow-xs'
                     : 'text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
                 }`}
               >
@@ -785,7 +786,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         <div ref={listRef} className="flex-1 overflow-y-auto p-2 divide-y divide-slate-100/60 dark:divide-slate-800/60">
           {results.length === 0 ? (
             <div className="py-12 text-center text-xs text-slate-400">
-              <Search className="w-8 h-8 mx-auto mb-2 opacity-30 text-teal-500" />
+              <Search className="w-8 h-8 mx-auto mb-2 opacity-30 text-sky-500" />
               <p className="font-bold text-sm text-slate-600 dark:text-slate-300">
                 {portalMode === 'patient' ? 'No personal records match your search' : 'No matching records found'}
               </p>
@@ -807,7 +808,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   onMouseEnter={() => setSelectedIndex(idx)}
                   className={`p-3 rounded-2xl flex items-center justify-between gap-3 cursor-pointer transition-all ${
                     isSelected
-                      ? 'bg-teal-500/10 border border-teal-500/25 shadow-xs'
+                      ? 'bg-sky-500/10 border border-sky-500/25 shadow-xs'
                       : 'hover:bg-slate-50 dark:hover:bg-slate-800/40 border border-transparent'
                   }`}
                 >
@@ -820,7 +821,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       />
                     ) : Icon ? (
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                        isSelected ? 'bg-teal-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-teal-600 dark:text-teal-400'
+                        isSelected ? 'bg-sky-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-sky-600 dark:text-sky-400'
                       }`}>
                         <Icon className="w-5 h-5" />
                       </div>
@@ -858,7 +859,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 hidden sm:inline">
                       {item.category}
                     </span>
-                    <div className={`p-1.5 rounded-lg ${isSelected ? 'bg-teal-600 text-white' : 'text-slate-400'}`}>
+                    <div className={`p-1.5 rounded-lg ${isSelected ? 'bg-sky-600 text-white' : 'text-slate-400'}`}>
                       <CornerDownLeft className="w-3.5 h-3.5" />
                     </div>
                   </div>
@@ -885,7 +886,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               <span>to close</span>
             </span>
           </div>
-          <span className="font-semibold text-teal-600 dark:text-teal-400 text-[10px] uppercase tracking-wider">
+          <span className="font-semibold text-sky-600 dark:text-sky-400 text-[10px] uppercase tracking-wider">
             {portalNameLabel} Search
           </span>
         </div>

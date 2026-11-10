@@ -7,8 +7,6 @@ import React, { useState } from 'react';
 import {
   Search,
   Bell,
-  Sun,
-  Moon,
   Volume2,
   VolumeX,
   ChevronDown,
@@ -24,8 +22,8 @@ import { sound } from '../../services/audioService';
 interface TopBarProps {
   currentRole: UserRole;
   portalMode: string;
-  theme: ThemeMode;
-  onToggleTheme: () => void;
+  theme?: ThemeMode;
+  onToggleTheme?: () => void;
   onOpenSearch?: () => void;
   onMobileMenuOpen?: () => void;
   pageTitle?: string;
@@ -65,14 +63,20 @@ export const TopBar: React.FC<TopBarProps> = ({
 
   return (
     <header className="docr-topbar">
-      {/* Mobile Menu Toggle */}
-      <button
-        className="md:hidden p-2 rounded-lg flex-shrink-0"
-        style={{ background: 'var(--color-surface-2)', color: 'var(--color-text-secondary)' }}
-        onClick={onMobileMenuOpen}
-      >
-        <Menu size={18} />
-      </button>
+      {/* Mobile Menu Toggle & Brand */}
+      <div className="md:hidden flex items-center gap-2 flex-shrink-0">
+        <button
+          className="p-2 rounded-lg flex-shrink-0"
+          style={{ background: 'var(--color-surface-2)', color: 'var(--color-text-secondary)' }}
+          onClick={onMobileMenuOpen}
+        >
+          <Menu size={18} />
+        </button>
+        <div className="flex items-center gap-1.5">
+          <img src="/assets/medicore-logo.png" alt="MediCore Logo" className="w-6 h-6 rounded-md object-contain shadow-xs" />
+          <span className="text-xs font-bold" style={{ color: 'var(--color-text-primary)' }}>MediCore</span>
+        </div>
+      </div>
 
       {/* Page Title (desktop) */}
       {pageTitle && (
@@ -103,7 +107,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       </button>
 
       {/* Controls */}
-      <div className="flex items-center gap-1.5 flex-shrink-0">
+      <div className="flex items-center gap-2 flex-shrink-0">
         {/* Search (mobile) */}
         <button
           className="sm:hidden p-2 rounded-xl"
@@ -123,15 +127,6 @@ export const TopBar: React.FC<TopBarProps> = ({
           {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
         </button>
 
-        {/* Theme toggle */}
-        <button
-          onClick={() => { sound.playClick(); onToggleTheme(); }}
-          className="p-2 rounded-xl transition-colors"
-          style={{ background: 'var(--color-surface-2)', color: 'var(--color-text-secondary)' }}
-          title={isDark ? 'Light mode' : 'Dark mode'}
-        >
-          {isDark ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
 
         {/* Notifications */}
         <div className="relative">
