@@ -361,7 +361,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       // Doctor Navigation Modules
       if (activeCategory === 'all' || activeCategory === 'nav') {
         const docModules = [
-          { title: 'Doctor Overview Dashboard', subtitle: 'Live telemetry, census, and shift status', tab: 'doctor-overview', icon: Activity },
+          { title: 'Doctor Overview Dashboard', subtitle: 'Ward telemetry, census, and shift status', tab: 'doctor-overview', icon: Activity },
           { title: 'Inpatient Rounds & Telemetry', subtitle: 'Patient watchlist, MEWS acuity, and chart reviews', tab: 'doctor-patients', icon: Users },
           { title: 'Clinical SOAP Chart Notes', subtitle: 'Subjective, Objective, Assessment, Plan notes', tab: 'doctor-soap', icon: ClipboardList },
           { title: 'E-Prescriptions & Refills', subtitle: 'Digital prescription authoring and pharmacy dispatch', tab: 'doctor-rx', icon: Pill },
@@ -508,7 +508,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
       if (activeCategory === 'all' || activeCategory === 'nav') {
         const adminModules = [
-          { title: 'Multi-Hospital Network Telemetry', subtitle: '4 facility nodes live capacity & ICU beds', tab: 'overview', icon: Building2 },
+          { title: 'Multi-Hospital Network Telemetry', subtitle: '4 facility nodes capacity & ICU beds', tab: 'overview', icon: Building2 },
           { title: 'Role-Based Access Control (RBAC)', subtitle: 'User provision, 2FA enforcement, and access tiers', tab: 'overview', icon: ShieldCheck },
           { title: 'HIPAA & Compliance Audit Trail', subtitle: 'Cryptographic immutable security audit logs', tab: 'overview', icon: FileText },
           { title: 'API & Server Infrastructure', subtitle: 'Express REST backend and database storage latency', tab: 'overview', icon: Activity }
@@ -631,11 +631,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       const adminNavs = [
         { title: 'Executive Operations Dashboard', subtitle: 'Facility census, capacity, and clinical safety index', tab: 'dashboard', icon: Building2 },
         { title: 'Patient Directory & EMR Records', subtitle: 'Comprehensive patient directory and 3D organ volumetry', tab: 'patients', icon: Users },
-        { title: 'Inpatient Ward & Bed Flow', subtitle: 'Live census, ward telemetry, and bed allocations', tab: 'ward', icon: BedIcon },
+        { title: 'Inpatient Ward & Bed Flow', subtitle: 'Inpatient census, ward telemetry, and bed allocations', tab: 'ward', icon: BedIcon },
         { title: 'Hospital Central Pharmacy', subtitle: 'Formulary management, stock inventory, and dispensation', tab: 'pharmacy', icon: Pill },
         { title: 'Diagnostic Laboratory & Imaging', subtitle: 'STAT pathology tests, blood panels, and imaging orders', tab: 'lab', icon: FlaskConical },
         { title: 'Billing, Invoices & Claims', subtitle: 'GST invoices, insurance remittance, and payment gateway', tab: 'billing', icon: CreditCard },
-        { title: 'System Settings & Security', subtitle: 'Personal credentials, active sessions, and audit logs', tab: 'settings', icon: FileText }
+        { title: 'System Settings & Security', subtitle: 'Personal credentials, session security, and audit logs', tab: 'settings', icon: FileText }
       ];
 
       adminNavs.forEach(m => {

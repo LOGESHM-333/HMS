@@ -723,7 +723,7 @@ const FloorplanBedCell: React.FC<{
         </span>
 
         <span className={`w-2 h-2 rounded-full ${
-          hasCallBell ? 'bg-rose-500 animate-ping' : isOccupied ? 'bg-teal-500' : isAvailable ? 'bg-emerald-500' : 'bg-amber-500'
+          hasCallBell ? 'bg-rose-500' : isOccupied ? 'bg-teal-500' : isAvailable ? 'bg-emerald-500' : 'bg-amber-500'
         }`} />
       </div>
 

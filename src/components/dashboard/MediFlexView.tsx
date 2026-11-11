@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -49,7 +49,7 @@ export const MediFlexView: React.FC<MediFlexViewProps> = ({ theme, onOpenDetails
             <div className="flex items-center gap-2">
               <h2 className="text-base font-extrabold tracking-tight">MediFlex Clinical Health Intelligence</h2>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-600 border border-sky-500/20">
-                Live 3D Telemetry
+                3D Telemetry
               </span>
             </div>
             <p className="text-xs text-slate-400">

@@ -204,7 +204,7 @@ export const AppointmentManager: React.FC<AppointmentManagerProps> = ({ theme })
         }`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
             <div>
-              <h3 className="font-extrabold text-sm">Appointment History & Live Clinical Queue</h3>
+              <h3 className="font-extrabold text-sm">Appointment History & Clinical Queue</h3>
               <span className="text-xs text-slate-400">Filtered consultations for {selectedDate}</span>
             </div>
 

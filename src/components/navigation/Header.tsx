@@ -338,7 +338,7 @@ export const Header: React.FC<HeaderProps> = ({
                 isDark ? 'bg-[#0E2035] border-slate-700 text-white' : 'bg-white border-slate-200 text-[#142C43]'
               }`}>
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
-                  <span className="font-bold text-xs">Live Telemetry Alerts</span>
+                  <span className="font-bold text-xs">Telemetry Alerts</span>
                   <span className="text-[10px] text-sky-500 font-bold">{alerts.length} active</span>
                 </div>
                 <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-64 overflow-y-auto mt-2">

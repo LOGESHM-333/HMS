@@ -867,9 +867,8 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
                   Dr. Roger S., MD • Pulmonology & Critical Care
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Live EMR Connected
+                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/20">
+                  EMR Connected
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2 flex-wrap">
@@ -1048,7 +1047,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-4">
                   <div>
                     <h3 className="font-extrabold text-base tracking-tight">Assigned Inpatient Watchlist</h3>
-                    <p className="text-xs text-slate-400">Live bedside telemetry and rounding status in Ward 4</p>
+                    <p className="text-xs text-slate-400">Bedside telemetry and rounding status in Ward 4</p>
                   </div>
                   <button
                     onClick={() => handleTabChange('doctor-patients')}
@@ -1229,7 +1228,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                   <h3 className="font-black text-sm tracking-tight">Active Patient Channels</h3>
                 </div>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600">
-                  {patients.length} Live
+                  {patients.length} Inpatients
                 </span>
               </div>
 
@@ -1312,7 +1311,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
               </div>
 
               <div className="mt-3 p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-xs shrink-0">
-                <span className="font-bold text-teal-600 dark:text-teal-400 block mb-0.5 text-[11px]">⚡ Live Clinical Bridge</span>
+                <span className="font-bold text-teal-600 dark:text-teal-400 block mb-0.5 text-[11px]">Clinical Consultation Bridge</span>
                 <p className="text-[10px] text-slate-600 dark:text-slate-300">
                   Replies sync directly to patient portal in real time.
                 </p>
@@ -1778,7 +1777,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6 gap-3">
             <div>
               <h3 className="text-lg font-black tracking-tight">Doctor Consultation Agenda & Telehealth Suites</h3>
-              <p className="text-xs text-slate-400">Scheduled outpatient sessions, follow-ups, and live virtual consultation rooms</p>
+              <p className="text-xs text-slate-400">Scheduled outpatient sessions, follow-ups, and virtual consultation rooms</p>
             </div>
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-teal-500/10 text-teal-600">
               Dr. Roger S. • Schedule Active
@@ -2707,7 +2706,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-lg flex items-center gap-2"
                 >
-                  <Radio className="w-4 h-4 animate-ping" />
+                  <Radio className="w-4 h-4" />
                   <span>Transmit Code Broadcast</span>
                 </button>
               </div>
@@ -2723,7 +2722,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
             {/* Header */}
             <div className="p-4 px-6 bg-slate-900/80 border-b border-cyan-500/20 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="w-3 h-3 rounded-full bg-emerald-500" />
                 <div>
                   <h3 className="font-black text-sm text-cyan-300">
                     MediCore Encrypted Telehealth Suite • {activeTelehealthApt.patientName}

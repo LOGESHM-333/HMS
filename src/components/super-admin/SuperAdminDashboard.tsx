@@ -440,7 +440,7 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
                 <Building2 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
                 <span>Connected Multi-Facility Hospital Nodes</span>
               </h3>
-              <span className="text-xs font-bold text-slate-400">Live Telemetry Synchronized</span>
+              <span className="text-xs font-bold text-slate-400">Facility Telemetry Synchronized</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

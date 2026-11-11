@@ -166,9 +166,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="font-extrabold text-base tracking-tight">Hospital Facility Operations & Ward Census</h3>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-600 border border-sky-500/20">
-                    LIVE
-                  </span>
                 </div>
                 <p className="text-xs text-slate-400 mt-0.5">Real-time departmental capacity and bed occupancy across CityCare Central</p>
               </div>
@@ -568,7 +565,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               Department Operations & Patient Symptom Triage Center
             </h3>
           </div>
-          <span className="text-xs text-slate-400">Live Hospital Floor Status</span>
+          <span className="text-xs text-slate-400">Hospital Floor Status</span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

@@ -105,7 +105,7 @@ const NAV_GROUPS: NavGroup[] = [
     roles: ['doctor', 'nurse', 'patient'],
     items: [
       { id: 'doctor-overview', label: 'Doctor Overview', icon: LayoutDashboard, roles: ['doctor'] },
-      { id: 'doctor-chat', label: 'Patient Inquiries & Tele-Chat', icon: Stethoscope, roles: ['doctor'], badge: 'Live', badgeVariant: 'info' },
+      { id: 'doctor-chat', label: 'Patient Inquiries & Tele-Chat', icon: Stethoscope, roles: ['doctor'] },
       { id: 'doctor-patients', label: 'Inpatient Rounds & Rosters', icon: Bed, roles: ['doctor'], badge: '5' },
       { id: 'doctor-rx', label: 'E-Prescriptions & Refills', icon: Pill, roles: ['doctor'], badge: '2' },
       { id: 'doctor-labs', label: 'Lab & Imaging Orders', icon: FlaskConical, roles: ['doctor'], badge: '3' },
@@ -128,7 +128,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: 'patient-records', label: 'Medical History', icon: FileText, roles: ['patient'] },
       { id: 'patient-vaccines', label: 'Vaccine Passport', icon: ShieldCheck, roles: ['patient'] },
       { id: 'patient-billing', label: 'Billing & Insurance', icon: CreditCard, roles: ['patient'] },
-      { id: 'patient-messages', label: 'Doctor Chat', icon: Users, roles: ['patient'], badge: 'Online', badgeVariant: 'info' },
+      { id: 'patient-messages', label: 'Doctor Chat', icon: Users, roles: ['patient'] },
       { id: 'patient-nutrition', label: 'Nutrition & Diet', icon: Layers, roles: ['patient'] },
       { id: 'patient-emergency', label: 'Emergency SOS', icon: Activity, roles: ['patient'] },
     ],
@@ -216,22 +216,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside
         className={`docr-sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}
       >
-        {/* Healthcare / Hospital Project-Related Visual Design: ECG Pulse Waves & Floating Clinical Crosses */}
-        <div className="sidebar-medical-fx" aria-hidden="true">
-          <svg className="med-ecg-svg top" viewBox="0 0 300 120" preserveAspectRatio="none">
-            <path className="med-ecg-glow" d="M0,60 L40,60 L50,60 L55,40 L60,85 L68,15 L76,105 L82,50 L88,65 L94,60 L140,60 L148,60 L153,42 L158,82 L165,18 L173,102 L179,52 L185,64 L191,60 L240,60 L248,60 L253,44 L258,80 L265,22 L272,98 L278,54 L284,63 L290,60 L300,60" />
-            <path className="med-ecg-line" d="M0,60 L40,60 L50,60 L55,40 L60,85 L68,15 L76,105 L82,50 L88,65 L94,60 L140,60 L148,60 L153,42 L158,82 L165,18 L173,102 L179,52 L185,64 L191,60 L240,60 L248,60 L253,44 L258,80 L265,22 L272,98 L278,54 L284,63 L290,60 L300,60" />
-          </svg>
-          <svg className="med-ecg-svg bottom" viewBox="0 0 300 120" preserveAspectRatio="none">
-            <path className="med-ecg-glow" d="M0,60 L40,60 L50,60 L55,40 L60,85 L68,15 L76,105 L82,50 L88,65 L94,60 L140,60 L148,60 L153,42 L158,82 L165,18 L173,102 L179,52 L185,64 L191,60 L240,60 L248,60 L253,44 L258,80 L265,22 L272,98 L278,54 L284,63 L290,60 L300,60" />
-            <path className="med-ecg-line" d="M0,60 L40,60 L50,60 L55,40 L60,85 L68,15 L76,105 L82,50 L88,65 L94,60 L140,60 L148,60 L153,42 L158,82 L165,18 L173,102 L179,52 L185,64 L191,60 L240,60 L248,60 L253,44 L258,80 L265,22 L272,98 L278,54 L284,63 L290,60 L300,60" />
-          </svg>
-          <span className="med-cross mc1">✚</span>
-          <span className="med-cross mc2">✚</span>
-          <span className="med-cross mc3">✚</span>
-          <span className="med-cross mc4">✚</span>
-        </div>
-
         {/* Header: Logo + Collapse */}
         <div
           className="flex items-center px-4 py-4 border-b flex-shrink-0 relative z-10"
@@ -342,7 +326,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 name={userName}
                 src={userAvatar}
                 size="sm"
-                status="online"
               />
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-800 truncate" style={{ color: '#000000', fontWeight: 800 }}>
@@ -365,7 +348,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
-              <Avatar name={userName} src={userAvatar} size="sm" status="online" />
+              <Avatar name={userName} src={userAvatar} size="sm" />
               {onLogout && (
                 <button
                   onClick={onLogout}

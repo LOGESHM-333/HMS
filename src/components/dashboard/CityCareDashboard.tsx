@@ -107,9 +107,9 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
           {/* SUB-HEADER SWITCHER BAR (Management Suite Access) */}
         <div className="flex flex-wrap items-center justify-between pb-6 mb-6 border-b border-slate-100 dark:border-slate-800 gap-4">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-sky-500 animate-ping" />
+            <span className="w-2.5 h-2.5 rounded-full bg-sky-500" />
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Hospital Executive Live Operating System
+              Hospital Executive Operating System
             </span>
           </div>
 
@@ -325,9 +325,6 @@ export const CityCareDashboard: React.FC<CityCareDashboardProps> = ({
                 <div className="flex items-baseline gap-2 mt-2">
                   <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                     {totalPatientsCount}
-                  </span>
-                  <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-sky-500/10 text-sky-600">
-                    Live in SQL
                   </span>
                 </div>
               </div>

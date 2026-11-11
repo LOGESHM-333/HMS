@@ -999,7 +999,7 @@ export const AnatomyViewer: React.FC<AnatomyViewerProps> = ({
               <span className={`px-2 py-0.5 text-xs font-semibold rounded-full uppercase tracking-wider ${
                 isDark ? 'bg-blue-500/20 text-cyan-300 border border-blue-400/30' : 'bg-teal-500/10 text-teal-700 border border-teal-200'
               }`}>
-                Live 3D Model
+                Interactive 3D Model
               </span>
             </div>
             <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>

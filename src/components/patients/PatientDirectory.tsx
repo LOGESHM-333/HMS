@@ -313,7 +313,6 @@ export const PatientDirectory: React.FC<PatientDirectoryProps> = ({
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-black">{totalCount}</span>
-            <span className="text-[10px] text-slate-400 font-semibold">Live in SQL</span>
           </div>
         </div>
 

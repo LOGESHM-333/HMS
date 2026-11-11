@@ -897,7 +897,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-4">
                   <div>
                     <h3 className="font-extrabold text-base tracking-tight">High-Acuity Bedside Telemetry</h3>
-                    <p className="text-xs text-slate-400">MEWS triage risk scores & live bedside parameters</p>
+                    <p className="text-xs text-slate-400">MEWS triage risk scores & bedside parameters</p>
                   </div>
                   <button
                     onClick={() => handleTabChange('nurse-triage')}
@@ -1067,7 +1067,7 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                     <AlertTriangle className="w-4 h-4 text-rose-600" />
                     <span className="font-extrabold text-xs uppercase tracking-wider">Crash Cart & Resuscitation STAT</span>
                   </div>
-                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                  <span className="w-2 h-2 rounded-full bg-rose-500" />
                 </div>
                 <p className="text-xs text-rose-600 dark:text-rose-300/80 mb-3">
                   ICU Bed 02 Crash Cart inspected & defibrillator charged. Emergency airway and ACLS medications verified for shift.

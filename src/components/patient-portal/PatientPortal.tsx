@@ -1540,16 +1540,16 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
             </div>
           </div>
 
-          {/* Live Bridge to Doctor Portal */}
+          {/* Bridge to Doctor Portal */}
           <div className="mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-cyan-500/10 to-transparent border border-teal-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0" />
+              <span className="w-2.5 h-2.5 rounded-full bg-teal-500 shrink-0" />
               <div>
                 <span className="font-extrabold text-teal-700 dark:text-teal-300 block">
-                  Live Clinic Bridge Connected to Doctor Portal
+                  Clinic Consultation Bridge Connected to Doctor Portal
                 </span>
                 <span className="text-slate-500 dark:text-slate-400 text-[11px]">
-                  Messages typed here appear live on {selectedChatDoctor.name}'s Doctor Portal screen.
+                  Messages typed here appear on {selectedChatDoctor.name}'s Doctor Portal screen.
                 </span>
               </div>
             </div>
@@ -1773,7 +1773,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
             </div>
             <div>
               <h3 className="text-xl font-black text-rose-600 dark:text-rose-400">Hospital Emergency SOS</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">24/7 Rapid Medical Response, Live Telemetry & Immediate ER Trauma Dispatch</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">24/7 Rapid Medical Response & Immediate ER Trauma Dispatch</p>
             </div>
           </div>
 
@@ -1782,7 +1782,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
             <div className="p-6 rounded-2xl border border-rose-500 bg-rose-950/20 text-white space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded-full bg-rose-500 animate-ping" />
+                  <div className="w-4 h-4 rounded-full bg-rose-500" />
                   <h4 className="text-lg font-black text-rose-400">EMERGENCY AMBULANCE EN ROUTE</h4>
                 </div>
                 <div className="text-xl font-mono font-bold text-rose-300">

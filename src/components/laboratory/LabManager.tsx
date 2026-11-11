@@ -633,7 +633,7 @@ export const LabManager: React.FC<LabManagerProps> = ({ theme }) => {
             <form onSubmit={handleCreateOrder} className="space-y-4 mt-4 text-xs">
               {/* Patient Selector */}
               <div>
-                <label className="text-[11px] font-bold text-slate-400 block mb-1">Select Patient (1,000 Members Live Catalog)</label>
+                <label className="text-[11px] font-bold text-slate-400 block mb-1">Select Patient (1,000 Members Directory)</label>
                 <div className="space-y-1.5">
                   <input
                     type="text"
