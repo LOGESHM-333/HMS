@@ -1844,6 +1844,18 @@ app.get('/api/audit-logs', async (_req: Request, res: Response) => {
   }
 });
 
+// Serve compiled React frontend from dist/
+const distPath = path.join(__dirname, '../dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get('*', (req: Request, res: Response, next: NextFunction) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/database') || req.path.startsWith('/db')) {
+      return next();
+    }
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
 // Initialize MySQL and start listening
 initializeDatabase()
   .then((status) => {
@@ -1859,7 +1871,7 @@ initializeDatabase()
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`[MediCore] Express REST Backend Server running on http://localhost:${PORT}`);
-    console.log(`[MediCore] PostgreSQL/MySQL Database connected: medicore_db on port 5432/3306`);
+    console.log(`[MediCore] PostgreSQL/MySQL Database connected: medicore_db on port 3306`);
   });
 }
 

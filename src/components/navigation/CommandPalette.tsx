@@ -250,7 +250,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       // Patient Portal Navigation Modules
       if (activeCategory === 'all' || activeCategory === 'nav') {
         const patientModules = [
-          { title: 'Health Summary & 3D Anatomy', subtitle: 'View vital telemetry, cardiac score & biological organs', tab: 'patient-health', icon: Heart },
+          { title: 'Health Summary & Clinical Vitals', subtitle: 'View vital telemetry, cardiac score & health metrics', tab: 'patient-health', icon: Heart },
           { title: 'My Appointments & Telehealth', subtitle: 'Consultations, video calls & appointment history', tab: 'patient-appointments', icon: Calendar },
           { title: 'Active Prescriptions & Regimen', subtitle: 'Medication tracking, dosages & refill requests', tab: 'patient-prescriptions', icon: Pill },
           { title: 'Diagnostic Lab Reports & Scans', subtitle: 'CT imaging, lipid panels & blood work results', tab: 'patient-labs', icon: FlaskConical },
@@ -366,8 +366,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           { title: 'Clinical SOAP Chart Notes', subtitle: 'Subjective, Objective, Assessment, Plan notes', tab: 'doctor-soap', icon: ClipboardList },
           { title: 'E-Prescriptions & Refills', subtitle: 'Digital prescription authoring and pharmacy dispatch', tab: 'doctor-rx', icon: Pill },
           { title: 'Lab & Diagnostic Imaging Orders', subtitle: 'STAT pathology and volumetric scan orders', tab: 'doctor-labs', icon: FlaskConical },
-          { title: 'Clinic Schedule & Telehealth', subtitle: 'Virtual telehealth consultations and appointments', tab: 'doctor-schedule', icon: Calendar },
-          { title: '3D Organ Anatomy Telemetry', subtitle: 'High-res interactive thoracic & cardiac volumetry', tab: 'doctor-3d', icon: Heart }
+          { title: 'Clinic Schedule & Telehealth', subtitle: 'Virtual telehealth consultations and appointments', tab: 'doctor-schedule', icon: Calendar }
         ];
 
         docModules.forEach(m => {

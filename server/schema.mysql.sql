@@ -294,5 +294,4 @@ CREATE TABLE IF NOT EXISTS `doctor_orders` (
     `status` VARCHAR(32) NOT NULL DEFAULT 'Pending',
     `created_at` VARCHAR(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

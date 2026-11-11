@@ -77,7 +77,7 @@ const PAGE_TITLES: Record<string, string> = {
   emr: 'Medical Records',
   staff: 'Staff Management',
   settings: 'Settings',
-  'patient-health': 'Health Summary & 3D Anatomy',
+  'patient-health': 'Health Summary & Clinical Vitals',
   'patient-appointments': 'My Appointments & Telehealth',
   'patient-prescriptions': 'Active Prescriptions & Regimen',
   'patient-labs': 'Lab Reports & Diagnostic Scans',
@@ -94,7 +94,6 @@ const PAGE_TITLES: Record<string, string> = {
   'doctor-labs': 'Lab & Imaging Orders',
   'doctor-schedule': 'Clinic Schedule & Telehealth',
   'doctor-soap': 'SOAP Notes & EMR',
-  'doctor-3d': '3D Organ Telemetry',
   'doctor-alerts': 'Critical Code Alerts',
   'nurse-rounds': 'Nursing Station',
 };

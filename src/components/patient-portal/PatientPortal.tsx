@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Patient, ThemeMode, Appointment, Invoice, LabOrder, Prescription } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { api } from '../../services/api';
@@ -146,7 +146,6 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
   };
 
   // 1. HEALTH & 3D MAP STATES
-  const [activeSystem, setActiveSystem] = useState<'cardiovascular' | 'thoracic' | 'digestive'>('cardiovascular');
   const [vitalsModalOpen, setVitalsModalOpen] = useState(false);
   const [newSystolic, setNewSystolic] = useState('124');
   const [newDiastolic, setNewDiastolic] = useState('80');
@@ -267,6 +266,11 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
     { sender: 'doctor', text: 'Excellent progress. Keep taking the morning bronchodilator and let me know if any night cough reoccurs.', time: 'Yesterday 16:10', doctorName: 'Dr. Roger S.' }
   ]);
   const [newMessageText, setNewMessageText] = useState('');
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
 
   // Real-time bidirectional message sync with Doctor Portal
   const fetchChat = useCallback(async () => {
@@ -642,7 +646,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
 
   // 10 Portal Modules list
   const portalModules = [
-    { id: 'patient-health', label: 'Health Summary & 3D', icon: Heart },
+    { id: 'patient-health', label: 'Health Summary & Vitals', icon: Heart },
     { id: 'patient-appointments', label: 'Appointments', icon: Calendar, badge: appointments.filter(a => a.status === 'Scheduled').length },
     { id: 'patient-prescriptions', label: 'Prescriptions', icon: Pill, badge: prescriptions.flatMap(p => p.items).length },
     { id: 'patient-labs', label: 'Lab Reports', icon: Activity, badge: labOrders.length },
@@ -732,112 +736,27 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
         </div>
       </div>
       {/* ================= PATIENT PORTAL MODULE CONTENT ================= */}
-      {/* ================= MODULE 1: HEALTH SUMMARY & 3D ANATOMY ================= */}
+      {/* ================= MODULE 1: HEALTH SUMMARY & VITALS ================= */}
       {(currentSection === 'patient-health' || currentSection === 'patient-portal' || currentSection === 'health' || !currentSection) && (
         <div className="space-y-6">
-          {/* Main 3D Holographic Exploration Card */}
-          <div className={`p-6 rounded-[32px] border transition-all ${
-            isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 text-white shadow-lg' : 'bg-white/65 backdrop-blur-md border-white/80 text-[#142C43] shadow-lg'
+          {/* 3D Anatomical Video Card (Pure video: text-free & Gemini watermark cropped) */}
+          <div className={`p-4 rounded-[32px] border transition-all ${
+            isDark ? 'bg-slate-900/50 backdrop-blur-md border-slate-800/80 shadow-lg' : 'bg-white/65 backdrop-blur-md border-white/80 shadow-lg'
           }`}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-slate-800 gap-3">
-              <div>
-                <h3 className="text-lg font-black tracking-tight">Interactive Anatomical Health Map</h3>
-                <p className="text-xs text-slate-400">
-                  Select physiological system to inspect 3D organs and medical telemetry
-                </p>
+            <div className="relative rounded-2xl overflow-hidden shadow-inner border border-slate-200 dark:border-slate-800 min-h-[420px] h-[460px] bg-[#081220]">
+              <div className="absolute inset-0 overflow-hidden">
+                <video 
+                  src="/assets/aistudio/gemini_generated_video_c57b0b74_4bf96156.mp4" 
+                  poster="/assets/aistudio/image_9cc16e1f.png"
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline
+                  className="w-full h-full object-cover object-top scale-110 -translate-y-2 pointer-events-none select-none"
+                />
               </div>
-
-              {/* System selector pills */}
-              <div className="flex items-center gap-2">
-                {[
-                  { id: 'cardiovascular', label: 'Cardiovascular' },
-                  { id: 'thoracic', label: 'Thoracic Lungs' },
-                  { id: 'digestive', label: 'Digestive & Stomach' }
-                ].map(s => (
-                  <button
-                    key={s.id}
-                    onClick={() => {
-                      sound.playClick();
-                      setActiveSystem(s.id as any);
-                    }}
-                    className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-                      activeSystem === s.id
-                        ? 'bg-teal-600/90 backdrop-blur-md text-white shadow-xs'
-                        : 'bg-slate-500/10 backdrop-blur-md text-slate-700 dark:text-slate-300 hover:bg-slate-500/20 border border-slate-300/40 dark:border-slate-700/40'
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Holographic Anatomy Display */}
-            <div className="relative rounded-2xl overflow-hidden shadow-inner border border-slate-200 dark:border-slate-800 min-h-[420px] flex flex-col justify-between p-6 bg-[#081220]">
-              <video 
-                src="/assets/aistudio/gemini_generated_video_c57b0b74_4bf96156.mp4" 
-                poster="/assets/aistudio/image_9cc16e1f.png"
-                autoPlay 
-                loop 
-                muted 
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#060D17]/95 via-[#060D17]/20 to-[#060D17]/70 pointer-events-none" />
-
-              <div className="relative z-10 flex items-start justify-between">
-                <div className="px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-md border border-cyan-500/30 text-white text-xs font-mono flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
-                  <span>3D SCAN: {patient.name.toUpperCase()} • {activeSystem.toUpperCase()}</span>
-                </div>
-                <div className="px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Telemetry Verified</span>
-                </div>
-              </div>
-
-              {/* Organ Health Tags */}
-              <div className="relative z-10 flex flex-wrap gap-2 pt-28">
-                {activeSystem === 'cardiovascular' && (
-                  <>
-                    <div className="px-3 py-1.5 rounded-full bg-cyan-950/80 backdrop-blur-md border border-cyan-400/40 text-cyan-200 text-xs font-semibold">
-                      Myocardial Perfusion: 98% Normal
-                    </div>
-                    <div className="px-3 py-1.5 rounded-full bg-teal-950/80 backdrop-blur-md border border-teal-400/40 text-teal-200 text-xs font-semibold">
-                      Aortic Flow Velocity: 1.2 m/s
-                    </div>
-                    <div className="px-3 py-1.5 rounded-full bg-emerald-950/80 backdrop-blur-md border border-emerald-400/40 text-emerald-200 text-xs font-semibold">
-                      Left Ventricle Ejection Fraction: 62%
-                    </div>
-                  </>
-                )}
-                {activeSystem === 'thoracic' && (
-                  <>
-                    <div className="px-3 py-1.5 rounded-full bg-cyan-950/80 backdrop-blur-md border border-cyan-400/40 text-cyan-200 text-xs font-semibold">
-                      Pulmo Sinister: Mild Infiltration Resolved
-                    </div>
-                    <div className="px-3 py-1.5 rounded-full bg-teal-950/80 backdrop-blur-md border border-teal-400/40 text-teal-200 text-xs font-semibold">
-                      Airway Resistance: Optimal Post-Inhaler
-                    </div>
-                    <div className="px-3 py-1.5 rounded-full bg-emerald-950/80 backdrop-blur-md border border-emerald-400/40 text-emerald-200 text-xs font-semibold">
-                      Tidal Volume: 520 mL (Normal)
-                    </div>
-                  </>
-                )}
-                {activeSystem === 'digestive' && (
-                  <>
-                    <div className="px-3 py-1.5 rounded-full bg-cyan-950/80 backdrop-blur-md border border-cyan-400/40 text-cyan-200 text-xs font-semibold">
-                      Gastric Mucosa: Intact
-                    </div>
-                    <div className="px-3 py-1.5 rounded-full bg-teal-950/80 backdrop-blur-md border border-teal-400/40 text-teal-200 text-xs font-semibold">
-                      Hepatic Function: ALT/AST Normal
-                    </div>
-                    <div className="px-3 py-1.5 rounded-full bg-emerald-950/80 backdrop-blur-md border border-emerald-400/40 text-emerald-200 text-xs font-semibold">
-                      Gut Microbiome Index: 88/100
-                    </div>
-                  </>
-                )}
-              </div>
+              {/* Bottom vignette overlay to cleanly conceal bottom watermark */}
+              <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#081220] via-[#081220]/80 to-transparent pointer-events-none z-10" />
             </div>
           </div>
 
@@ -1318,16 +1237,10 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
               <p className="text-xs text-slate-400">Authenticated vaccination credentials with digital QR certificate</p>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  setLogVaccineModalOpen(true);
-                }}
-                className="px-4 py-2 rounded-full text-xs font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Log Immunization</span>
-              </button>
+              <span className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Doctor & Nurse Authorized</span>
+              </span>
               <button
                 onClick={() => handlePrintDocument('Official Immunization Certificate')}
                 className="px-4 py-2 rounded-full text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 flex items-center gap-1.5 shadow-sm"
@@ -1336,6 +1249,12 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                 <span>Print Certificate</span>
               </button>
             </div>
+          </div>
+
+          {/* Hospital Clinical Policy Banner */}
+          <div className="p-3.5 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 flex items-center gap-3 text-xs text-blue-700 dark:text-blue-300 mb-4">
+            <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
+            <span>Hospital Clinical Governance: Immunizations are administered and certified exclusively by attending Doctors and Nurses. Direct self-logging and editing are restricted to certified medical staff.</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1633,6 +1552,7 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
                 <span className="text-[10px] text-slate-400 mt-1 px-1">{msg.time}</span>
               </div>
             ))}
+            <div ref={chatEndRef} />
           </div>
 
           {/* Message input */}
@@ -1665,16 +1585,21 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
               <h3 className="text-lg font-black tracking-tight">Prescribed Clinical Nutrition & Diet Plan</h3>
               <p className="text-xs text-slate-400">Cardiovascular & digestive health dietary regimen with real-time calorie and sodium tracking</p>
             </div>
-            <button
-              onClick={() => {
-                sound.playClick();
-                setMealModalOpen(true);
-              }}
-              className="px-4 py-2 rounded-full text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 transition-all flex items-center gap-1.5 shadow-sm"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Log Meal</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <span className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Doctor-Prescribed Regimen</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Doctor Medical Directive Notice */}
+          <div className="p-3.5 rounded-2xl bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-teal-800 dark:text-teal-200 mb-6">
+            <div className="flex items-center gap-2.5">
+              <Stethoscope className="w-4 h-4 text-teal-600 shrink-0" />
+              <span><strong>Medical Directive:</strong> This clinical dietary protocol is prescribed by <strong>Dr. Roger S., MD</strong>. Only attending doctors can calibrate or authorize changes to nutritional allowances.</span>
+            </div>
+            <span className="font-mono text-[10px] px-2.5 py-0.5 rounded-full bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 font-bold shrink-0">DIRECTIVE #NUT-8942</span>
           </div>
 
           {/* Real Nutrition Budget Counters */}

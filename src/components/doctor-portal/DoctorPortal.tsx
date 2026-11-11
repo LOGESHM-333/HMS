@@ -50,7 +50,12 @@ import {
   ShieldAlert,
   Zap,
   ArrowRight,
-  Building2
+  Building2,
+  UserPlus,
+  Apple,
+  Syringe,
+  Key,
+  Copy
 } from 'lucide-react';
 import { PrintablePrescriptionModal } from '../export';
 
@@ -88,7 +93,7 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
   onLogout
 }) => {
   const isDark = theme === 'dark';
-  const [activeTab, setActiveTab] = useState<'doctor-overview' | 'doctor-chat' | 'doctor-patients' | 'doctor-rx' | 'doctor-labs' | 'doctor-schedule' | 'doctor-soap' | 'doctor-3d' | 'doctor-alerts'>('doctor-overview');
+  const [activeTab, setActiveTab] = useState<'doctor-overview' | 'doctor-chat' | 'doctor-patients' | 'doctor-rx' | 'doctor-labs' | 'doctor-schedule' | 'doctor-soap' | 'doctor-alerts'>('doctor-overview');
 
   useEffect(() => {
     if (activeSection) {
@@ -752,33 +757,150 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
     setSoapModalOpen(false);
   };
 
-  // ================= MODULE 7: 3D ANATOMICAL SYSTEM & RESCAN DISPATCH =================
-  const [active3dSystem, setActive3dSystem] = useState<'cardiovascular' | 'thoracic' | 'digestive'>('cardiovascular');
-  const [inspectedProbe, setInspectedProbe] = useState<string | null>('ejection-fraction');
+  // ================= CLINICAL ACTIONS: PATIENT REGISTRATION, DIET & IMMUNIZATION =================
+  // 1. Patient Registration by Doctor
+  const [registerPatientModalOpen, setRegisterPatientModalOpen] = useState(false);
+  const [regName, setRegName] = useState('');
+  const [regAge, setRegAge] = useState('38');
+  const [regGender, setRegGender] = useState<'Male' | 'Female' | 'Other'>('Male');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPhone, setRegPhone] = useState('+1 (555) 234-8901');
+  const [regBlood, setRegBlood] = useState('O+');
+  const [regDiagnosis, setRegDiagnosis] = useState('Asthma / Thoracic follow-up');
+  const [regPassword, setRegPassword] = useState('Patient@2026');
+  const [regSuccessModalOpen, setRegSuccessModalOpen] = useState(false);
+  const [lastRegisteredCreds, setLastRegisteredCreds] = useState<{ name: string; patientCode: string; email: string; password: string } | null>(null);
 
-  const handleOrder3dRescan = async () => {
-    if (!selectedPatient) return;
-    sound.playClick();
-
-    const orderData = {
-      patientId: selectedPatient.id,
-      patientName: selectedPatient.name,
-      doctorId: 'doc-1',
-      testId: `t-3d-${Date.now()}`,
-      testName: `Targeted 3D ${active3dSystem.toUpperCase()} Volumetric CT Rescan (STAT)`,
-      orderedDate: new Date().toISOString().split('T')[0],
-      interpretation: 'Normal' as const,
-      status: 'Ordered' as const
-    };
-
-    try {
-      await api.createLabOrder(orderData);
-      db.orderLabTest(orderData);
-      showToast(`Dispatched STAT 3D ${active3dSystem.toUpperCase()} volumetric rescan for ${selectedPatient.name}.`);
-      refreshFullData();
-    } catch {
-      showToast(`Targeted 3D rescan order submitted.`);
+  const handleRegisterPatient = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!regName.trim() || !regEmail.trim()) {
+      showToast('Please enter full name and official email address.');
+      return;
     }
+
+    sound.playSuccess();
+    const cleanEmail = regEmail.trim().toLowerCase();
+    const cleanPass = regPassword.trim() || 'Patient@2026';
+
+    const newPat = db.addPatient({
+      name: regName.trim(),
+      age: parseInt(regAge) || 35,
+      gender: regGender,
+      bloodGroup: regBlood,
+      phone: regPhone,
+      email: cleanEmail,
+      admissionStatus: 'Outpatient',
+      primaryDoctorId: 'doc-1',
+      primaryDoctorName: 'Dr. Roger S.',
+      diagnosis: regDiagnosis.trim(),
+      heartAge: parseInt(regAge) || 35,
+      chronologicalAge: parseInt(regAge) || 35,
+      riskScore: 20,
+      symptoms: ['Initial Consultation'],
+      allergies: ['NKDA'],
+      avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
+      vitals: {
+        bloodPressure: '120/80',
+        pulseRate: 72,
+        respiratoryRate: 16,
+        temperature: 36.6,
+        oxygenSaturation: 98,
+        hba1c: 5.6,
+        cholesterol: 180,
+        stressLevel: 'Mild' as const,
+        sleepQuality: 'Good' as const,
+        lastUpdated: 'Just now'
+      },
+      medicalHistory: [
+        {
+          date: new Date().toISOString().split('T')[0],
+          event: 'Hospital Admission & Account Registration',
+          doctor: 'Dr. Roger S., MD',
+          facility: 'MediCore Outpatient Pavilion',
+          notes: `Registered with diagnosis: ${regDiagnosis.trim()}`
+        }
+      ]
+    });
+
+    // Save authorized credentials in localStorage for Patient Portal login
+    try {
+      const regList = JSON.parse(localStorage.getItem('medicore_registered_patients') || '[]');
+      const filtered = regList.filter((p: any) => p.email?.toLowerCase() !== cleanEmail);
+      filtered.unshift({
+        id: newPat.id,
+        patientCode: newPat.patientCode,
+        name: newPat.name,
+        email: cleanEmail,
+        password: cleanPass
+      });
+      localStorage.setItem('medicore_registered_patients', JSON.stringify(filtered));
+    } catch {}
+
+    setLastRegisteredCreds({
+      name: newPat.name,
+      patientCode: newPat.patientCode,
+      email: cleanEmail,
+      password: cleanPass
+    });
+
+    setRegisterPatientModalOpen(false);
+    setRegSuccessModalOpen(true);
+    setRegName('');
+    setRegEmail('');
+    showToast(`Patient ${newPat.name} registered! Credentials generated.`);
+    refreshFullData();
+  };
+
+  // 2. Doctor Prescribe Nutrition & Diet Directive
+  const [dietModalOpen, setDietModalOpen] = useState(false);
+  const [dietPatient, setDietPatient] = useState<Patient | null>(null);
+  const [dietName, setDietName] = useState('Cardiovascular Low Sodium DASH Protocol');
+  const [dietCalories, setDietCalories] = useState('2000');
+  const [dietSodium, setDietSodium] = useState('1500');
+  const [dietInstructions, setDietInstructions] = useState('Restricted sodium, lean protein, steamed vegetables, whole grains. Avoid processed foods.');
+
+  const handlePrescribeDiet = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!dietPatient) return;
+    sound.playSuccess();
+
+    db.addPatientHistory(dietPatient.id, {
+      date: new Date().toISOString().split('T')[0],
+      event: `Clinical Diet Directive: ${dietName}`,
+      doctor: 'Dr. Roger S., MD (Chief of Cardiology)',
+      facility: 'MediCore Clinical Nutrition Department',
+      notes: `Target: ${dietCalories} kcal/day | DASH Sodium Limit: <${dietSodium}mg. Directive: ${dietInstructions}`
+    });
+
+    setDietModalOpen(false);
+    showToast(`Prescribed nutrition plan "${dietName}" for ${dietPatient.name}.`);
+    refreshFullData();
+  };
+
+  // 3. Doctor Administer & Certify Immunization
+  const [doctorVaccineModalOpen, setDoctorVaccineModalOpen] = useState(false);
+  const [vaxPatient, setVaxPatient] = useState<Patient | null>(null);
+  const [vaxName, setVaxName] = useState('Influenza Quadrivalent (Seasonal Fluzone)');
+  const [vaxManufacturer, setVaxManufacturer] = useState('Sanofi Pasteur');
+  const [vaxLot, setVaxLot] = useState('SP-449102-X');
+  const [vaxDose, setVaxDose] = useState('0.5 mL Intramuscular');
+
+  const handleDoctorLogVaccine = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!vaxPatient) return;
+    sound.playSuccess();
+
+    db.addPatientHistory(vaxPatient.id, {
+      date: new Date().toISOString().split('T')[0],
+      event: `Immunization Administered: ${vaxName}`,
+      doctor: 'Dr. Roger S., MD',
+      facility: 'MediCore Clinical Immunization Center',
+      notes: `Certified WHO Smart Health format. Manufacturer: ${vaxManufacturer} | Lot #${vaxLot} | Dose: ${vaxDose}`
+    });
+
+    setDoctorVaccineModalOpen(false);
+    showToast(`Certified immunization "${vaxName}" for ${vaxPatient.name}.`);
+    refreshFullData();
   };
 
   // ================= MODULE 8: CRITICAL CODE ALERTS & EMERGENCY BROADCAST =================
@@ -834,7 +956,6 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
     { id: 'doctor-labs', label: 'Lab & Imaging Orders', icon: Activity, badge: labOrders.length },
     { id: 'doctor-schedule', label: 'Clinic Schedule & Telehealth', icon: Calendar, badge: appointments.length },
     { id: 'doctor-soap', label: 'SOAP Notes & EMR', icon: ClipboardList },
-    { id: 'doctor-3d', label: '3D Organ Telemetry', icon: Heart },
     { id: 'doctor-alerts', label: 'Critical Code Alerts', icon: AlertTriangle, alert: alerts.length > 0, badge: alerts.length || undefined },
   ];
 
@@ -1092,16 +1213,6 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                         >
                           <Activity className="w-3.5 h-3.5 text-teal-600" />
                           <span>Vitals</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedPatient(pat);
-                            handleTabChange('doctor-3d');
-                          }}
-                          className="px-3 py-1.5 rounded-xl text-xs font-bold bg-teal-600/10 text-teal-700 dark:text-teal-300 hover:bg-teal-600/20 flex items-center gap-1 cursor-pointer"
-                        >
-                          <Heart className="w-3.5 h-3.5 text-teal-600" />
-                          <span>3D Organ</span>
                         </button>
                       </div>
                     </div>
@@ -1490,8 +1601,15 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 {patients.filter(p => p.admissionStatus !== 'Outpatient').length} Active Inpatients
               </span>
               <button
+                onClick={() => setRegisterPatientModalOpen(true)}
+                className="px-4 py-2.5 rounded-2xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-1.5 shadow-xs cursor-pointer"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>+ Register Patient Account</span>
+              </button>
+              <button
                 onClick={() => setSoapModalOpen(true)}
-                className="px-5 py-2.5 rounded-2xl text-xs font-bold glass-btn-teal flex items-center gap-2 shadow-xs cursor-pointer"
+                className="px-4 py-2.5 rounded-2xl text-xs font-bold glass-btn-teal flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <ClipboardList className="w-3.5 h-3.5" />
                 <span>Document Rounding SOAP</span>
@@ -1566,6 +1684,30 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                     >
                       <BedIcon className="w-3.5 h-3.5 text-indigo-500" />
                       <span>Transfer Bed</span>
+                    </button>
+                  </div>
+
+                  {/* Doctor Clinical Authorizations: Diet & Vaccine */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => {
+                        setDietPatient(p);
+                        setDietModalOpen(true);
+                      }}
+                      className="py-2 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <Apple className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Prescribe Diet</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setVaxPatient(p);
+                        setDoctorVaccineModalOpen(true);
+                      }}
+                      className="py-2 px-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <Syringe className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Log Vaccine</span>
                     </button>
                   </div>
 
@@ -1881,120 +2023,6 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 No past EMR notes recorded for this patient. Click "Write Signed SOAP Note" above.
               </div>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* ================= DOCTOR MODULE 7: 3D ANATOMICAL VOLUMETRY & TELEMETRY ================= */}
-      {activeTab === 'doctor-3d' && (
-        <div className={`p-6 rounded-[32px] border ${
-          isDark ? 'bg-[#0E2035]/90 border-slate-800 text-white' : 'bg-white border-slate-200/80 text-[#142C43] shadow-lg'
-        }`}>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 mb-6 gap-3">
-            <div>
-              <h3 className="text-lg font-black tracking-tight">Doctor 3D Anatomical Volumetry & Pathological Review</h3>
-              <p className="text-xs text-slate-400">Holographic CT reconstruction and real-time hemodynamic organ telemetry</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {(['cardiovascular', 'thoracic', 'digestive'] as const).map(sys => (
-                <button
-                  key={sys}
-                  onClick={() => {
-                    sound.playClick();
-                    setActive3dSystem(sys);
-                  }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all ${
-                    active3dSystem === sys
-                      ? 'bg-teal-600 text-white shadow-xs'
-                      : 'border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  {sys}
-                </button>
-              ))}
-
-              <button
-                onClick={handleOrder3dRescan}
-                className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-cyan-600 text-white hover:bg-cyan-700 transition-all flex items-center gap-1.5 shadow-xs"
-              >
-                <Zap className="w-3.5 h-3.5" />
-                <span>Order STAT 3D Rescan</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="relative rounded-2xl overflow-hidden shadow-inner border border-slate-200 dark:border-slate-800 min-h-[440px] flex flex-col justify-between p-6 bg-[#081220]">
-            <video 
-              src="/assets/aistudio/gemini_generated_video_c57b0b74_4bf96156.mp4" 
-              poster="/assets/aistudio/image_9cc16e1f.png"
-              autoPlay 
-              loop 
-              muted 
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#060D17]/95 via-[#060D17]/30 to-[#060D17]/70 pointer-events-none" />
-
-            <div className="relative z-10 flex items-start justify-between">
-              <div className="px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-md border border-cyan-500/30 text-white text-xs font-mono">
-                CLINICAL 3D REVIEW: {selectedPatient?.name?.toUpperCase()} ({selectedPatient?.patientCode}) • SYSTEM: {active3dSystem.toUpperCase()}
-              </div>
-              <div className="px-3 py-1.5 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4" />
-                <span>Dr. Roger S. Authorized Review</span>
-              </div>
-            </div>
-
-            {/* Interactive Telemetry Probes */}
-            <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-3 pt-28">
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  setInspectedProbe('ejection-fraction');
-                }}
-                className={`p-3 rounded-2xl backdrop-blur-md text-left transition-all ${
-                  inspectedProbe === 'ejection-fraction'
-                    ? 'bg-cyan-900/90 border-2 border-cyan-400 text-white'
-                    : 'bg-black/60 border border-cyan-400/30 text-cyan-200 hover:bg-black/80'
-                }`}
-              >
-                <span className="text-[10px] text-cyan-300 block font-bold uppercase">Ventricular Ejection Fraction</span>
-                <span className="text-sm font-extrabold text-white">62% (Optimal Range: 55-70%)</span>
-                <span className="text-[10px] text-slate-300 block mt-1">Normal left ventricular systolic kinetics</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  setInspectedProbe('perfusion');
-                }}
-                className={`p-3 rounded-2xl backdrop-blur-md text-left transition-all ${
-                  inspectedProbe === 'perfusion'
-                    ? 'bg-teal-900/90 border-2 border-teal-400 text-white'
-                    : 'bg-black/60 border border-teal-400/30 text-teal-200 hover:bg-black/80'
-                }`}
-              >
-                <span className="text-[10px] text-teal-300 block font-bold uppercase">Myocardial Perfusion Score</span>
-                <span className="text-sm font-extrabold text-white">98% Homogeneous (Normal)</span>
-                <span className="text-[10px] text-slate-300 block mt-1">No ischemia or fixed scar defects</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  setInspectedProbe('bronchial');
-                }}
-                className={`p-3 rounded-2xl backdrop-blur-md text-left transition-all ${
-                  inspectedProbe === 'bronchial'
-                    ? 'bg-emerald-900/90 border-2 border-emerald-400 text-white'
-                    : 'bg-black/60 border border-emerald-400/30 text-emerald-200 hover:bg-black/80'
-                }`}
-              >
-                <span className="text-[10px] text-emerald-300 block font-bold uppercase">Thoracic Airway Caliber</span>
-                <span className="text-sm font-extrabold text-white">Symmetrical / Patent</span>
-                <span className="text-[10px] text-slate-300 block mt-1">FEV1 estimated at 92% of predicted</span>
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -2911,6 +2939,397 @@ export const DoctorPortal: React.FC<DoctorPortalProps> = ({
                 Print Official Hardcopy
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL 1: DOCTOR REGISTER NEW PATIENT ACCOUNT ================= */}
+      {registerPatientModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`w-full max-w-xl rounded-3xl p-6 border shadow-2xl ${
+            isDark ? 'bg-[#0E2035] border-slate-700 text-white' : 'bg-white border-slate-200 text-[#142C43]'
+          }`}>
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-teal-500" />
+                <div>
+                  <h3 className="font-black text-lg">Register New Patient Account</h3>
+                  <p className="text-xs text-slate-400">Doctor authorized registration with Email ID and portal password</p>
+                </div>
+              </div>
+              <button onClick={() => setRegisterPatientModalOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRegisterPatient} className="space-y-3.5 mt-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1">Patient Full Name *</label>
+                  <input
+                    type="text"
+                    value={regName}
+                    onChange={e => setRegName(e.target.value)}
+                    placeholder="e.g. Ramesh Kumar"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1">Official Email Address *</label>
+                  <input
+                    type="email"
+                    value={regEmail}
+                    onChange={e => setRegEmail(e.target.value)}
+                    placeholder="patient@gmail.com"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="font-bold block mb-1">Age</label>
+                  <input
+                    type="number"
+                    value={regAge}
+                    onChange={e => setRegAge(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1">Gender</label>
+                  <select
+                    value={regGender}
+                    onChange={e => setRegGender(e.target.value as any)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="font-bold block mb-1">Blood Group</label>
+                  <select
+                    value={regBlood}
+                    onChange={e => setRegBlood(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
+                  >
+                    <option value="O+">O+</option>
+                    <option value="A+">A+</option>
+                    <option value="B+">B+</option>
+                    <option value="AB+">AB+</option>
+                    <option value="O-">O-</option>
+                    <option value="A-">A-</option>
+                    <option value="B-">B-</option>
+                    <option value="AB-">AB-</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1">Phone Number</label>
+                  <input
+                    type="text"
+                    value={regPhone}
+                    onChange={e => setRegPhone(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1">Initial Clinical Diagnosis</label>
+                  <input
+                    type="text"
+                    value={regDiagnosis}
+                    onChange={e => setRegDiagnosis(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  />
+                </div>
+              </div>
+
+              {/* Password generated by Doctor */}
+              <div className="p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="font-bold text-teal-800 dark:text-teal-200 flex items-center gap-1.5">
+                    <Key className="w-3.5 h-3.5 text-teal-600" />
+                    <span>Portal Password Issued to Patient</span>
+                  </label>
+                  <span className="text-[10px] text-teal-600 font-semibold">Doctor Authorized</span>
+                </div>
+                <input
+                  type="text"
+                  value={regPassword}
+                  onChange={e => setRegPassword(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-teal-500/30 bg-white dark:bg-slate-900 font-mono text-xs font-bold"
+                  placeholder="Patient@2026"
+                  required
+                />
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                  The patient will use this password along with their Email ID to log in to the Patient Portal.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setRegisterPatientModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold flex items-center gap-1.5 shadow-md"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Register & Issue Credentials</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL 2: REGISTRATION CREDENTIALS CONFIRMATION CARD ================= */}
+      {regSuccessModalOpen && lastRegisteredCreds && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`w-full max-w-md rounded-3xl p-6 border shadow-2xl ${
+            isDark ? 'bg-[#0E2035] border-teal-500/40 text-white' : 'bg-white border-teal-500/40 text-[#142C43]'
+          }`}>
+            <div className="text-center pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto mb-2">
+                <ShieldCheck className="w-7 h-7" />
+              </div>
+              <h3 className="font-black text-lg">Patient Account Registered!</h3>
+              <p className="text-xs text-slate-400">Provide these login credentials directly to the patient.</p>
+            </div>
+
+            <div className="my-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-800">
+                <span className="text-slate-400">Patient Name:</span>
+                <strong className="font-extrabold">{lastRegisteredCreds.name}</strong>
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-800">
+                <span className="text-slate-400">Patient Code (MRN):</span>
+                <span className="font-mono font-bold text-teal-600">{lastRegisteredCreds.patientCode}</span>
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-800">
+                <span className="text-slate-400">Login Email:</span>
+                <strong className="font-mono text-slate-700 dark:text-slate-300">{lastRegisteredCreds.email}</strong>
+              </div>
+              <div className="flex justify-between items-center pt-1">
+                <span className="text-slate-400">Issued Password:</span>
+                <span className="font-mono font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded">
+                  {lastRegisteredCreds.password}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  navigator.clipboard?.writeText(`MediCore Portal Login Credentials:\nEmail: ${lastRegisteredCreds.email}\nPassword: ${lastRegisteredCreds.password}\nPortal: http://localhost:3333`);
+                  showToast('Credentials copied to clipboard!');
+                }}
+                className="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                <span>Copy Credentials</span>
+              </button>
+              <button
+                onClick={() => setRegSuccessModalOpen(false)}
+                className="flex-1 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-md"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL 3: DOCTOR PRESCRIBE NUTRITION DIET ================= */}
+      {dietModalOpen && dietPatient && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`w-full max-w-lg rounded-3xl p-6 border shadow-2xl ${
+            isDark ? 'bg-[#0E2035] border-slate-700 text-white' : 'bg-white border-slate-200 text-[#142C43]'
+          }`}>
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Apple className="w-5 h-5 text-emerald-500" />
+                <div>
+                  <h3 className="font-black text-lg">Prescribe Clinical Nutrition Diet</h3>
+                  <p className="text-xs text-slate-400">Doctor authorized dietary directive for {dietPatient.name}</p>
+                </div>
+              </div>
+              <button onClick={() => setDietModalOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handlePrescribeDiet} className="space-y-3.5 mt-4 text-xs">
+              <div>
+                <label className="font-bold block mb-1">Clinical Diet Protocol</label>
+                <select
+                  value={dietName}
+                  onChange={e => setDietName(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold"
+                >
+                  <option value="Cardiovascular Low Sodium DASH Protocol">Cardiovascular Low Sodium DASH Protocol</option>
+                  <option value="Diabetic Renal Friendly Regimen (Controlled Carbs)">Diabetic Renal Friendly Regimen (Controlled Carbs)</option>
+                  <option value="Cardiac Low Cholesterol Mediterranean Plan">Cardiac Low Cholesterol Mediterranean Plan</option>
+                  <option value="Post-Surgical Clear Liquids & Soft Recovery">Post-Surgical Clear Liquids & Soft Recovery</option>
+                  <option value="High Protein Pulmonary Rehabilitation Nutrition">High Protein Pulmonary Rehabilitation Nutrition</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1">Daily Calorie Target (kcal)</label>
+                  <input
+                    type="number"
+                    value={dietCalories}
+                    onChange={e => setDietCalories(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1">DASH Sodium Limit (mg/day)</label>
+                  <input
+                    type="number"
+                    value={dietSodium}
+                    onChange={e => setDietSodium(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold block mb-1">Doctor's Dietary Directives & Restrictions</label>
+                <textarea
+                  value={dietInstructions}
+                  onChange={e => setDietInstructions(e.target.value)}
+                  rows={3}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  required
+                />
+              </div>
+
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-800 dark:text-emerald-300">
+                ✓ This dietary regimen will be immediately authorized and reflected in the Patient's Portal with doctor certification.
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setDietModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold flex items-center gap-1.5 shadow-md"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Authorize & Prescribe Diet</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL 4: DOCTOR ADMINISTER & CERTIFY IMMUNIZATION ================= */}
+      {doctorVaccineModalOpen && vaxPatient && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`w-full max-w-lg rounded-3xl p-6 border shadow-2xl ${
+            isDark ? 'bg-[#0E2035] border-slate-700 text-white' : 'bg-white border-slate-200 text-[#142C43]'
+          }`}>
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Syringe className="w-5 h-5 text-blue-500" />
+                <div>
+                  <h3 className="font-black text-lg">Administer & Certify Immunization</h3>
+                  <p className="text-xs text-slate-400">Clinical vaccination certificate for {vaxPatient.name}</p>
+                </div>
+              </div>
+              <button onClick={() => setDoctorVaccineModalOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleDoctorLogVaccine} className="space-y-3.5 mt-4 text-xs">
+              <div>
+                <label className="font-bold block mb-1">Vaccine Name</label>
+                <input
+                  type="text"
+                  value={vaxName}
+                  onChange={e => setVaxName(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1">Manufacturer</label>
+                  <input
+                    type="text"
+                    value={vaxManufacturer}
+                    onChange={e => setVaxManufacturer(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1">Lot / Batch Number</label>
+                  <input
+                    type="text"
+                    value={vaxLot}
+                    onChange={e => setVaxLot(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold block mb-1">Dosage & Route</label>
+                <input
+                  type="text"
+                  value={vaxDose}
+                  onChange={e => setVaxDose(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  required
+                />
+              </div>
+
+              <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[11px] text-blue-800 dark:text-blue-300">
+                ✓ Recorded under Dr. Roger S., MD with official hospital SHA-256 digital signature and WHO Smart Health Card validation.
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setDoctorVaccineModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold flex items-center gap-1.5 shadow-md"
+                >
+                  <Syringe className="w-3.5 h-3.5" />
+                  <span>Certify & Save to EMR</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

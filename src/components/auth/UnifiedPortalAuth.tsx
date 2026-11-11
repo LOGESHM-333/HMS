@@ -681,18 +681,16 @@ export const UnifiedPortalAuth: React.FC<UnifiedPortalAuthProps> = ({
                   </div>
                 )}
 
-                {/* Sign up option */}
+                {/* Official Staff Registration Notice */}
                 {portalCategory === 'patient' && (
-                  <div className="text-center pt-1">
-                    <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>Don't have an account? </span>
-                    <button
-                      type="button"
-                      onClick={() => { sound.playClick(); setAuthView('signup'); setErrorMessage(null); }}
-                      className="text-sm font-600 transition-colors"
-                      style={{ color: 'var(--color-brand-primary)', fontWeight: 600 }}
-                    >
-                      Register as patient
-                    </button>
+                  <div className="mt-2 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-left">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
+                      <ShieldCheck size={14} className="text-teal-600 dark:text-teal-400" />
+                      <span>Doctor & Nurse Authorized Registration</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                      Patient portal IDs are issued directly by attending <strong>Doctors</strong> and <strong>Nurses</strong> at hospital admission with your registered Email ID and password.
+                    </p>
                   </div>
                 )}
               </form>

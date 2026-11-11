@@ -45,7 +45,9 @@ import {
   Zap,
   Building2,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  UserPlus,
+  Key
 } from 'lucide-react';
 
 interface HeadNursePortalProps {
@@ -659,6 +661,124 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
     }
   };
 
+  // 7. Nurse Patient Registration & Immunization Administration
+  const [nurseRegModalOpen, setNurseRegModalOpen] = useState(false);
+  const [nRegName, setNRegName] = useState('');
+  const [nRegAge, setNRegAge] = useState('32');
+  const [nRegGender, setNRegGender] = useState<'Male' | 'Female' | 'Other'>('Female');
+  const [nRegEmail, setNRegEmail] = useState('');
+  const [nRegPhone, setNRegPhone] = useState('+1 (555) 492-1082');
+  const [nRegBlood, setNRegBlood] = useState('B+');
+  const [nRegDiagnosis, setNRegDiagnosis] = useState('General Ward Admission');
+  const [nRegPassword, setNRegPassword] = useState('Patient@2026');
+  const [nRegSuccessOpen, setNRegSuccessOpen] = useState(false);
+  const [nLastCreds, setNLastCreds] = useState<{ name: string; patientCode: string; email: string; password: string } | null>(null);
+
+  const handleNurseRegisterPatient = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nRegName.trim() || !nRegEmail.trim()) {
+      showToast('Please enter full name and official email address.');
+      return;
+    }
+
+    sound.playSuccess();
+    const cleanEmail = nRegEmail.trim().toLowerCase();
+    const cleanPass = nRegPassword.trim() || 'Patient@2026';
+
+    const newPat = db.addPatient({
+      name: nRegName.trim(),
+      age: parseInt(nRegAge) || 30,
+      gender: nRegGender,
+      bloodGroup: nRegBlood,
+      phone: nRegPhone,
+      email: cleanEmail,
+      admissionStatus: 'Admitted',
+      ward: 'Ward 4',
+      bedNumber: 'GW-105',
+      primaryDoctorId: 'doc-1',
+      primaryDoctorName: 'Dr. Roger S.',
+      diagnosis: nRegDiagnosis.trim(),
+      heartAge: parseInt(nRegAge) || 30,
+      chronologicalAge: parseInt(nRegAge) || 30,
+      riskScore: 25,
+      symptoms: ['Ward Inpatient Admission'],
+      allergies: ['NKDA'],
+      avatar: `https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80`,
+      vitals: {
+        bloodPressure: '120/80',
+        pulseRate: 74,
+        respiratoryRate: 16,
+        temperature: 36.8,
+        oxygenSaturation: 98,
+        hba1c: 5.7,
+        cholesterol: 185,
+        stressLevel: 'Mild' as const,
+        sleepQuality: 'Good' as const,
+        lastUpdated: 'Just now'
+      },
+      medicalHistory: [
+        {
+          date: new Date().toISOString().split('T')[0],
+          event: 'Nurse Ward Admission & Portal Registration',
+          doctor: 'Nurse Sarah Jenkins, RN (Head Nurse)',
+          facility: 'MediCore Inpatient Nursing Station',
+          notes: `Admitted and registered by nursing desk. Initial diagnosis: ${nRegDiagnosis.trim()}`
+        }
+      ]
+    });
+
+    try {
+      const regList = JSON.parse(localStorage.getItem('medicore_registered_patients') || '[]');
+      const filtered = regList.filter((p: any) => p.email?.toLowerCase() !== cleanEmail);
+      filtered.unshift({
+        id: newPat.id,
+        patientCode: newPat.patientCode,
+        name: newPat.name,
+        email: cleanEmail,
+        password: cleanPass
+      });
+      localStorage.setItem('medicore_registered_patients', JSON.stringify(filtered));
+    } catch {}
+
+    setNLastCreds({
+      name: newPat.name,
+      patientCode: newPat.patientCode,
+      email: cleanEmail,
+      password: cleanPass
+    });
+
+    setNurseRegModalOpen(false);
+    setNRegSuccessOpen(true);
+    setNRegName('');
+    setNRegEmail('');
+    showToast(`Patient ${newPat.name} registered by Nurse Sarah Jenkins!`);
+  };
+
+  // Nurse Administer Immunization
+  const [nurseVaxModalOpen, setNurseVaxModalOpen] = useState(false);
+  const [nurseVaxPat, setNurseVaxPat] = useState('Magnus Stephenson');
+  const [nurseVaxName, setNurseVaxName] = useState('Tdap Booster (Tetanus, Diphtheria, Pertussis)');
+  const [nurseVaxLot, setNurseVaxLot] = useState('GSK-881024');
+  const [nurseVaxManufacturer, setNurseVaxManufacturer] = useState('GlaxoSmithKline');
+
+  const handleNurseAdministerVaccine = (e: React.FormEvent) => {
+    e.preventDefault();
+    sound.playSuccess();
+    const pat = patients.find(p => p.name === nurseVaxPat) || patients[0];
+    if (pat) {
+      db.addPatientHistory(pat.id, {
+        date: new Date().toISOString().split('T')[0],
+        event: `Immunization Administered: ${nurseVaxName}`,
+        doctor: 'Nurse Sarah Jenkins, RN, BSN',
+        facility: 'MediCore Inpatient Ward 4',
+        notes: `Administered via Deltoid IM. Manufacturer: ${nurseVaxManufacturer} | Lot #${nurseVaxLot} | Certified WHO Smart Health Format`
+      });
+    }
+
+    setNurseVaxModalOpen(false);
+    showToast(`Administered ${nurseVaxName} to ${pat?.name || 'patient'}.`);
+  };
+
   React.useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (codeBlueActive) {
@@ -1111,11 +1231,25 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                 {marList.filter(m => m.status === 'Due').length} Doses Due Now
               </span>
               <button
-                onClick={() => setNewMarModalOpen(true)}
+                onClick={() => setNurseRegModalOpen(true)}
                 className="px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs flex items-center gap-1 shadow-xs cursor-pointer"
               >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>+ Register Patient</span>
+              </button>
+              <button
+                onClick={() => setNurseVaxModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1 shadow-xs cursor-pointer"
+              >
+                <Syringe className="w-3.5 h-3.5" />
+                <span>+ Administer Vaccine</span>
+              </button>
+              <button
+                onClick={() => setNewMarModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold text-xs flex items-center gap-1 shadow-xs cursor-pointer"
+              >
                 <Plus className="w-3.5 h-3.5" />
-                <span>+ Schedule Dose</span>
+                <span>Schedule Dose</span>
               </button>
             </div>
           </div>
@@ -1873,6 +2007,305 @@ export const HeadNursePortal: React.FC<HeadNursePortalProps> = ({
                   className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold shadow-md"
                 >
                   Sign & Complete Order ✓
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: NURSE REGISTER PATIENT ACCOUNT ================= */}
+      {nurseRegModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`w-full max-w-xl rounded-3xl p-6 border shadow-2xl ${
+            isDark ? 'bg-[#0E2035] border-slate-700 text-white' : 'bg-white border-slate-200 text-[#142C43]'
+          }`}>
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-teal-500" />
+                <div>
+                  <h3 className="font-black text-lg">Nurse Station: Register Inpatient Account</h3>
+                  <p className="text-xs text-slate-400">Head Nurse authorized registration with Email ID and portal password</p>
+                </div>
+              </div>
+              <button onClick={() => setNurseRegModalOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleNurseRegisterPatient} className="space-y-3.5 mt-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1">Patient Full Name *</label>
+                  <input
+                    type="text"
+                    value={nRegName}
+                    onChange={e => setNRegName(e.target.value)}
+                    placeholder="e.g. Ananya Sharma"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1">Official Email Address *</label>
+                  <input
+                    type="email"
+                    value={nRegEmail}
+                    onChange={e => setNRegEmail(e.target.value)}
+                    placeholder="patient@gmail.com"
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="font-bold block mb-1">Age</label>
+                  <input
+                    type="number"
+                    value={nRegAge}
+                    onChange={e => setNRegAge(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1">Gender</label>
+                  <select
+                    value={nRegGender}
+                    onChange={e => setNRegGender(e.target.value as any)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="font-bold block mb-1">Blood Group</label>
+                  <select
+                    value={nRegBlood}
+                    onChange={e => setNRegBlood(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
+                  >
+                    <option value="O+">O+</option>
+                    <option value="A+">A+</option>
+                    <option value="B+">B+</option>
+                    <option value="AB+">AB+</option>
+                    <option value="O-">O-</option>
+                    <option value="A-">A-</option>
+                    <option value="B-">B-</option>
+                    <option value="AB-">AB-</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1">Phone Number</label>
+                  <input
+                    type="text"
+                    value={nRegPhone}
+                    onChange={e => setNRegPhone(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1">Admission Diagnosis</label>
+                  <input
+                    type="text"
+                    value={nRegDiagnosis}
+                    onChange={e => setNRegDiagnosis(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  />
+                </div>
+              </div>
+
+              {/* Password issued by Nurse */}
+              <div className="p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="font-bold text-teal-800 dark:text-teal-200 flex items-center gap-1.5">
+                    <Key className="w-3.5 h-3.5 text-teal-600" />
+                    <span>Portal Password Issued to Patient</span>
+                  </label>
+                  <span className="text-[10px] text-teal-600 font-semibold">Nurse Authorized</span>
+                </div>
+                <input
+                  type="text"
+                  value={nRegPassword}
+                  onChange={e => setNRegPassword(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-teal-500/30 bg-white dark:bg-slate-900 font-mono text-xs font-bold"
+                  placeholder="Patient@2026"
+                  required
+                />
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                  The patient will use this password along with their Email ID to log in to the Patient Portal.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setNurseRegModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold flex items-center gap-1.5 shadow-md"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Register & Issue Credentials</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: NURSE REGISTRATION CONFIRMATION CARD ================= */}
+      {nRegSuccessOpen && nLastCreds && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`w-full max-w-md rounded-3xl p-6 border shadow-2xl ${
+            isDark ? 'bg-[#0E2035] border-teal-500/40 text-white' : 'bg-white border-teal-500/40 text-[#142C43]'
+          }`}>
+            <div className="text-center pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto mb-2">
+                <ShieldCheck className="w-7 h-7" />
+              </div>
+              <h3 className="font-black text-lg">Inpatient Account Registered!</h3>
+              <p className="text-xs text-slate-400">Provide these login credentials directly to the patient.</p>
+            </div>
+
+            <div className="my-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-800">
+                <span className="text-slate-400">Patient Name:</span>
+                <strong className="font-extrabold">{nLastCreds.name}</strong>
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-800">
+                <span className="text-slate-400">Patient Code (MRN):</span>
+                <span className="font-mono font-bold text-teal-600">{nLastCreds.patientCode}</span>
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-800">
+                <span className="text-slate-400">Login Email:</span>
+                <strong className="font-mono text-slate-700 dark:text-slate-300">{nLastCreds.email}</strong>
+              </div>
+              <div className="flex justify-between items-center pt-1">
+                <span className="text-slate-400">Issued Password:</span>
+                <span className="font-mono font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded">
+                  {nLastCreds.password}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  navigator.clipboard?.writeText(`MediCore Portal Login Credentials:\nEmail: ${nLastCreds.email}\nPassword: ${nLastCreds.password}\nPortal: http://localhost:3333`);
+                  showToast('Credentials copied to clipboard!');
+                }}
+                className="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                <span>Copy Credentials</span>
+              </button>
+              <button
+                onClick={() => setNRegSuccessOpen(false)}
+                className="flex-1 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-md"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: NURSE ADMINISTER IMMUNIZATION ================= */}
+      {nurseVaxModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`w-full max-w-lg rounded-3xl p-6 border shadow-2xl ${
+            isDark ? 'bg-[#0E2035] border-slate-700 text-white' : 'bg-white border-slate-200 text-[#142C43]'
+          }`}>
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Syringe className="w-5 h-5 text-blue-500" />
+                <div>
+                  <h3 className="font-black text-lg">Administer & Certify Immunization</h3>
+                  <p className="text-xs text-slate-400">Nurse administered vaccine record and Smart Health Card certification</p>
+                </div>
+              </div>
+              <button onClick={() => setNurseVaxModalOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleNurseAdministerVaccine} className="space-y-3.5 mt-4 text-xs">
+              <div>
+                <label className="font-bold block mb-1">Select Patient</label>
+                <select
+                  value={nurseVaxPat}
+                  onChange={e => setNurseVaxPat(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold"
+                >
+                  {patients.map(p => (
+                    <option key={p.id} value={p.name}>{p.name} ({p.patientCode || p.bedNumber || 'Ward 4'})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="font-bold block mb-1">Vaccine Name</label>
+                <input
+                  type="text"
+                  value={nurseVaxName}
+                  onChange={e => setNurseVaxName(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-bold"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1">Manufacturer</label>
+                  <input
+                    type="text"
+                    value={nurseVaxManufacturer}
+                    onChange={e => setNurseVaxManufacturer(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1">Lot / Batch Number</label>
+                  <input
+                    type="text"
+                    value={nurseVaxLot}
+                    onChange={e => setNurseVaxLot(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-mono"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[11px] text-blue-800 dark:text-blue-300">
+                ✓ Recorded under Nurse Sarah Jenkins, RN, BSN with hospital certification and digital verification barcode.
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setNurseVaxModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center gap-1.5 shadow-md"
+                >
+                  <Syringe className="w-3.5 h-3.5" />
+                  <span>Administer & Save to Record</span>
                 </button>
               </div>
             </form>

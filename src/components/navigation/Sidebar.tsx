@@ -47,7 +47,7 @@ export type NavTab =
   | 'patient-records' | 'patient-vaccines' | 'patient-billing'
   | 'patient-messages' | 'patient-nutrition' | 'patient-emergency'
   | 'doctor-overview' | 'doctor-chat' | 'doctor-patients' | 'doctor-rx' | 'doctor-labs'
-  | 'doctor-schedule' | 'doctor-soap' | 'doctor-3d' | 'doctor-alerts'
+  | 'doctor-schedule' | 'doctor-soap' | 'doctor-alerts'
   | 'nurse-dashboard' | 'nurse-mar' | 'nurse-triage' | 'nurse-sbar' | 'nurse-orders' | 'nurse-roster' | 'nurse-emergency';
 
 interface NavItem {
@@ -111,7 +111,6 @@ const NAV_GROUPS: NavGroup[] = [
       { id: 'doctor-labs', label: 'Lab & Imaging Orders', icon: FlaskConical, roles: ['doctor'], badge: '3' },
       { id: 'doctor-schedule', label: 'Clinic Schedule & Telehealth', icon: Calendar, roles: ['doctor'], badge: '6' },
       { id: 'doctor-soap', label: 'SOAP Notes & EMR', icon: ClipboardList, roles: ['doctor'] },
-      { id: 'doctor-3d', label: '3D Organ Telemetry', icon: Heart, roles: ['doctor'] },
       { id: 'doctor-alerts', label: 'Critical Code Alerts', icon: ShieldCheck, roles: ['doctor'], badge: 'Alert', badgeVariant: 'danger' },
       { id: 'nurse-dashboard', label: 'Nurse Dashboard', icon: LayoutDashboard, roles: ['nurse'] },
       { id: 'nurse-rounds', label: 'Ward & Bed Rounds', icon: Bed, roles: ['nurse'] },
@@ -121,7 +120,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: 'nurse-orders', label: 'Doctor Orders Queue', icon: FileText, roles: ['nurse'], badge: 'Pending', badgeVariant: 'warning' },
       { id: 'nurse-roster', label: 'Nurse Staff Roster', icon: Users, roles: ['nurse'] },
       { id: 'nurse-emergency', label: 'Rapid Response SOS', icon: ShieldCheck, roles: ['nurse'], badge: 'Alert', badgeVariant: 'danger' },
-      { id: 'patient-health', label: 'Health Summary & 3D', icon: Heart, roles: ['patient'] },
+      { id: 'patient-health', label: 'Health Summary & Vitals', icon: Heart, roles: ['patient'] },
       { id: 'patient-appointments', label: 'Appointments', icon: Calendar, roles: ['patient'] },
       { id: 'patient-prescriptions', label: 'Prescriptions', icon: Pill, roles: ['patient'] },
       { id: 'patient-labs', label: 'Lab Reports', icon: Activity, roles: ['patient'] },
