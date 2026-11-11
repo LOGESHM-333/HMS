@@ -1091,16 +1091,6 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
               <button
                 onClick={() => {
                   sound.playClick();
-                  setAddMedModalOpen(true);
-                }}
-                className="px-4 py-2 rounded-full text-xs font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add Medication</span>
-              </button>
-              <button
-                onClick={() => {
-                  sound.playClick();
                   setRefillModalOpen(true);
                 }}
                 className="px-4 py-2 rounded-full text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 transition-all flex items-center gap-1.5 shadow-sm"
@@ -2303,74 +2293,6 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
         </div>
       )}
 
-      {/* ================= MODAL: ADD MEDICATION ================= */}
-      {addMedModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`w-full max-w-lg rounded-3xl p-6 border shadow-2xl ${
-            isDark ? 'bg-[#0E2035] border-slate-700 text-white' : 'bg-white border-slate-200 text-[#142C43]'
-          }`}>
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="font-black text-lg">Add New Medication Regimen</h3>
-              <button onClick={() => setAddMedModalOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddMedicationSubmit} className="space-y-4 mt-4 text-xs">
-              <div>
-                <label className="font-bold block mb-1">Medication Name</label>
-                <input
-                  type="text"
-                  value={newMedName}
-                  onChange={e => setNewMedName(e.target.value)}
-                  placeholder="e.g. Lisinopril, Amlodipine"
-                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1">Dosage</label>
-                  <input
-                    type="text"
-                    value={newMedDosage}
-                    onChange={e => setNewMedDosage(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="font-bold block mb-1">Frequency</label>
-                  <input
-                    type="text"
-                    value={newMedFreq}
-                    onChange={e => setNewMedFreq(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setAddMedModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-bold"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold"
-                >
-                  Save Medication
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* ================= MODAL: INSPECT SCAN / RADIOLOGY VIEWER ================= */}
       {scanViewerOpen && activeScanOrder && (
