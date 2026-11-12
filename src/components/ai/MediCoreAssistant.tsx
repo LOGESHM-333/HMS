@@ -475,7 +475,7 @@ export const MediCoreAssistant: React.FC<MediCoreAssistantProps> = ({
             m.id === assistantPlaceholderId
               ? {
                   ...m,
-                  content: `⚠️ Connection to MediCore AI Backend failed (${err?.message || 'Network error'}). Ensure the backend server on port 5000 is running.`,
+                  content: `⚠️ Connection to MediCore AI Backend failed (${err?.message || 'Network error'}). Ensure the backend API is running locally or deployed cleanly on /api.`,
                 }
               : m
           )

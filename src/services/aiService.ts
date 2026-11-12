@@ -5,7 +5,20 @@
  * MediCore AI Assistant — Frontend API & SSE Streaming Client
  */
 
-import { resolveApiBase } from './api';
+export function resolveAiApiBase(): string {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('medicore_api_url');
+    if (saved) return saved.replace(/\/$/, '') + '/api';
+
+    if ((window as any).__MEDICORE_API_URL__) return (window as any).__MEDICORE_API_URL__;
+
+    if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL.replace(/\/$/, '') + '/api';
+
+    // Use same-origin /api for both localhost (Vite proxy -> :5000) and Vercel serverless (/api/index)
+    return '/api';
+  }
+  return 'http://localhost:5000/api';
+}
 
 export type AiPortalRole = 'super-admin' | 'doctor' | 'nurse' | 'patient' | 'admin';
 
@@ -99,7 +112,7 @@ export function mapHeaderPortalModeToAiRole(portalMode: string): AiPortalRole {
 
 export const aiService = {
   async getStatus(portalRole: AiPortalRole): Promise<AiStatusResponse> {
-    const base = resolveApiBase();
+    const base = resolveAiApiBase();
     const res = await fetch(`${base}/ai/status?portalRole=${encodeURIComponent(portalRole)}`, {
       headers: { 'Bypass-Tunnel-Reminder': 'true' },
     });
@@ -108,7 +121,7 @@ export const aiService = {
   },
 
   async getSuggestions(portalRole: AiPortalRole, activeTab?: string): Promise<string[]> {
-    const base = resolveApiBase();
+    const base = resolveAiApiBase();
     const params = new URLSearchParams({ portalRole });
     if (activeTab) params.set('activeTab', activeTab);
     const res = await fetch(`${base}/ai/suggestions?${params.toString()}`, {
@@ -120,7 +133,7 @@ export const aiService = {
   },
 
   async getHistory(portalRole: AiPortalRole, userId?: string): Promise<AiConversationThread[]> {
-    const base = resolveApiBase();
+    const base = resolveAiApiBase();
     const params = new URLSearchParams({ portalRole });
     if (userId) params.set('userId', userId);
     const res = await fetch(`${base}/ai/history?${params.toString()}`, {
@@ -132,7 +145,7 @@ export const aiService = {
   },
 
   async deleteThread(threadId: string, portalRole: AiPortalRole): Promise<void> {
-    const base = resolveApiBase();
+    const base = resolveAiApiBase();
     await fetch(`${base}/ai/history/${encodeURIComponent(threadId)}?portalRole=${encodeURIComponent(portalRole)}`, {
       method: 'DELETE',
       headers: { 'Bypass-Tunnel-Reminder': 'true' },
@@ -140,7 +153,7 @@ export const aiService = {
   },
 
   async clearHistory(portalRole: AiPortalRole): Promise<void> {
-    const base = resolveApiBase();
+    const base = resolveAiApiBase();
     await fetch(`${base}/ai/history?portalRole=${encodeURIComponent(portalRole)}`, {
       method: 'DELETE',
       headers: { 'Bypass-Tunnel-Reminder': 'true' },
@@ -151,7 +164,7 @@ export const aiService = {
     context: AiSessionContext,
     threadId?: string
   ): Promise<{ threadId: string; message: AiChatMessage }> {
-    const base = resolveApiBase();
+    const base = resolveAiApiBase();
     const res = await fetch(`${base}/ai/summary`, {
       method: 'POST',
       headers: {
@@ -174,7 +187,7 @@ export const aiService = {
     },
     handlers: StreamHandlers
   ): Promise<void> {
-    const base = resolveApiBase();
+    const base = resolveAiApiBase();
     const res = await fetch(`${base}/ai/chat/stream`, {
       method: 'POST',
       headers: {
