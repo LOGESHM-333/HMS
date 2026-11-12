@@ -338,7 +338,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="text-xs font-800 truncate" style={{ color: '#000000', fontWeight: 800 }}>
                   {userName}
                 </div>
-                <span className={`badge ${roleDisplay.color} text-[10px] px-1.5 py-0.5 font-bold`}>
+                <span className={`badge sidebar-role-badge ${roleDisplay.color} text-[10px] px-2 py-0.5 font-extrabold`}>
                   {roleDisplay.label}
                 </span>
               </div>

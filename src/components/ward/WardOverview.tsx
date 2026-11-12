@@ -91,11 +91,39 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
     return unsub;
   }, []);
 
-  // Dynamic real counts from live database
-  const patientsCount = db.getPatients().length;
-  const bedsList = db.getBeds();
-  const occupiedBeds = bedsList.filter(b => b.status === 'Occupied').length;
-  const totalBeds = bedsList.length || 16;
+  // Dynamic real counts from live database (Hospital Admin Operational Scope)
+  const patientsList = db.getPatients();
+  const patientsCount = patientsList.length;
+  const activeInpatients = patientsList.filter(p => p.admissionStatus === 'Admitted' || p.admissionStatus === 'ICU').length;
+  const icuPatientsCount = patientsList.filter(p => p.admissionStatus === 'ICU').length;
+
+  const allBedsList = db.getBeds();
+  const scopedBeds = wardsScope === 'All wards'
+    ? allBedsList
+    : allBedsList.filter(b => b.type.toLowerCase() === wardsScope.toLowerCase() || b.wardName.toLowerCase().includes(wardsScope.toLowerCase()));
+  const totalBeds = scopedBeds.length;
+  const occupiedBeds = scopedBeds.filter(b => b.status === 'Occupied').length;
+  const availableBeds = scopedBeds.filter(b => b.status === 'Available').length;
+  const cleaningBeds = scopedBeds.filter(b => b.status === 'Cleaning').length;
+  const maintenanceBeds = scopedBeds.filter(b => b.status === 'Maintenance').length;
+  const occupancyPct = totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0;
+
+  const doctorsList = db.getDoctors();
+  const doctorsAvailable = doctorsList.filter(d => d.availability === 'Available').length;
+  const staffList = db.getStaff();
+  const onDutyStaff = staffList.filter(s => s.status === 'On Duty').length;
+
+  const medicinesList = db.getMedicines();
+  const lowStockMeds = medicinesList.filter(m => m.stock <= m.minThreshold || m.status === 'Low Stock' || m.stock === 0);
+
+  const labOrdersList = db.getLabOrders();
+  const pendingLabsCount = labOrdersList.filter(l => l.status !== 'Completed').length;
+
+  const invoicesList = db.getInvoices();
+  const totalRevenueInr = invoicesList.reduce((sum, inv) => sum + (Number(inv.grandTotal) || 0), 0);
+  const pendingInvoices = invoicesList.filter(inv => inv.status !== 'Paid');
+  const pendingRevenueInr = pendingInvoices.reduce((sum, inv) => sum + (Number(inv.grandTotal) || 0), 0);
+
   const appointmentsCount = db.getAppointments().length;
   const alertsCount = db.getAlerts().filter(a => a.severity === 'critical' || a.severity === 'high').length;
 
@@ -112,7 +140,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
   const handleExport = () => {
     sound.playClick();
-    setExportNotice('Clinical Ward 4 Report exported as PDF & CSV successfully');
+    setExportNotice('Hospital Admin Ward & Operations Report exported successfully');
     setTimeout(() => setExportNotice(null), 3500);
   };
 
@@ -120,6 +148,8 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
     sound.playClick();
     setActiveSidebarItem(itemId);
   };
+
+  const wardScopes = ['All wards', 'ICU', 'General', 'Surgical', 'Cardiac', 'Emergency'];
 
   return (
     <div className="w-full space-y-4 animate-in fade-in duration-300">
@@ -131,7 +161,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
         </div>
       )}
 
-      {/* MAIN CONTAINER (UNIFIED CLINICAL CONSOLE) */}
+      {/* MAIN CONTAINER (HOSPITAL ADMIN OPERATIONS CONSOLE) */}
       <div className={`rounded-[32px] overflow-hidden border transition-all duration-200 flex flex-col shadow-xl min-h-[820px] relative ${
         isDark 
           ? 'bg-[#0B1726] border-slate-800 text-white' 
@@ -144,11 +174,11 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100 dark:border-slate-800/80">
             <div className="flex items-center gap-3">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Ward 4 Console
+                Hospital Admin Operations
               </span>
               <span className="text-slate-300 dark:text-slate-700">/</span>
               <span className="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
-                {activeSidebarItem === 'ward-overview' ? 'Ward Overview' : activeSidebarItem.replace('-', ' ')}
+                {activeSidebarItem === 'ward-overview' ? 'Ward & Facility Overview' : activeSidebarItem.replace('-', ' ')}
               </span>
             </div>
 
@@ -209,7 +239,7 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
           {/* ================= CONDITIONAL MODULE RENDERING ================= */}
 
-          {/* 1. WARD OVERVIEW (DEFAULT CLINICAL VITALS DASHBOARD) */}
+          {/* 1. WARD OVERVIEW (HOSPITAL ADMIN OPERATIONS & CAPACITY TELEMETRY) */}
           {activeSidebarItem === 'ward-overview' && (
             <div className="space-y-6 animate-in fade-in duration-200">
               <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-2">
@@ -219,15 +249,18 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                       Ward overview
                     </h1>
                     <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                      Ward 4 · {occupiedBeds} of {totalBeds} beds
+                      {wardsScope} · {occupiedBeds} of {totalBeds} beds occupied
                     </span>
                   </div>
 
                   {/* DATE & WARD FILTER PILLS */}
                   <div className="flex flex-wrap items-center gap-2.5 mt-3 text-xs">
                     <button
-                      onClick={() => sound.playClick()}
-                      className="px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 shadow-xs hover:border-slate-300 transition-colors"
+                      onClick={() => {
+                        sound.playClick();
+                        setDateFilter(prev => prev === 'Today' ? 'Last 7 Days' : prev === 'Last 7 Days' ? 'This Month' : 'Today');
+                      }}
+                      className="px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 shadow-xs hover:border-slate-300 transition-colors cursor-pointer"
                     >
                       <Calendar className="w-3.5 h-3.5 text-slate-400" />
                       <span>{dateFilter}</span>
@@ -235,170 +268,267 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                     </button>
 
                     <button
-                      onClick={() => sound.playClick()}
-                      className="px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 shadow-xs hover:border-slate-300 transition-colors"
+                      onClick={() => {
+                        sound.playClick();
+                        setPeriodFilter(prev => prev === 'vs Previous period' ? 'vs Last Week' : 'vs Previous period');
+                      }}
+                      className="px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 shadow-xs hover:border-slate-300 transition-colors cursor-pointer"
                     >
                       <span className="text-slate-400">vs</span>
                       <span>{periodFilter}</span>
                       <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
                     </button>
 
-                    <button
-                      onClick={() => sound.playClick()}
-                      className="px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 shadow-xs hover:border-slate-300 transition-colors"
-                    >
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md text-slate-700 dark:text-slate-200 font-medium shadow-xs">
                       <Filter className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{wardsScope}</span>
-                      <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
+                      <select
+                        value={wardsScope}
+                        onChange={(e) => {
+                          sound.playClick();
+                          setWardsScope(e.target.value);
+                        }}
+                        className="bg-transparent outline-none cursor-pointer text-xs font-semibold pr-1"
+                        aria-label="Filter Ward Scope"
+                      >
+                        {wardScopes.map(scope => (
+                          <option key={scope} value={scope} className="text-slate-900">
+                            {scope}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* HOSPITAL ADMIN OPERATIONAL CAPACITY & LOGISTICS BANNER */}
+              {!alertDismissed && (
+                <div className={`p-4 rounded-2xl border flex items-start justify-between gap-3 shadow-xs animate-in fade-in duration-200 ${
+                  lowStockMeds.length > 0 || occupancyPct >= 80
+                    ? 'bg-amber-50/90 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/60'
+                    : 'bg-slate-50/90 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/60'
+                }`}>
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className={`w-5 h-5 shrink-0 mt-0.5 ${
+                      lowStockMeds.length > 0 || occupancyPct >= 80 ? 'text-amber-600' : 'text-[#3B4E6A]'
+                    }`} />
+                    <div className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
+                      <span className="font-bold">Hospital Operations & Ward Capacity Notice:</span>{' '}
+                      Currently <span className="font-bold">{occupiedBeds} of {totalBeds}</span> beds in <span className="font-semibold">{wardsScope}</span> are occupied ({occupancyPct}% utilization), with{' '}
+                      <span className="font-bold text-emerald-700">{availableBeds} available</span> and{' '}
+                      <span className="font-bold text-amber-700">{cleaningBeds} in housekeeping turnover</span>.{' '}
+                      {lowStockMeds.length > 0 && (
+                        <span>
+                          Pharmacy inventory alert: <span className="font-bold text-rose-600">{lowStockMeds.length} medication(s)</span> below minimum stock threshold.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => {
+                        sound.playClick();
+                        if (onNavigateTab) onNavigateTab('beds');
+                        else setActiveSidebarItem('beds');
+                      }}
+                      className="text-xs font-bold px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                    >
+                      Manage Beds
+                    </button>
+                    <button
+                      onClick={() => {
+                        sound.playClick();
+                        setAlertDismissed(true);
+                      }}
+                      className="text-xs text-slate-500 hover:text-slate-800 font-semibold px-2 py-1 rounded-md hover:bg-white/70 transition-colors cursor-pointer"
+                    >
+                      Acknowledge
                     </button>
                   </div>
                 </div>
-              </div>
-
-              {/* CRITICAL ESCALATION BANNER */}
-              {!alertDismissed && (
-                <div className="p-4 rounded-2xl bg-rose-50/90 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 flex items-start justify-between gap-3 shadow-xs animate-in fade-in duration-200">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-                    <div className="text-xs sm:text-sm text-rose-900 dark:text-rose-200 leading-relaxed">
-                      <span className="font-bold underline decoration-rose-300">Ruben Sosa</span>, bed 12, MRN 40817: oxygen saturation <span className="font-bold text-rose-600 dark:text-rose-300">91%</span> for <span className="font-bold">18</span> minutes, below the escalation threshold of 92. Respiratory registrar paged at 09:44, not yet acknowledged.
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      sound.playClick();
-                      setAlertDismissed(true);
-                    }}
-                    className="text-xs text-rose-500 hover:text-rose-700 dark:hover:text-rose-300 font-semibold shrink-0 px-2 py-0.5 rounded-md hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors"
-                  >
-                    Acknowledge
-                  </button>
-                </div>
               )}
 
-              {/* CLINICAL VITALS MATRIX (6 CARDS) */}
+              {/* HOSPITAL ADMIN OPERATIONS MATRIX (6 EXECUTIVE KPI CARDS) */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {/* 1. HEART RATE */}
-                <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
-                }`}>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    HEART RATE
+                {/* 1. WARD BED OCCUPANCY */}
+                <div
+                  onClick={() => (onNavigateTab ? onNavigateTab('beds') : handleSidebarClick('beds'))}
+                  className={`p-5 rounded-2xl border transition-all shadow-xs cursor-pointer hover:border-[#3B4E6A]/40 ${
+                    isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    <span>WARD BED OCCUPANCY</span>
+                    <Bed className="w-4 h-4 text-[#3B4E6A]" />
+                  </div>
+                  <div className="flex items-baseline gap-1.5 mb-2">
+                    <span className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${
+                      occupancyPct >= 85 ? 'text-rose-600' : 'text-slate-900 dark:text-white'
+                    }`}>
+                      {occupancyPct}%
+                    </span>
+                    <span className="text-xs text-slate-400 font-medium">capacity</span>
+                  </div>
+                  <div className="text-xs text-slate-400 mb-3">{occupiedBeds} of {totalBeds} beds occupied</div>
+                  <span className={`inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border ${
+                    occupancyPct >= 85
+                      ? 'bg-rose-50 text-rose-700 border-rose-200'
+                      : occupancyPct >= 65
+                      ? 'bg-amber-50 text-amber-700 border-amber-200'
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  }`}>
+                    {occupancyPct >= 85 ? 'Surge Load' : occupancyPct >= 65 ? 'Moderate Load' : 'Optimal Capacity'}
+                  </span>
+                </div>
+
+                {/* 2. AVAILABLE BEDS & TURNOVER */}
+                <div
+                  onClick={() => (onNavigateTab ? onNavigateTab('beds') : handleSidebarClick('beds'))}
+                  className={`p-5 rounded-2xl border transition-all shadow-xs cursor-pointer hover:border-[#3B4E6A]/40 ${
+                    isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    <span>AVAILABLE BEDS READY</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   </div>
                   <div className="flex items-baseline gap-1.5 mb-2">
                     <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                      92
+                      {availableBeds}
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">bpm</span>
+                    <span className="text-xs text-slate-400 font-medium">beds open</span>
                   </div>
-                  <div className="text-xs text-slate-400 mb-3">ref 60 to 100</div>
-                  <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">
-                    Normal
+                  <div className="text-xs text-slate-400 mb-3">
+                    Cleaning: {cleaningBeds} • Maintenance: {maintenanceBeds}
+                  </div>
+                  <span className={`inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border ${
+                    availableBeds === 0
+                      ? 'bg-rose-50 text-rose-700 border-rose-200'
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  }`}>
+                    {availableBeds === 0 ? 'No Open Beds' : 'Ready for Admission'}
                   </span>
                 </div>
 
-                {/* 2. BLOOD PRESSURE */}
-                <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
-                }`}>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    BLOOD PRESSURE
+                {/* 3. ON-DUTY DOCTORS & STAFF */}
+                <div
+                  onClick={() => (onNavigateTab ? onNavigateTab('staff') : handleSidebarClick('staff'))}
+                  className={`p-5 rounded-2xl border transition-all shadow-xs cursor-pointer hover:border-[#3B4E6A]/40 ${
+                    isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    <span>CLINICAL STAFF & DOCTORS</span>
+                    <Stethoscope className="w-4 h-4 text-[#3B4E6A]" />
                   </div>
                   <div className="flex items-baseline gap-1.5 mb-2">
                     <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                      148/94
+                      {doctorsAvailable + onDutyStaff}
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">mmHg</span>
+                    <span className="text-xs text-slate-400 font-medium">active on shift</span>
                   </div>
-                  <div className="text-xs text-slate-400 mb-3">ref under 130/80</div>
-                  <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800/40">
-                    Stage 2
+                  <div className="text-xs text-slate-400 mb-3">
+                    {doctorsAvailable}/{doctorsList.length} Physicians • {onDutyStaff}/{staffList.length} Staff On Duty
+                  </div>
+                  <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Shift Staffed
                   </span>
                 </div>
 
-                {/* 3. SPO2 */}
-                <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
-                }`}>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    SPO2
+                {/* 4. PHARMACY INVENTORY ALERTS */}
+                <div
+                  onClick={() => (onNavigateTab ? onNavigateTab('pharmacy') : handleSidebarClick('pharmacy'))}
+                  className={`p-5 rounded-2xl border transition-all shadow-xs cursor-pointer hover:border-[#3B4E6A]/40 ${
+                    isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    <span>PHARMACY LOW-STOCK ALERTS</span>
+                    <Pill className="w-4 h-4 text-amber-600" />
                   </div>
                   <div className="flex items-baseline gap-1.5 mb-2">
-                    <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-rose-600 dark:text-rose-400">
-                      91
+                    <span className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${
+                      lowStockMeds.length > 0 ? 'text-amber-600' : 'text-slate-900 dark:text-white'
+                    }`}>
+                      {lowStockMeds.length}
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">%</span>
+                    <span className="text-xs text-slate-400 font-medium">items flagged</span>
                   </div>
-                  <div className="text-xs text-slate-400 mb-3">ref 95 to 100</div>
-                  <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-800/40">
-                    Low
+                  <div className="text-xs text-slate-400 mb-3 truncate">
+                    {lowStockMeds.length > 0
+                      ? `Lowest: ${lowStockMeds[0].name} (${lowStockMeds[0].stock} left)`
+                      : `All ${medicinesList.length} formulary items healthy`}
+                  </div>
+                  <span className={`inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border ${
+                    lowStockMeds.length > 0
+                      ? 'bg-amber-50 text-amber-700 border-amber-200'
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  }`}>
+                    {lowStockMeds.length > 0 ? 'Reorder Required' : 'Stock Healthy'}
                   </span>
                 </div>
 
-                {/* 4. TEMPERATURE */}
-                <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
-                }`}>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    TEMPERATURE
+                {/* 5. DIAGNOSTIC LAB QUEUE */}
+                <div
+                  onClick={() => (onNavigateTab ? onNavigateTab('lab') : handleSidebarClick('laboratory'))}
+                  className={`p-5 rounded-2xl border transition-all shadow-xs cursor-pointer hover:border-[#3B4E6A]/40 ${
+                    isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    <span>LAB WORKLOAD QUEUE</span>
+                    <Activity className="w-4 h-4 text-[#3B4E6A]" />
                   </div>
                   <div className="flex items-baseline gap-1.5 mb-2">
                     <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                      37.8
+                      {pendingLabsCount}
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">°C</span>
+                    <span className="text-xs text-slate-400 font-medium">pending assays</span>
                   </div>
-                  <div className="text-xs text-slate-400 mb-3">ref 36.1 to 37.2</div>
-                  <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200 dark:border-amber-800/40">
-                    Raised
+                  <div className="text-xs text-slate-400 mb-3">
+                    Total lab orders tracked: {labOrdersList.length}
+                  </div>
+                  <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-[#3B4E6A] border border-slate-200">
+                    Active Queue
                   </span>
                 </div>
 
-                {/* 5. RESPIRATORY RATE */}
-                <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
-                }`}>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    RESPIRATORY RATE
+                {/* 6. HOSPITAL BILLING & REVENUE (INR ₹) */}
+                <div
+                  onClick={() => (onNavigateTab ? onNavigateTab('billing') : handleSidebarClick('billing'))}
+                  className={`p-5 rounded-2xl border transition-all shadow-xs cursor-pointer hover:border-[#3B4E6A]/40 ${
+                    isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    <span>BILLING & REVENUE (INR ₹)</span>
+                    <CreditCard className="w-4 h-4 text-[#3B4E6A]" />
                   </div>
                   <div className="flex items-baseline gap-1.5 mb-2">
                     <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                      18
-                    </span>
-                    <span className="text-xs text-slate-400 font-medium">/min</span>
-                  </div>
-                  <div className="text-xs text-slate-400 mb-3">ref 12 to 20</div>
-                  <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">
-                    Normal
-                  </span>
-                </div>
-
-                {/* 6. NEWS2 SCORE */}
-                <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
-                  isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
-                }`}>
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    NEWS2 SCORE
-                  </div>
-                  <div className="flex items-baseline gap-1.5 mb-2">
-                    <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-rose-600 dark:text-rose-400">
-                      6
+                      ₹{totalRevenueInr.toLocaleString('en-IN')}
                     </span>
                   </div>
-                  <div className="text-xs text-slate-400 mb-3">ref 0 to 4</div>
-                  <span className="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-200 dark:border-rose-800/40">
-                    Urgent review
+                  <div className="text-xs text-slate-400 mb-3">
+                    Pending Settlement: ₹{pendingRevenueInr.toLocaleString('en-IN')}
+                  </div>
+                  <span className={`inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border ${
+                    pendingInvoices.length > 0
+                      ? 'bg-amber-50 text-amber-700 border-amber-200'
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  }`}>
+                    {pendingInvoices.length} Pending Invoice(s)
                   </span>
                 </div>
               </div>
 
-              {/* CLINIC / OPERATIONAL SUMMARY (4 CARDS) */}
+              {/* HOSPITAL ADMIN OPERATIONAL SUMMARY (4 CARDS) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
                 <div className={`p-5 rounded-2xl border transition-all shadow-xs ${
                   isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
-                    <span>PATIENTS IN CLINIC</span>
+                    <span>REGISTERED PATIENTS</span>
                     <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                   <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
@@ -410,11 +540,16 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                   isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
-                    <span>IN THE WAITING ROOM</span>
+                    <span>ACTIVE INPATIENTS / ICU</span>
                     <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
                   </div>
-                  <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
-                    11
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
+                      {activeInpatients}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400">
+                      (ICU: {icuPatientsCount})
+                    </span>
                   </div>
                 </div>
 
@@ -422,14 +557,14 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                   isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
-                    <span>MEDIAN WAIT</span>
+                    <span>SCHEDULED VISITS</span>
                     <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
-                      12
+                      {appointmentsCount}
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">min</span>
+                    <span className="text-xs text-slate-400 font-medium">active</span>
                   </div>
                 </div>
 
@@ -437,15 +572,15 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
                   isDark ? 'bg-[#0E1A2A]/85 backdrop-blur-md border-slate-800 shadow-sm' : 'bg-white/90 backdrop-blur-md border-slate-200/90 shadow-sm'
                 }`}>
                   <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
-                    <span>OPEN ESCALATIONS</span>
+                    <span>OPERATIONAL ALERTS</span>
                     <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                   <div className="flex items-baseline gap-3">
                     <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
-                      {alertsCount || 3}
+                      {alertsCount}
                     </span>
-                    <span className="text-xs font-bold text-rose-500 flex items-center">
-                      ▲ +1
+                    <span className="text-xs font-bold text-slate-500">
+                      Priority
                     </span>
                   </div>
                 </div>
@@ -532,10 +667,10 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div>
                   <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                    Continuous Telemetry & Alarms
+                    Hospital Operations & Escalation Monitor
                   </h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Bedside vital signs monitors, arterial pulse ox, ECG leads, and rapid escalation triggers.
+                    Ward capacity alerts, department staffing escalations, supply shortages, and operational dispatches.
                   </p>
                 </div>
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
