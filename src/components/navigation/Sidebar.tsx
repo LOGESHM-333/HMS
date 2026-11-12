@@ -215,6 +215,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside
         className={`docr-sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}
       >
+        {/* Healthcare Visual Design: Floating Plus Symbols on Background */}
+        <div className="sidebar-medical-fx" aria-hidden="true">
+          <span className="med-cross mc1">✚</span>
+          <span className="med-cross mc2">✚</span>
+          <span className="med-cross mc3">✚</span>
+          <span className="med-cross mc4">✚</span>
+        </div>
+
         {/* Header: Logo + Collapse */}
         <div
           className="flex items-center px-4 py-4 border-b flex-shrink-0 relative z-10"

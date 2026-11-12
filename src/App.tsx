@@ -33,6 +33,7 @@ import { DoctorPortal } from './components/doctor-portal/DoctorPortal';
 import { HeadNursePortal } from './components/nurse-portal/HeadNursePortal';
 import { SettingsView } from './components/settings/SettingsView';
 import { CommandPalette } from './components/navigation/CommandPalette';
+import { MediCoreAssistant } from './components/ai/MediCoreAssistant';
 import {
   Search,
   X,
@@ -620,6 +621,24 @@ export default function App() {
         onSelectPatient={(pat) => {
           setSelectedPatient(pat);
           db.setSelectedPatient(pat.id);
+        }}
+      />
+
+      {/* ===== ROLE-AWARE MEDICORE AI ASSISTANT (ALL 5 PORTALS) ===== */}
+      <MediCoreAssistant
+        portalMode={portalMode}
+        currentRole={currentRole}
+        currentTab={currentTab}
+        userName={getUserName()}
+        selectedPatient={selectedPatient}
+        theme={theme}
+        onNavigateTab={(tab) => {
+          setCurrentTab(tab);
+          const title = PAGE_TITLES[tab];
+          if (title) document.title = `${title} | MediCore Healthcare`;
+        }}
+        onDataMutated={() => {
+          db.syncWithBackend();
         }}
       />
     </div>

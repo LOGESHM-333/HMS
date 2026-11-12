@@ -24,6 +24,7 @@ import {
   executeQuery,
   getPool
 } from './db.js';
+import aiRouter from './ai/router.js';
 import {
   Patient,
   Doctor,
@@ -1843,6 +1844,9 @@ app.get('/api/audit-logs', async (_req: Request, res: Response) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// MediCore AI Assistant Isolated Router (Gemini + RAG + RBAC Tool Calling)
+app.use('/api/ai', aiRouter);
 
 // Serve compiled React frontend from dist/
 const distPath = path.join(__dirname, '../dist');

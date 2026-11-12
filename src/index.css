@@ -267,13 +267,37 @@
   width: var(--sidebar-collapsed-width);
 }
 
-/* Healthcare / Hospital Project-Related Visual Design */
-.sidebar-medical-fx,
-.med-ecg-svg,
-.med-ecg-line,
-.med-ecg-glow,
+/* Healthcare / Hospital Project-Related Visual Design: Plus Symbols on Side Panel Background */
+.sidebar-medical-fx {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .med-cross {
-  display: none !important;
+  position: absolute;
+  color: #ffffff;
+  font-weight: 900;
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.6);
+  animation: floatMedCross 14s ease-in-out infinite;
+}
+.med-cross.mc1 { font-size: 38px; top: 12%; right: 12px; opacity: 0.32; animation-duration: 15s; }
+.med-cross.mc2 { font-size: 58px; top: 42%; left: -10px; opacity: 0.22; animation-duration: 19s; animation-delay: -3s; }
+.med-cross.mc3 { font-size: 32px; top: 65%; right: 20px; opacity: 0.30; animation-duration: 12s; animation-delay: -5s; }
+.med-cross.mc4 { font-size: 46px; bottom: 110px; left: 12px; opacity: 0.25; animation-duration: 16s; animation-delay: -7s; }
+
+@keyframes floatMedCross {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(6deg);
+  }
 }
 
 .docr-sidebar-nav-item {

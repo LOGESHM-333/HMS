@@ -13,6 +13,7 @@ import {
   Menu,
   ShieldCheck,
   Command,
+  Sparkles,
 } from 'lucide-react';
 import { UserRole, ThemeMode, CriticalAlert } from '../../types';
 import { Avatar, Badge, statusToBadge } from '../ui';
@@ -104,6 +105,21 @@ export const TopBar: React.FC<TopBarProps> = ({
           <kbd className="text-[10px] px-1 py-0.5 rounded font-mono" style={{ background: 'var(--color-border)', color: 'var(--color-text-muted)' }}>⌘</kbd>
           <kbd className="text-[10px] px-1 py-0.5 rounded font-mono" style={{ background: 'var(--color-border)', color: 'var(--color-text-muted)' }}>K</kbd>
         </div>
+      </button>
+
+      {/* MediCore AI Quick Access */}
+      <button
+        type="button"
+        onClick={() => {
+          sound.playClick();
+          window.dispatchEvent(new CustomEvent('medicore:open-ai'));
+        }}
+        className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white shadow-xs transition-all hover:opacity-95 active:scale-95 cursor-pointer flex-shrink-0"
+        style={{ background: 'linear-gradient(135deg, #3B4E6A 0%, #485E83 100%)' }}
+        title="Open MediCore AI Assistant (Ctrl+Shift+A)"
+      >
+        <Sparkles size={13} />
+        <span>MediCore AI</span>
       </button>
 
       {/* Controls */}
