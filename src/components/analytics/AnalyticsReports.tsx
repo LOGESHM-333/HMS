@@ -6,6 +6,8 @@
 import React, { useState } from 'react';
 import { ThemeMode } from '../../types';
 import { sound } from '../../services/audioService';
+import { db } from '../../services/mockDatabase';
+import { downloadCsvFile, CsvCell } from '../../utils/exportUtils';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -25,12 +27,6 @@ export const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ theme }) => 
   const isDark = theme === 'dark';
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
-  const handleExport = () => {
-    sound.playClick();
-    setDownloadSuccess(true);
-    setTimeout(() => setDownloadSuccess(false), 3000);
-  };
-
   const deptMetrics = [
     { name: 'Cardiology', efficiency: 95, patients: 87, bedTurnaround: '1.8 hrs' },
     { name: 'Neurology', efficiency: 97, patients: 72, bedTurnaround: '2.1 hrs' },
@@ -38,6 +34,44 @@ export const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ theme }) => 
     { name: 'Orthopedics & Spine', efficiency: 89, patients: 64, bedTurnaround: '2.6 hrs' },
     { name: 'Critical Care ICU', efficiency: 94, patients: 22, bedTurnaround: '3.8 hrs' },
   ];
+
+  const handleExport = () => {
+    sound.playClick();
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    const filename = `MediCore_Annual_Quality_Report_${dateStamp}.csv`;
+    const totalBeds = db.getBeds().length;
+    const occupiedBeds = db.getBeds().filter(b => b.status === 'Occupied').length;
+    const liveOccupancy = totalBeds > 0 ? `${Math.round((occupiedBeds / totalBeds) * 100)}%` : '86.4%';
+
+    const rows: CsvCell[][] = [
+      ['MediCore Hospital Clinical Analytics & Annual Quality Report'],
+      ['Generated At', new Date().toLocaleString('en-IN')],
+      [],
+      ['Executive KPI', 'Metric Value', 'Benchmark / Notes'],
+      ['Average Length of Stay (ALOS)', '3.8 days', '0.4 days below benchmark'],
+      ['30-Day Readmission Rate', '3.2%', 'Top 5% Nationally'],
+      ['Live Bed Occupancy Rate', liveOccupancy, `${occupiedBeds} of ${totalBeds} beds occupied`],
+      ['Patient Satisfaction (HCAHPS)', '4.92 / 5.0', '98% Positive Feedback'],
+      ['Registered Patients (Live DB)', db.getPatients().length, 'Active database records'],
+      ['Total Lab Orders (Live DB)', db.getLabOrders().length, 'Diagnostic workload'],
+      [],
+      ['Departmental Throughput & Quality Breakdown'],
+      ['Department', 'Care Efficiency (%)', 'Active Inpatients', 'Avg Sanitation Turnaround', 'Accreditation Status'],
+      ...deptMetrics.map(dept => [
+        dept.name,
+        `${dept.efficiency}%`,
+        dept.patients,
+        dept.bedTurnaround,
+        'Accredited'
+      ]),
+    ];
+
+    downloadCsvFile(filename, rows);
+    db.logAudit('Report Exported', 'Analytics & Quality', `Downloaded ${filename}`);
+    sound.playSuccess();
+    setDownloadSuccess(true);
+    setTimeout(() => setDownloadSuccess(false), 3000);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -51,11 +85,12 @@ export const AnalyticsReports: React.FC<AnalyticsReportsProps> = ({ theme }) => 
         </div>
 
         <button
+          type="button"
           onClick={handleExport}
-          className="px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white shadow-md active:scale-95 transition-all self-start sm:self-auto"
+          className="px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white shadow-md active:scale-95 transition-all self-start sm:self-auto cursor-pointer"
         >
           <Download className="w-4 h-4" />
-          <span>{downloadSuccess ? 'Exporting CSV...' : 'Export Annual Quality Report'}</span>
+          <span>{downloadSuccess ? 'CSV Downloaded ✓' : 'Export Annual Quality Report'}</span>
         </button>
       </div>
 

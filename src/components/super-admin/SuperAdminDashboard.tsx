@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { ThemeMode, ManagedUser, FacilityNode, EnterpriseSecurityConfig, AuditLog } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
+import { downloadCsvFile } from '../../utils/exportUtils';
 import {
   ShieldCheck,
   Building2,
@@ -191,17 +192,12 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
 
   const handleExportAuditDossier = () => {
     sound.playClick();
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + ["ID,Timestamp,User,Role,Action,Module,IP,Details"]
-      .concat(auditLogs.map(a => `"${a.id}","${a.timestamp}","${a.userName}","${a.userRole}","${a.action}","${a.module}","${a.ipAddress}","${a.details.replace(/"/g, '""')}"`))
-      .join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `MediCore_HIPAA_Audit_Dossier_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const filename = `MediCore_HIPAA_Audit_Dossier_${new Date().toISOString().slice(0, 10)}.csv`;
+    downloadCsvFile(filename, [
+      ['ID', 'Timestamp', 'User', 'Role', 'Action', 'Module', 'IP', 'Details'],
+      ...auditLogs.map(a => [a.id, a.timestamp, a.userName, a.userRole, a.action, a.module, a.ipAddress, a.details]),
+    ]);
+    sound.playSuccess();
     showToast('HIPAA Audit Dossier exported as CSV');
   };
 

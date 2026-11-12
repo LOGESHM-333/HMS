@@ -93,9 +93,18 @@ export const TopBar: React.FC<TopBarProps> = ({
 
       {/* Search Trigger */}
       <button
+        type="button"
         className="docr-search hidden sm:flex"
         style={{ minWidth: 180, maxWidth: 260 }}
-        onClick={() => { sound.playClick(); onOpenSearch?.(); }}
+        onClick={() => {
+          sound.playClick();
+          if (onOpenSearch) {
+            onOpenSearch();
+          } else {
+            window.dispatchEvent(new CustomEvent('medicore:open-search'));
+          }
+        }}
+        title="Global Search (Ctrl+K / Cmd+K)"
       >
         <Search size={14} style={{ color: 'var(--color-text-muted)', flexShrink: 0 }} />
         <span className="text-sm flex-1 text-left" style={{ color: 'var(--color-text-muted)' }}>
@@ -126,9 +135,18 @@ export const TopBar: React.FC<TopBarProps> = ({
       <div className="flex items-center gap-2 flex-shrink-0">
         {/* Search (mobile) */}
         <button
-          className="sm:hidden p-2 rounded-xl"
+          type="button"
+          className="sm:hidden p-2 rounded-xl cursor-pointer"
           style={{ background: 'var(--color-surface-2)', color: 'var(--color-text-secondary)' }}
-          onClick={() => { sound.playClick(); onOpenSearch?.(); }}
+          onClick={() => {
+            sound.playClick();
+            if (onOpenSearch) {
+              onOpenSearch();
+            } else {
+              window.dispatchEvent(new CustomEvent('medicore:open-search'));
+            }
+          }}
+          title="Search"
         >
           <Search size={16} />
         </button>

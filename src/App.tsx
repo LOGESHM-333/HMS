@@ -156,10 +156,10 @@ export default function App() {
     db.setTheme('mint');
   }, []);
 
-  // Cmd+K global search
+  // Cmd+K global search & custom open-search trigger
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         sound.playClick();
         setIsSearchOpen(prev => !prev);
@@ -168,8 +168,16 @@ export default function App() {
         setIsSearchOpen(false);
       }
     };
+    const handleOpenSearchEvent = () => {
+      sound.playClick();
+      setIsSearchOpen(true);
+    };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('medicore:open-search', handleOpenSearchEvent);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('medicore:open-search', handleOpenSearchEvent);
+    };
   }, []);
 
   // ============================================================
@@ -397,16 +405,16 @@ export default function App() {
                 />
               )}
               {currentTab === 'ward' && (
-                <WardOverview theme={theme} currentRole={currentRole} initialView="ward-overview" onNavigateTab={handleTabChange} />
+                <WardOverview theme={theme} currentRole={currentRole} initialView="ward-overview" onNavigateTab={handleTabChange} onOpenSearch={() => setIsSearchOpen(true)} />
               )}
               {currentTab === 'monitoring' && (
-                <WardOverview theme={theme} currentRole={currentRole} initialView="monitoring" onNavigateTab={handleTabChange} />
+                <WardOverview theme={theme} currentRole={currentRole} initialView="monitoring" onNavigateTab={handleTabChange} onOpenSearch={() => setIsSearchOpen(true)} />
               )}
               {currentTab === 'admissions' && (
-                <WardOverview theme={theme} currentRole={currentRole} initialView="admissions" onNavigateTab={handleTabChange} />
+                <WardOverview theme={theme} currentRole={currentRole} initialView="admissions" onNavigateTab={handleTabChange} onOpenSearch={() => setIsSearchOpen(true)} />
               )}
               {currentTab === 'discharges' && (
-                <WardOverview theme={theme} currentRole={currentRole} initialView="discharges" onNavigateTab={handleTabChange} />
+                <WardOverview theme={theme} currentRole={currentRole} initialView="discharges" onNavigateTab={handleTabChange} onOpenSearch={() => setIsSearchOpen(true)} />
               )}
               {currentTab === 'analytics' && (
                 <AnalyticsReports theme={theme} />

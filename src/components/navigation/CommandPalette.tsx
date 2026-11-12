@@ -76,6 +76,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const allPrescriptions = useMemo(() => db.getPrescriptions(), [isOpen]);
   const allAppointments = useMemo(() => db.getAppointments(), [isOpen]);
   const allLabOrders = useMemo(() => db.getLabOrders(), [isOpen]);
+  const allMedicines = useMemo(() => db.getMedicines(), [isOpen]);
+  const allStaff = useMemo(() => db.getStaff(), [isOpen]);
 
   // Current active patient context for Patient Portal
   const activePatient = useMemo(() => {
@@ -133,8 +135,10 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         return [
           { id: 'all', label: 'All Hospital' },
           { id: 'patients', label: 'Patients', icon: Users },
-          { id: 'doctors', label: 'Doctors', icon: Stethoscope },
-          { id: 'beds', label: 'Beds', icon: BedIcon },
+          { id: 'doctors', label: 'Doctors & Staff', icon: Stethoscope },
+          { id: 'beds', label: 'Wards & Beds', icon: BedIcon },
+          { id: 'appointments', label: 'Appointments', icon: Calendar },
+          { id: 'pharmacy', label: 'Pharmacy & Labs', icon: Pill },
           { id: 'billing', label: 'Billing', icon: CreditCard },
           { id: 'nav', label: 'Modules', icon: Navigation },
         ];
@@ -146,6 +150,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     const q = query.trim().toLowerCase();
     const items: CommandResultItem[] = [];
 
+    const matchAny = (...vals: (string | undefined | null)[]) =>
+      !q || vals.some(v => (v || '').toLowerCase().includes(q));
+
     // ==============================================================
     // 1. PATIENT PORTAL SCOPE (Only patient's own confidential records)
     // ==============================================================
@@ -156,8 +163,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       if (activeCategory === 'all' || activeCategory === 'rx') {
         const patientRxs = allPrescriptions.filter(p => p.patientId === patientId);
         patientRxs.forEach(rx => {
-          rx.items.forEach(it => {
-            if (!q || it.medicineName.toLowerCase().includes(q) || it.dosage.toLowerCase().includes(q)) {
+          (rx.items || []).forEach(it => {
+            if (matchAny(it.medicineName, it.dosage, rx.doctorName)) {
               items.push({
                 id: `rx-${rx.id}-${it.medicineId}`,
                 category: 'Prescription',
@@ -182,7 +189,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       if (activeCategory === 'all' || activeCategory === 'apts') {
         const patientApts = allAppointments.filter(a => a.patientId === patientId);
         patientApts.forEach(apt => {
-          if (!q || apt.doctorName.toLowerCase().includes(q) || apt.department.toLowerCase().includes(q) || apt.visitType.toLowerCase().includes(q)) {
+          if (matchAny(apt.doctorName, apt.department, apt.visitType)) {
             items.push({
               id: `apt-${apt.id}`,
               category: 'Appointment',
@@ -205,7 +212,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       if (activeCategory === 'all' || activeCategory === 'labs') {
         const patientLabs = allLabOrders.filter(l => l.patientId === patientId);
         patientLabs.forEach(lab => {
-          if (!q || lab.testName.toLowerCase().includes(q) || lab.status.toLowerCase().includes(q)) {
+          if (matchAny(lab.testName, lab.status, lab.interpretation)) {
             items.push({
               id: `lab-${lab.id}`,
               category: 'Lab Report',
@@ -228,7 +235,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       if (activeCategory === 'all' || activeCategory === 'billing') {
         const patientInvoices = allInvoices.filter(i => i.patientId === patientId || i.patientName === activePatient?.name);
         patientInvoices.forEach(inv => {
-          if (!q || inv.invoiceNumber.toLowerCase().includes(q) || inv.status.toLowerCase().includes(q)) {
+          if (matchAny(inv.invoiceNumber, inv.status)) {
             items.push({
               id: `inv-${inv.id}`,
               category: 'Invoice',
@@ -292,12 +299,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       // Inpatients assigned or monitored by Doctor
       if (activeCategory === 'all' || activeCategory === 'inpatients') {
         allPatients.forEach(pat => {
-          if (!q || pat.name.toLowerCase().includes(q) || pat.patientCode.toLowerCase().includes(q) || pat.diagnosis.toLowerCase().includes(q)) {
+          if (matchAny(pat.name, pat.patientCode, pat.diagnosis, pat.ward)) {
             items.push({
               id: `doc-pat-${pat.id}`,
               category: 'Inpatient',
               title: pat.name,
-              subtitle: `${pat.diagnosis} • ${pat.ward || 'Ward 4'} (Bed ${pat.bedNumber || '402'})`,
+              subtitle: `${pat.diagnosis || 'Clinical Observation'} • ${pat.ward || 'Ward 4'} (Bed ${pat.bedNumber || '402'})`,
               tag: pat.admissionStatus,
               tagType: pat.admissionStatus === 'ICU' ? 'critical' : 'optimal',
               meta: `BP: ${pat.vitals.bloodPressure} • HR: ${pat.vitals.pulseRate} bpm • Code: ${pat.patientCode}`,
@@ -317,7 +324,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       // Today's Doctor Visits
       if (activeCategory === 'all' || activeCategory === 'schedule') {
         allAppointments.forEach(apt => {
-          if (!q || apt.patientName.toLowerCase().includes(q) || apt.visitType.toLowerCase().includes(q)) {
+          if (matchAny(apt.patientName, apt.visitType, apt.department)) {
             items.push({
               id: `doc-apt-${apt.id}`,
               category: 'Schedule',
@@ -339,7 +346,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       // Clinical Orders
       if (activeCategory === 'all' || activeCategory === 'orders') {
         allPrescriptions.slice(0, 5).forEach(rx => {
-          if (!q || rx.patientName.toLowerCase().includes(q) || rx.items.some(it => it.medicineName.toLowerCase().includes(q))) {
+          if (!q || (rx.patientName || '').toLowerCase().includes(q) || (rx.items || []).some(it => (it.medicineName || '').toLowerCase().includes(q))) {
             items.push({
               id: `doc-rx-${rx.id}`,
               category: 'E-Prescription',
@@ -399,12 +406,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       // Census & Inpatients
       if (activeCategory === 'all' || activeCategory === 'census') {
         allPatients.filter(p => p.admissionStatus === 'Admitted' || p.admissionStatus === 'ICU').forEach(pat => {
-          if (!q || pat.name.toLowerCase().includes(q) || pat.diagnosis.toLowerCase().includes(q)) {
+          if (matchAny(pat.name, pat.diagnosis, pat.bedNumber, pat.ward)) {
             items.push({
               id: `nurse-pat-${pat.id}`,
               category: 'Census',
               title: `${pat.name} (Bed ${pat.bedNumber || '402'})`,
-              subtitle: `${pat.diagnosis} • Vitals: BP ${pat.vitals.bloodPressure}, SpO2 ${pat.vitals.oxygenSaturation}%`,
+              subtitle: `${pat.diagnosis || 'Clinical Care'} • Vitals: BP ${pat.vitals.bloodPressure}, SpO2 ${pat.vitals.oxygenSaturation}%`,
               tag: pat.admissionStatus,
               tagType: pat.admissionStatus === 'ICU' ? 'critical' : 'optimal',
               avatar: pat.avatar,
@@ -423,7 +430,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       // Beds in Ward 4
       if (activeCategory === 'all' || activeCategory === 'beds') {
         allBeds.forEach(bed => {
-          if (!q || bed.bedNumber.toLowerCase().includes(q) || bed.wardName.toLowerCase().includes(q)) {
+          if (matchAny(bed.bedNumber, bed.wardName, bed.patientName, bed.status)) {
             items.push({
               id: `nurse-bed-${bed.id}`,
               category: 'Bed',
@@ -539,14 +546,23 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     // ==============================================================
     // 5. HOSPITAL ADMIN PORTAL SCOPE (Standard Operations & Directory)
     // ==============================================================
+    const matchText = (val?: string | null) => (val || '').toLowerCase().includes(q);
+
     if (activeCategory === 'all' || activeCategory === 'patients') {
       allPatients.forEach(pat => {
-        if (!q || pat.name.toLowerCase().includes(q) || pat.patientCode.toLowerCase().includes(q) || pat.diagnosis.toLowerCase().includes(q)) {
+        if (
+          !q ||
+          matchText(pat.name) ||
+          matchText(pat.patientCode) ||
+          matchText(pat.diagnosis) ||
+          matchText(pat.ward) ||
+          matchText(pat.primaryDoctorName)
+        ) {
           items.push({
             id: `admin-pat-${pat.id}`,
             category: 'Patient',
             title: pat.name,
-            subtitle: `${pat.diagnosis} • Attending: Dr. ${pat.primaryDoctorName}`,
+            subtitle: `${pat.diagnosis || 'General Care'} • Attending: Dr. ${pat.primaryDoctorName || 'Assigned'}`,
             tag: pat.admissionStatus,
             tagType: pat.admissionStatus === 'ICU' ? 'critical' : 'optimal',
             meta: `${pat.patientCode} • ${pat.gender}, ${pat.age}y`,
@@ -565,12 +581,18 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
     if (activeCategory === 'all' || activeCategory === 'doctors') {
       allDoctors.forEach(doc => {
-        if (!q || doc.name.toLowerCase().includes(q) || doc.department.toLowerCase().includes(q)) {
+        if (
+          !q ||
+          matchText(doc.name) ||
+          matchText(doc.department) ||
+          matchText(doc.specialization) ||
+          matchText(doc.qualification)
+        ) {
           items.push({
             id: `admin-doc-${doc.id}`,
             category: 'Doctor',
             title: doc.name,
-            subtitle: `${doc.title} • ${doc.department}`,
+            subtitle: `${doc.title || doc.specialization} • ${doc.department}`,
             tag: doc.availability,
             tagType: doc.availability === 'Available' ? 'optimal' : 'elevated',
             avatar: doc.avatar,
@@ -582,16 +604,42 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           });
         }
       });
+
+      allStaff.forEach(st => {
+        if (!q || matchText(st.name) || matchText(st.role) || matchText(st.department)) {
+          items.push({
+            id: `admin-staff-${st.id}`,
+            category: 'Staff',
+            title: st.name,
+            subtitle: `${st.role} • ${st.department} (${st.shift})`,
+            tag: st.status,
+            tagType: st.status === 'On Duty' ? 'optimal' : 'neutral',
+            icon: Users,
+            onSelect: () => {
+              sound.playClick();
+              onNavigateTab('staff');
+              onClose();
+            }
+          });
+        }
+      });
     }
 
     if (activeCategory === 'all' || activeCategory === 'beds') {
       allBeds.forEach(bed => {
-        if (!q || bed.bedNumber.toLowerCase().includes(q) || bed.wardName.toLowerCase().includes(q)) {
+        if (
+          !q ||
+          matchText(bed.bedNumber) ||
+          matchText(bed.wardName) ||
+          matchText(bed.type) ||
+          matchText(bed.status) ||
+          matchText(bed.patientName)
+        ) {
           items.push({
             id: `admin-bed-${bed.id}`,
             category: 'Bed',
             title: `${bed.bedNumber} (${bed.wardName})`,
-            subtitle: bed.patientName ? `Occupied: ${bed.patientName}` : `Bed is available`,
+            subtitle: bed.patientName ? `Occupied: ${bed.patientName} • ${bed.type}` : `Bed is ${bed.status.toLowerCase()} • ${bed.type}`,
             tag: bed.status,
             tagType: bed.status === 'Available' ? 'optimal' : 'neutral',
             icon: BedIcon,
@@ -605,9 +653,76 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       });
     }
 
+    if (activeCategory === 'all' || activeCategory === 'appointments') {
+      allAppointments.forEach(apt => {
+        if (
+          !q ||
+          matchText(apt.patientName) ||
+          matchText(apt.doctorName) ||
+          matchText(apt.department) ||
+          matchText(apt.visitType)
+        ) {
+          items.push({
+            id: `admin-apt-${apt.id}`,
+            category: 'Appointment',
+            title: `${apt.patientName} — ${apt.visitType}`,
+            subtitle: `${apt.doctorName} (${apt.department}) • ${apt.date} ${apt.time}`,
+            tag: apt.status,
+            tagType: apt.status === 'Scheduled' ? 'optimal' : 'neutral',
+            icon: Calendar,
+            onSelect: () => {
+              sound.playClick();
+              onNavigateTab('appointments');
+              onClose();
+            }
+          });
+        }
+      });
+    }
+
+    if (activeCategory === 'all' || activeCategory === 'pharmacy') {
+      allMedicines.forEach(med => {
+        if (!q || matchText(med.name) || matchText(med.genericName) || matchText(med.category)) {
+          items.push({
+            id: `admin-med-${med.id}`,
+            category: 'Pharmacy',
+            title: med.name,
+            subtitle: `${med.genericName} • ${med.category} • Stock: ${med.stock}`,
+            tag: med.status,
+            tagType: med.stock <= med.minThreshold || med.status === 'Low Stock' ? 'elevated' : 'optimal',
+            icon: Pill,
+            onSelect: () => {
+              sound.playClick();
+              onNavigateTab('pharmacy');
+              onClose();
+            }
+          });
+        }
+      });
+
+      allLabOrders.forEach(lab => {
+        if (!q || matchText(lab.testName) || matchText(lab.patientName) || matchText(lab.status)) {
+          items.push({
+            id: `admin-lab-${lab.id}`,
+            category: 'Laboratory',
+            title: `${lab.testName} (${lab.patientName})`,
+            subtitle: `Ordered: ${lab.orderedDate} • Interpretation: ${lab.interpretation || 'Pending'}`,
+            tag: lab.status,
+            tagType: lab.status === 'Completed' ? 'optimal' : 'elevated',
+            icon: FlaskConical,
+            onSelect: () => {
+              sound.playClick();
+              onNavigateTab('lab');
+              onClose();
+            }
+          });
+        }
+      });
+    }
+
     if (activeCategory === 'all' || activeCategory === 'billing') {
       allInvoices.forEach(inv => {
-        if (!q || inv.invoiceNumber.toLowerCase().includes(q) || inv.patientName.toLowerCase().includes(q)) {
+        if (!q || matchText(inv.invoiceNumber) || matchText(inv.patientName) || matchText(inv.status)) {
           items.push({
             id: `admin-inv-${inv.id}`,
             category: 'Billing',
@@ -629,16 +744,23 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     if (activeCategory === 'all' || activeCategory === 'nav') {
       const adminNavs = [
         { title: 'Executive Operations Dashboard', subtitle: 'Facility census, capacity, and clinical safety index', tab: 'dashboard', icon: Building2 },
+        { title: 'Ward & Facility Overview', subtitle: 'Hospital-wide ward occupancy, operations KPIs, and exports', tab: 'ward', icon: BedIcon },
+        { title: 'Hospital Operations & Escalation Monitor', subtitle: 'Priority facility alerts, capacity warnings, and escalations', tab: 'monitoring', icon: AlertTriangle },
+        { title: 'Bed Management & Floorplan', subtitle: 'Interactive ward floorplan, admissions, and discharges', tab: 'beds', icon: BedIcon },
         { title: 'Patient Directory & EMR Records', subtitle: 'Comprehensive patient directory and 3D organ volumetry', tab: 'patients', icon: Users },
-        { title: 'Inpatient Ward & Bed Flow', subtitle: 'Inpatient census, ward telemetry, and bed allocations', tab: 'ward', icon: BedIcon },
+        { title: 'Doctor Directory & Schedules', subtitle: 'Specialists, availability status, and department rosters', tab: 'doctors', icon: Stethoscope },
+        { title: 'Appointments & Consultation Engine', subtitle: 'Clinic schedule, conflicts, and OPD bookings', tab: 'appointments', icon: Calendar },
+        { title: 'Clinical Staff & Nursing Rosters', subtitle: 'Shift coverage, unit allocation, and on-duty staff', tab: 'staff', icon: Users },
         { title: 'Hospital Central Pharmacy', subtitle: 'Formulary management, stock inventory, and dispensation', tab: 'pharmacy', icon: Pill },
         { title: 'Diagnostic Laboratory & Imaging', subtitle: 'STAT pathology tests, blood panels, and imaging orders', tab: 'lab', icon: FlaskConical },
         { title: 'Billing, Invoices & Claims', subtitle: 'GST invoices, insurance remittance, and payment gateway', tab: 'billing', icon: CreditCard },
+        { title: 'Hospital Analytics & Quality Reports', subtitle: 'ALOS, HCAHPS, departmental throughput, and CSV export', tab: 'analytics', icon: Activity },
+        { title: 'Electronic Medical Records (EMR)', subtitle: 'Clinical SOAP notes and patient medical charts', tab: 'emr', icon: FileText },
         { title: 'System Settings & Security', subtitle: 'Personal credentials, session security, and audit logs', tab: 'settings', icon: FileText }
       ];
 
       adminNavs.forEach(m => {
-        if (!q || m.title.toLowerCase().includes(q)) {
+        if (!q || matchText(m.title) || matchText(m.subtitle) || matchText(m.tab)) {
           items.push({
             id: `admin-nav-${m.tab}`,
             category: 'Module',
@@ -669,7 +791,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     allInvoices, 
     allPrescriptions, 
     allAppointments, 
-    allLabOrders, 
+    allLabOrders,
+    allMedicines,
+    allStaff,
     onNavigateTab, 
     onSelectPatient, 
     onClose
@@ -684,9 +808,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
+      if (results.length === 0) return;
       setSelectedIndex(prev => (prev + 1 < results.length ? prev + 1 : 0));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
+      if (results.length === 0) return;
       setSelectedIndex(prev => (prev - 1 >= 0 ? prev - 1 : results.length - 1));
     } else if (e.key === 'Enter') {
       e.preventDefault();
@@ -713,7 +839,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-20 p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-[60] flex items-start justify-center pt-16 sm:pt-20 p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-150"
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div 

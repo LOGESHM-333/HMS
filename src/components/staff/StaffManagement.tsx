@@ -38,11 +38,14 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ theme }) => {
     }
   };
 
-  const filteredStaff = staffList.filter(s =>
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.department.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredStaff = staffList.filter(s => {
+    const q = searchQuery.toLowerCase();
+    return (
+      (s.name || '').toLowerCase().includes(q) ||
+      (s.role || '').toLowerCase().includes(q) ||
+      (s.department || '').toLowerCase().includes(q)
+    );
+  });
 
   const totalPages = Math.ceil(filteredStaff.length / STAFF_PER_PAGE) || 1;
   const paginatedStaff = filteredStaff.slice((currentPage - 1) * STAFF_PER_PAGE, currentPage * STAFF_PER_PAGE);
@@ -58,7 +61,22 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({ theme }) => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative w-full sm:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search staff name, role, unit..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+              className={`w-full pl-10 pr-4 py-2 rounded-2xl text-xs border outline-none ${
+                isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-200 text-[#142C43]'
+              }`}
+            />
+          </div>
           <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
             {staffList.filter(s => s.status === 'On Duty').length} Active On Shift
           </span>

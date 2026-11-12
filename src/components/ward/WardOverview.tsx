@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { ThemeMode, UserRole, Patient } from '../../types';
 import { db } from '../../services/mockDatabase';
 import { sound } from '../../services/audioService';
+import { downloadCsvFile, CsvCell } from '../../utils/exportUtils';
 import { PatientDirectory } from '../patients/PatientDirectory';
 import { BedManagement } from '../beds/BedManagement';
 import { AppointmentManager } from '../appointments/AppointmentManager';
@@ -140,8 +141,64 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
   const handleExport = () => {
     sound.playClick();
-    setExportNotice('Hospital Admin Ward & Operations Report exported successfully');
-    setTimeout(() => setExportNotice(null), 3500);
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    const scopeSlug = wardsScope.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const filename = `MediCore_Hospital_Admin_${scopeSlug}_${dateStamp}.csv`;
+
+    const rows: CsvCell[][] = [
+      ['MediCore Hospital Administration - Ward & Operations Report'],
+      ['Generated At', new Date().toLocaleString('en-IN')],
+      ['Active View', activeSidebarItem],
+      ['Ward Scope', wardsScope],
+      ['Date Filter', dateFilter],
+      ['Comparison Period', periodFilter],
+      [],
+      ['Operational KPI', 'Value', 'Unit / Notes'],
+      ['Ward Bed Occupancy', `${occupancyPct}%`, `${occupiedBeds} of ${totalBeds} beds occupied (${availableBeds} available, ${cleaningBeds} cleaning, ${maintenanceBeds} maintenance)`],
+      ['Available Beds Ready', availableBeds, `${cleaningBeds} cleaning / turnover`],
+      ['Doctors Available', `${doctorsAvailable} / ${doctorsList.length}`, `${onDutyStaff} of ${staffList.length} clinical staff on duty`],
+      ['Pharmacy Low-Stock Alerts', lowStockMeds.length, `${medicinesList.length} total formulary medicines`],
+      ['Pending Lab Orders', pendingLabsCount, `${labOrdersList.length} total lab orders`],
+      ['Total Hospital Revenue (INR)', totalRevenueInr.toFixed(2), `${invoicesList.length} total invoices`],
+      ['Pending Receivables (INR)', pendingRevenueInr.toFixed(2), `${pendingInvoices.length} unpaid invoices`],
+      ['Registered Patients', patientsCount, 'Total census database'],
+      ['Active Inpatients / ICU', activeInpatients, `${icuPatientsCount} in Critical ICU`],
+      ['Scheduled Visits', appointmentsCount, 'Appointments across departments'],
+      ['Operational Alerts', alertsCount, 'High / critical priority alerts'],
+      [],
+      ['Bed Inventory Details'],
+      ['Bed Number', 'Ward Name', 'Bed Type', 'Status', 'Assigned Patient', 'Admitted Date'],
+      ...scopedBeds.map(bed => [
+        bed.bedNumber,
+        bed.wardName,
+        bed.type,
+        bed.status,
+        bed.patientName || 'Unassigned',
+        bed.admittedDate || '—'
+      ]),
+    ];
+
+    if (lowStockMeds.length > 0) {
+      rows.push(
+        [],
+        ['Pharmacy Low-Stock Alerts'],
+        ['Medicine Name', 'Generic Name', 'Category', 'Current Stock', 'Min Threshold', 'Status'],
+        ...lowStockMeds.map(med => [
+          med.name,
+          med.genericName,
+          med.category,
+          med.stock,
+          med.minThreshold,
+          med.status
+        ])
+      );
+    }
+
+    downloadCsvFile(filename, rows);
+    db.logAudit('Report Exported', 'Hospital Admin Operations', `Exported ${filename} (${scopedBeds.length} beds, ${wardsScope})`);
+    sound.playSuccess();
+    setExportNotice(`Downloaded ${filename}`);
+    setTimeout(() => setExportNotice(null), 4000);
   };
 
   const handleSidebarClick = (itemId: string) => {
@@ -185,16 +242,25 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
             {/* QUICK ACTIONS & LIVE STATUS */}
             <div className="flex flex-wrap items-center gap-3">
               {/* Search shortcut */}
-              <div 
-                onClick={onOpenSearch}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 text-xs cursor-pointer hover:border-slate-300 transition-colors shadow-xs"
+              <button
+                type="button"
+                onClick={() => {
+                  sound.playClick();
+                  if (onOpenSearch) {
+                    onOpenSearch();
+                  } else {
+                    window.dispatchEvent(new CustomEvent('medicore:open-search'));
+                  }
+                }}
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:text-slate-800 text-xs cursor-pointer hover:border-slate-300 transition-colors shadow-xs"
+                title="Open Global Search (Ctrl+K / Cmd+K)"
               >
                 <Search className="w-3.5 h-3.5" />
                 <span>Search</span>
                 <kbd className="ml-2 px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-[10px] font-mono text-slate-500">
                   ⌘K
                 </kbd>
-              </div>
+              </button>
 
 
               {/* Bell */}
@@ -228,8 +294,9 @@ export const WardOverview: React.FC<WardOverviewProps> = ({
 
               {/* Export button */}
               <button
+                type="button"
                 onClick={handleExport}
-                className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs flex items-center gap-1.5 shadow-xs transition-all"
+                className="px-3.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-95"
               >
                 <Download className="w-3.5 h-3.5 text-slate-500" />
                 <span>Export</span>
